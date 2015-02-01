@@ -95,7 +95,7 @@ def assemble(options):
     Test assemblies using ALLPATHS-LG.
     """
 
-    std_err_file = open('compress.log', 'a')
+    std_err_file = open('assemble.log', 'a')
 
     # The first thing step is to create the in_groups.csv and in_libs.csv.
 
@@ -114,10 +114,9 @@ Illumina_02,    assembly,    unknown,    jumping,    1,  ,   ,   3000,   500,   
 
         open(options.output_dir + '/assemble/' + compression_method + '/in_groups.csv', 'w').write(IN_GROUPS_CSV.replace('[FULL_PATH]', \
                 os.path.abspath(options.output_dir)).replace('[COMPRESSION]', compression_method))
-        open(options.output_dir + '/assemble/' + compression_method + '/in_libs.csv', 'w').write(IN_GROUPS_CSV.replace('[FULL_PATH]', \
-                os.path.abspath(options.output_dir)).replace('[COMPRESSION]', compression_method))
+        open(options.output_dir + '/assemble/' + compression_method + '/in_libs.csv', 'w').write(IN_LIBS_CSV)
 
-        ALLPATHS_CMD = "RunAllPathsLG PRE=" + options.output_dir + '/assemble/' + compression_method + " DATA_SUBDIR=. RUN=allpaths SUBDIR=run THREADS=32 OVERWRITE=True"
+        ALLPATHS_CMD = "RunAllPathsLG PRE=" + options.output_dir + '/assemble/' + compression_method + " DATA_SUBDIR=. REFERENCE_NAME=. RUN=allpaths SUBDIR=run THREADS=32 OVERWRITE=True"
         # RunAllPathsLG PRE=. REFERENCE_NAME=. DATA_SUBDIR=. RUN=allpaths SUBDIR=run THREADS=32 OVERWRITE=True
         # RunAllPathsLG PRE=/assemblies DATA=datadir RUN=allpaths SUBDIR=run THREADS=32 OVERWRITE=True
 
@@ -125,6 +124,7 @@ Illumina_02,    assembly,    unknown,    jumping,    1,  ,   ,   3000,   500,   
         #output_fp = open(options.output_dir + '/goodbad/' + os.path.basename(reads_filename), 'w')
 
         out_cmd("", std_err_file.name, call_arr)
+        call(call_arr, stderr=std_err_file)
 
 
 def align_reads(options):
