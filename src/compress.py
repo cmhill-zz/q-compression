@@ -148,18 +148,22 @@ Illumina_02,\tassembly,\tunknown,\tjumping,\t1,\t,\t,\t3000,\t500,\toutward,\t,\
 
         call_arr = PREPARE_CMD.split()
         out_cmd("", std_err_file.name, call_arr)
+        call(call_arr, stderr=std_err_file)
 
-        # Run AllpathsLG
-        ALLPATHS_CMD = "RunAllPathsLG PRE=" + os.path.abspath(options.output_dir) + '/assemble/' + compression_method + " DATA_SUBDIR=. RUN=allpaths SUBDIR=run THREADS=32 OVERWRITE=True"
-        # RunAllPathsLG PRE=. REFERENCE_NAME=. DATA_SUBDIR=. RUN=allpaths SUBDIR=run THREADS=32 OVERWRITE=True
-        # RunAllPathsLG PRE=/assemblies DATA=datadir RUN=allpaths SUBDIR=run THREADS=32 OVERWRITE=True
-
-        call_arr = ALLPATHS_CMD.split()
-        #output_fp = open(options.output_dir + '/goodbad/' + os.path.basename(reads_filename), 'w')
-
+        # For AllpathsLG to run successfully, need to have a PLOIDY file present.
+        PLOIDY_CMD="echo \"1\""
+        call_arr = PLOIDY_CMD.split()
         out_cmd("", std_err_file.name, call_arr)
         call(call_arr, stderr=std_err_file)
 
+        # Run AllpathsLG
+        ALLPATHS_CMD = "RunAllPathsLG PRE=" + os.path.abspath(options.output_dir) + '/assemble/' + compression_method + " DATA_SUBDIR=. RUN=allpaths SUBDIR=run THREADS=32 OVERWRITE=True REFERENCE_NAME=."
+        call_arr = ALLPATHS_CMD.split()
+        out_cmd("", std_err_file.name, call_arr)
+        call(call_arr, stderr=std_err_file)
+
+        # /cbcb/project-scratch/cmhill/metalap/calc_prob.py -1 original/frag_1.fastq -2 original/frag_2.fastq -q -a decomp_0/allpaths/ASSEMBLIES/run/final.assembly.fasta  -I 0 -X 500  -m 180 -t 18  -p 32
+        
 
 def align_reads(options):
     """
