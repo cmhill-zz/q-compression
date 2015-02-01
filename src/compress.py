@@ -120,7 +120,7 @@ def assemble(options):
     Test assemblies using ALLPATHS-LG.
     """
 
-    std_err_file = open('compress.log', 'a')
+    std_err_file = open('assemble.log', 'a')
 
     # The first thing step is to create the in_groups.csv and in_libs.csv.
 
@@ -158,6 +158,7 @@ Illumina_02,\tassembly,\tunknown,\tjumping,\t1,\t,\t,\t3000,\t500,\toutward,\t,\
         #output_fp = open(options.output_dir + '/goodbad/' + os.path.basename(reads_filename), 'w')
 
         out_cmd("", std_err_file.name, call_arr)
+        call(call_arr, stderr=std_err_file)
 
 
 def align_reads(options):
