@@ -64,6 +64,27 @@ def compress(options):
 
         # Profile regression.
 
+
+    # After we compress/decompress everything, write out the quality values to a separate file and then run bzip on them.
+    for compression_method in options.compressed_dirs:
+        for reads_filename in options.reads_filenames:
+            from itertools import islice
+
+            decompressed_file = options.output_dir + '/' + compression_method + '/' + os.path.basename(reads_filename)
+
+            with open(decompressed_file) as fin, open(decompressed_file + '.quals', 'w') as fout:
+                fout.writelines(islice(fin, 3, None, 4))
+            
+            # Even though we do it in python, output the awk command in case someone runs it independently.
+            cmd = 'awk \'{if (NR % 4 == 0) print $0}\' ' + options.output_dir + '/' + compression_method + '/' + os.path.basename(reads_filename)
+            out_cmd(decompressed_file + '.quals', std_err_file.name, 'awk \'{if (NR % 4 == 0) print $0}\''.split())
+            
+            # Bzip2 the quality values.
+            cmd = "bzip2 -k " + options.output_dir + '/' + compression_method + '/' + os.path.basename(reads_filename) + '.quals'
+            out_cmd("", std_err_file.name, cmd.split())
+            call(cmd.split(), stderr=std_err_file)
+
+
     std_err_file.close()
 
     pass
@@ -80,6 +101,10 @@ def calc_mean_squared_error(options):
     """
     Calculate mean squared error between the original and decompressed reads.
     """
+
+    for compression_method in options.compressed_dirs:
+        for reads_filename in options.reads_filenames:
+            pass
     pass
 
 
@@ -99,13 +124,13 @@ def assemble(options):
 
     # The first thing step is to create the in_groups.csv and in_libs.csv.
 
-    IN_GROUPS_CSV = """group_name, library_name,   file_name
-frag,   Illumina_01,   [FULL_PATH]/[COMPRESSION]/frag_*.fastq 
-shortjump,  Illumina_02,    [FULL_PATH]/[COMPRESSION]/shortjump_*.fastq"""
+    IN_GROUPS_CSV = """group_name,\tlibrary_name,\tfile_name
+frag,\tIllumina_01,\t[FULL_PATH]/[COMPRESSION]/frag_*.fastq
+shortjump,\tIllumina_02,\t[FULL_PATH]/[COMPRESSION]/shortjump_*.fastq"""
 
-    IN_LIBS_CSV = """library_name,   project_name,   organism_name,  type,   paired, frag_size,  frag_stddev,    insert_size,    insert_stddev,  read_orientation,   genomic_start,  genomic_end
-Illumina_01,    assembly,    unknown,    fragment,   1,  180,    10, ,   ,   inward, ,   
-Illumina_02,    assembly,    unknown,    jumping,    1,  ,   ,   3000,   500,    outward,    ,"""
+    IN_LIBS_CSV = """library_name,\tproject_name,\torganism_name,\ttype,\tpaired,\tfrag_size,\tfrag_stddev,\tinsert_size,\tinsert_stddev,\tread_orientation,\tgenomic_start,\tgenomic_end
+Illumina_01,\tassembly,\tunknown,\tfragment,\t1,\t180,\t10,\t,\t,\tinward,\t,\t
+Illumina_02,\tassembly,\tunknown,\tjumping,\t1,\t,\t,\t3000,\t500,\toutward,\t,\t"""
 
     #print(IN_GROUPS_CSV.replace('[FULL_PATH]', os.path.abspath(options.output_dir)).replace('[COMPRESSION]', 'goodbad'))
 
@@ -114,10 +139,18 @@ Illumina_02,    assembly,    unknown,    jumping,    1,  ,   ,   3000,   500,   
 
         open(options.output_dir + '/assemble/' + compression_method + '/in_groups.csv', 'w').write(IN_GROUPS_CSV.replace('[FULL_PATH]', \
                 os.path.abspath(options.output_dir)).replace('[COMPRESSION]', compression_method))
-        open(options.output_dir + '/assemble/' + compression_method + '/in_libs.csv', 'w').write(IN_GROUPS_CSV.replace('[FULL_PATH]', \
-                os.path.abspath(options.output_dir)).replace('[COMPRESSION]', compression_method))
+        open(options.output_dir + '/assemble/' + compression_method + '/in_libs.csv', 'w').write(IN_LIBS_CSV)
 
-        ALLPATHS_CMD = "RunAllPathsLG PRE=" + options.output_dir + '/assemble/' + compression_method + " DATA_SUBDIR=. RUN=allpaths SUBDIR=run THREADS=32 OVERWRITE=True"
+        # Prepare the input for AllpathsLG.
+        PREPARE_CMD = 'PrepareAllPathsInputs.pl DATA_DIR=' + os.path.abspath(options.output_dir) + '/assemble/' + compression_method + \
+                ' IN_GROUPS_CSV=' + os.path.abspath(options.output_dir) + '/assemble/' + compression_method + '/in_groups.csv' + \
+                ' IN_LIBS_CSV=' + os.path.abspath(options.output_dir) + '/assemble/' + compression_method + '/in_libs.csv'
+
+        call_arr = PREPARE_CMD.split()
+        out_cmd("", std_err_file.name, call_arr)
+
+        # Run AllpathsLG
+        ALLPATHS_CMD = "RunAllPathsLG PRE=" + os.path.abspath(options.output_dir) + '/assemble/' + compression_method + " DATA_SUBDIR=. RUN=allpaths SUBDIR=run THREADS=32 OVERWRITE=True"
         # RunAllPathsLG PRE=. REFERENCE_NAME=. DATA_SUBDIR=. RUN=allpaths SUBDIR=run THREADS=32 OVERWRITE=True
         # RunAllPathsLG PRE=/assemblies DATA=datadir RUN=allpaths SUBDIR=run THREADS=32 OVERWRITE=True
 
@@ -177,6 +210,9 @@ def get_options():
     # Output parameters.
     parser.add_option("-o", "--output_dir", dest="output_dir", help="Output directory.")
 
+    # Pipeline options.
+    parser.add_option("-a", "--assemble", dest="assemble", help="Run assembly evaluation", action='store_true')
+
     (options, args) = parser.parse_args()
 
     return (options,args)
@@ -209,7 +245,8 @@ def main():
     compress(options)
 
     # Assemble the sequences with ALLPATHS-LG.
-    assemble(options)
+    if options.assemble:
+        assemble(options)
 
 
 
