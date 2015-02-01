@@ -40,7 +40,7 @@ with open(file1, 'r') as in1:
             diff_histogram += diffcounts
 
 mses = np.array(mses)
-print 'mean/std mse', mses.mean(), mses.std()
+print mses.mean(),'\t',mses.std()
 #hist = np.histogram(mses, bins=50)
 #print 'error histogram', diff_histogram
 

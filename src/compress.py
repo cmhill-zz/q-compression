@@ -85,6 +85,9 @@ def compress(options):
             call(cmd.split(), stderr=std_err_file)
 
 
+    # Calculate the information lost from compression.
+    calc_mean_squared_error(options)
+
     std_err_file.close()
 
     pass
@@ -102,10 +105,18 @@ def calc_mean_squared_error(options):
     Calculate mean squared error between the original and decompressed reads.
     """
 
+    std_err_file = open('mse.log', 'w')
+
     for compression_method in options.compressed_dirs:
+        if compression_method == 'original':
+            continue
+
         for reads_filename in options.reads_filenames:
-            pass
-    pass
+            MSE_CMD = "python src/evaluate_loss.py " + options.output_dir + '/original/' + os.path.basename(reads_filename) + '.quals' + '\t' + \
+                    options.output_dir + '/' + compression_method + '/' + os.path.basename(reads_filename) + '.quals'
+            mse_std_out = open(options.output_dir + '/' + compression_method + '/' + os.path.basename(reads_filename) + '.mse', 'w')
+            out_cmd(mse_std_out.name, std_err_file.name, MSE_CMD.split())
+            call(MSE_CMD.split(), stdout=mse_std_out, stderr=std_err_file)
 
 
 def quality_preprocessing(options):
@@ -151,10 +162,11 @@ Illumina_02,\tassembly,\tunknown,\tjumping,\t1,\t,\t,\t3000,\t500,\toutward,\t,\
         call(call_arr, stderr=std_err_file)
 
         # For AllpathsLG to run successfully, need to have a PLOIDY file present.
-        PLOIDY_CMD="echo \"1\""
+        PLOIDY_CMD = "echo 1"
         call_arr = PLOIDY_CMD.split()
-        out_cmd("", std_err_file.name, call_arr)
-        call(call_arr, stdout=open(options.output_dir + '/assemble/' + compression_method + 'ploidy', 'w'), stderr=std_err_file)
+        ploidy_file = open(options.output_dir + '/assemble/' + compression_method + '/ploidy', 'w')
+        out_cmd(ploidy_file.name, std_err_file.name, call_arr)
+        call(call_arr, stdout=ploidy_file, stderr=std_err_file)
 
         # Run AllpathsLG
         ALLPATHS_CMD = "RunAllPathsLG PRE=" + os.path.abspath(options.output_dir) + '/assemble/' + compression_method + " DATA_SUBDIR=. RUN=allpaths SUBDIR=run THREADS=32 OVERWRITE=True REFERENCE_NAME=."
