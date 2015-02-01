@@ -60,9 +60,9 @@ def compress(options):
         out_cmd(options.output_dir + '/goodbad/' + os.path.basename(reads_filename), std_err_file.name, call_arr)
         call(call_arr, stdout=output_fp, stderr=std_err_file)
 
-        # Polynomial regression.
+        # TODO: Polynomial regression.
 
-        # Profile regression.
+        # TODO: Profile regression.
 
 
     # After we compress/decompress everything, write out the quality values to a separate file and then run bzip on them.
@@ -93,13 +93,6 @@ def compress(options):
     pass
 
 
-def decompress(options):
-    """
-    After compressing the reads, decompress them. so they can be used in downstream analyses.
-    """
-    pass
-
-
 def calc_mean_squared_error(options):
     """
     Calculate mean squared error between the original and decompressed reads.
@@ -108,8 +101,8 @@ def calc_mean_squared_error(options):
     std_err_file = open('mse.log', 'w')
 
     for compression_method in options.compressed_dirs:
-        if compression_method == 'original':
-            continue
+        #if compression_method == 'original':
+        #    continue
 
         for reads_filename in options.reads_filenames:
             MSE_CMD = "python src/evaluate_loss.py " + options.output_dir + '/original/' + os.path.basename(reads_filename) + '.quals' + '\t' + \
@@ -179,9 +172,31 @@ Illumina_02,\tassembly,\tunknown,\tjumping,\t1,\t,\t,\t3000,\t500,\toutward,\t,\
 
 def align_reads(options):
     """
-
+    Evaluate how all decompressed reads align with Bowtie2.
     """
-    pass
+
+    std_err_file = open('alignment.log', 'a')
+
+    # Construct the Bowtie2 index.
+    ensure_dir(options.output_dir + "/align/")
+    BOWTIE2_INDEX_CMD = "bowtie2-build " + options.reference_fasta +  " " + options.output_dir + "/align/reference"
+    call_arr = BOWTIE2_INDEX_CMD.split()
+    out_cmd("", "", call_arr)
+    call(call_arr, stderr=std_err_file)
+
+    # Align the reads.
+    BOWTIE2_CMD = "bowtie2 -x " + options.output_dir + "/align/reference -U [READ] "
+
+    for compression_method in options.compressed_dirs:
+        for reads_filename in options.reads_filenames:
+
+            alignment_filename = options.output_dir + '/align/' + compression_method + '/' + os.path.basename(reads_filename) + '.alignment_summary'
+            ensure_dir(alignment_filename)
+            alignment_file = open(alignment_filename, 'w')
+
+            call_arr = BOWTIE2_CMD.replace('[READ]', reads_filename).split()
+            out_cmd(FNULL.name, alignment_filename, call_arr)
+            call(call_arr, stdout=FNULL, stderr=alignment_file)
 
 
 """
@@ -223,12 +238,15 @@ def get_options():
     parser.add_option("-r", "--reads", dest="unpaired_reads_filenames", help="Unpaired FASTQ filenames.")
     parser.add_option("-1", "--first", dest="first_mate_filenames", help="First mate FASTQ filenames.")
     parser.add_option("-2", "--second", dest="second_mate_filenames", help="Second mate FASTQ filenames.")
+    parser.add_option("-f", "--reference", dest="reference_fasta", help="Reference FASTA filename.")
 
     # Output parameters.
     parser.add_option("-o", "--output_dir", dest="output_dir", help="Output directory.")
 
     # Pipeline options.
     parser.add_option("-a", "--assemble", dest="assemble", help="Run assembly evaluation", action='store_true')
+    parser.add_option("-p", "--preprocessing", dest="preprocessing", help="Run preprocessing tools evaluation", action='store_true')
+    parser.add_option("-b", "--alignment", dest="alignment", help="Run alignment evaluation (using Bowtie2).", action='store_true')
 
     (options, args) = parser.parse_args()
 
@@ -265,6 +283,9 @@ def main():
     if options.assemble:
         assemble(options)
 
+    # Align the reads using Bowtie2.
+    if options.alignment:
+        align_reads(options)
 
 
 if __name__ == '__main__':
