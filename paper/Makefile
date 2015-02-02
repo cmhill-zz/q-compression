@@ -7,7 +7,7 @@ compression.pdf: document.tex
 	mv document.pdf ${OUTNAME}
 
 clean:
-	rm -rf document*.pdf
+	rm -rf compression*.pdf
 	rm -f document.log 
 	rm -f document.dvi 
 	rm -f document.aux 
