@@ -47,7 +47,7 @@ bioinformatic analyses using sequence read data.
 
 \section{Results:}
 Lossy compression of quality information can greatly decrease storage
-and memory requirements with little discernable effects on subsequent
+and memory requirements with little descernable effects on subsequent
 analysis results. The four compression strategies in this study were
 able to produce similar results to those obtained with uncompressed
 quality sequences in terms of quality control, genome assembly, and
@@ -94,7 +94,7 @@ between storing effectively double the amount of data and the
 resulting effects on subsequent analyses has not been
 well-documented. Previous literature on sequence data compression has
 largely focused on lossless compression of base
-calls~\cite{Giancarlo:2009fk,Nalbantoglu:2010uq,Zhu:2013qr,Giancarlo:2014rw}.
+calls~\cite{Giancarlo:2009fk,Nalbantoglu:2010uq,Zhu:2013qr,Deorowicz:2013hq,Giancarlo:2014rw}.
 If a reference exists for the biological data, sequences can be
 compressed using offsets into the
 reference~\cite{Kozanitis:2011kl}. Typical compression methods fail to
@@ -153,7 +153,7 @@ The last approach we investigated is based on transforming the
 original data into a wholly different representation for which
 efficient and proven compression algorithms already exist. In this
 study, we described a way of reducing the problem of quality
-compression to image compression via blockwise quality data
+compression to image compression via block-wise quality data
 transformation. This approach is different from the others in that
 depending on the image compression algorithm used it is not restricted
 to lossy techniques.
@@ -222,8 +222,8 @@ values that it would have yielded after decompression still makes some
 sense as it alters the properties of the quality data, making it
 highly compressible simply due to the smoothing effect it
 provides. Therefore the compression ratio and bits per bp values for
-polynomial regression throughout this manuscript refer to bzipped
-polynomially approximated quality values.
+polynomial regression throughout this manuscript refer to 
+polynomially approximated quality values compressed with zip.
 
 \subsection{Profile-based compression}
 
@@ -442,7 +442,7 @@ noticeably in the amount of SNPs. The order of polynomial has an
 inverse relationship with the amount of SNPs detected. The good/bad,
 profile and PNG methods detected the least amount of SNPs compared to
 the reference genome, outperforming the assembly using the original
-quality sequences. A more indepth evaulation is needed to determine
+quality sequences. A more in-depth evaluation is needed to determine
 whether these compression methods are missing actual SNPs.
 
 It is important to highlight the result that the 4th-order polynomial
@@ -450,7 +450,7 @@ regression outperforms the 5th-order in all of the reference-based
 metrics, but not the \emph{de novo} LAP metrics. The 5th-order
 polynomial regression assembles approximately 2.5 kb more sequence and
 uses roughly $1.2\%$ more of the total read set than the 4th-order
-(Supplemental Table 1), which may explain the discrepency in LAP
+(Supplemental Table 1), which may explain the descrepency in LAP
 values because the LAP value is influenced by total
 coverage~\cite{Ghodsi:2013hb}.
 
