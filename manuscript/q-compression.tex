@@ -128,7 +128,7 @@ differences between the compressed and original versions, but also the
 effect of lossy compression on typical subsequent analyses.
 
 We examine three general classes of lossy compression methods:
-binning, model-based, and profile-based.
+binning, modeling, and profiling.
 
 One compression strategy is to look at the distribution of quality
 values and see if we can summarize the information contained within
@@ -183,27 +183,29 @@ distribution of the quality values need to be made.
 Because we only have two possible choices for a quality of base, this
 makes a straightforward binary encoding possible, allowing us to use a
 single bit to represent the quality of a base instead of the default 8
-bits used to store quality values in \textsc{ascii}.
+bits used to store quality values in \textsc{ascii}. An additional
+benefit of 2-bin encoding is the potential for increased adjacency of
+identical values and repeating patterns, properties that may increase
+effectiveness of subsequent compression using established
+algorithms~\cite[e.g.,][]{HUFFMAN:1952nr,Ziv77auniversal,DBLP:journals/tit/ZivL78}.
 
 Although simple and intuitive, considering a base as either good or
 bad may be too limiting for some users, so we provide a few additional
 options to preserve more of the defining characteristics of the
 quality values, but we only analyze 2-bin encoding in our results.
 
-\subsection{Polynomial regression}
+\subsection{Modeling}
 
-One approach to compressing quality values is to treat them as
-bivariate data with the ordered nucleotides (1 to read length)
-representing the abscissa, and quality values representing the
-ordinate. Viewed in this way we can ask the question: is there a
-mathematical function that describes the relationship between read
-position and quality value sufficiently, albeit imperfectly (i.e.,
-with some loss of information), such that modeled values perform well
-in subsequent analyses?
+If quality values are modeled compression is conceivably possible by
+replacing the original quality values by a representation of the
+model. For example, quality values can be conceptualized as bivariate
+data with the ordered nucleotides (1 to read length) representing the
+abscissa, and quality values representing the ordinate. In this
+research we model read quality values as polynomial functions obtained
+with least-squares fitting, as one approach to compression read
+quality values by modeling.
 
-To this end, we modeled read quality sequences with zero to
-fifth-degree polynomials obtained with least-squares fitting. However,
-despite the fact that polynomial functions have significantly lower
+Despite the fact that polynomial functions have significantly lower
 number of parameters (i.e. one to six coefficients) than a read-length
 string of raw quality values, the necessity of using floating point
 numbers to store coefficients greatly limits the compression potential
@@ -213,15 +215,7 @@ relax on the least-squares approximation constraint to obtain
 compressible values on the byte level which is outside the scope of
 this study.
 
-Nonetheless, fitting a polynomial and reconstructing the quality
-values that it would have yielded after decompression still makes some
-sense as it alters the properties of the quality data, making it
-highly compressible simply due to the smoothing effect it
-provides. Therefore the compression ratio and bits/base-call values
-for polynomial regression throughout this manuscript refer to
-polynomially approximated quality values compressed with zip.
-
-\subsection{Profile-based compression}
+\subsection{Profiling}
 
 As large sets of quality strings show similar trends of quality over
 their sequence, it makes sense to identify such common patterns in the
@@ -319,7 +313,7 @@ detailed below.
 
 \section{Results}
 
-\subsection{Compressibility}
+\subsection{Compressibility versus error}
 
 For any lossy compression method, we need to evaluate the tradeoff
 between its physical compression and the loss in its accuracy. Here,
