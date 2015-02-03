@@ -101,8 +101,6 @@ def calc_mean_squared_error(options):
     std_err_file = open('mse.log', 'w')
 
     for compression_method in options.compressed_dirs:
-        #if compression_method == 'original':
-        #    continue
 
         for reads_filename in options.reads_filenames:
             MSE_CMD = "python src/evaluate_loss.py " + options.output_dir + '/original/' + os.path.basename(reads_filename) + '.quals' + '\t' + \
@@ -116,7 +114,48 @@ def quality_preprocessing(options):
     """
     Examine the effects of lossy compression on quality preprocessing tools.
     """
-    pass
+    std_err_file = open('preprocessing.log', 'w')
+
+    SICKLE_CMD = "sickle se -f [READ] -t sanger -o [OUTPUT]"
+
+    for compression_method in options.compressed_dirs:
+
+        for reads_filename in options.reads_filenames:
+            output_filename = options.output_dir + '/preprocessing/' + compression_method + '/' + os.path.basename(reads_filename)
+            ensure_dir(output_filename)
+
+            stats_file = open(options.output_dir + '/preprocessing/' + compression_method + '/' + os.path.basename(reads_filename) + '.stats', 'w')
+
+            call_arr = SICKLE_CMD.replace('[READ]', options.output_dir + '/' + compression_method + '/' + reads_filename).replace('[OUTPUT]', output_filename).split()
+            out_cmd("", stats_file.name, call_arr)
+            call(call_arr, stdout=stats_file)
+
+            # Process the stats file to get the relevant information.
+            """Output stats file is in the format of:
+
+            SE input file: tmp/goodbad/frag_small_2.fastq
+
+            Total FastQ records: 200
+            FastQ records kept: 138
+            FastQ records discarded: 62
+            """
+
+            # Parse the above to get how many records were kept.
+            for line in open(stats_file.name, 'r').readlines():
+                if line.startswith('FastQ records kept:'):
+                    records_kept = line.strip().split()[3]
+                    open(stats_file.name + '.records_kept', 'w').write(records_kept + '\n')
+
+            # Find out many bases were kept.
+            line_number = 1
+            bases = 0
+            for line in open(output_filename, 'r'):
+                if (line_number % 4) == 2:
+                    bases += len(line.strip())
+                line_number += 1
+
+            open(stats_file.name + '.bases', 'w').write(str(bases) + '\n')
+
 
 
 def assemble(options):
@@ -194,7 +233,7 @@ def align_reads(options):
             ensure_dir(alignment_filename)
             alignment_file = open(alignment_filename, 'w')
 
-            call_arr = BOWTIE2_CMD.replace('[READ]', reads_filename).split()
+            call_arr = BOWTIE2_CMD.replace('[READ]', options.output_dir + '/' + compression_method + '/' + reads_filename).split()
             out_cmd(FNULL.name, alignment_filename, call_arr)
             call(call_arr, stdout=FNULL, stderr=alignment_file)
 
@@ -248,6 +287,7 @@ def get_options():
     parser.add_option("-p", "--preprocessing", dest="preprocessing", help="Run preprocessing tools evaluation", action='store_true')
     parser.add_option("-b", "--alignment", dest="alignment", help="Run alignment evaluation (using Bowtie2).", action='store_true')
 
+
     (options, args) = parser.parse_args()
 
     return (options,args)
@@ -283,9 +323,14 @@ def main():
     if options.assemble:
         assemble(options)
 
+    # Carry out preprocessing evaluation with SICKLE.
+    if options.preprocessing:
+        quality_preprocessing(options)
+
     # Align the reads using Bowtie2.
     if options.alignment:
         align_reads(options)
+
 
 
 if __name__ == '__main__':
