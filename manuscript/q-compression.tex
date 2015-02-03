@@ -149,15 +149,6 @@ elements. If one could partition the data into such classes, each of
 those would be efficiently representable with a single consensus
 profile.
 
-The last approach we investigated is based on transforming the
-original data into a wholly different representation for which
-efficient and proven compression algorithms already exist. In this
-study, we described a way of reducing the problem of quality
-compression to image compression via block-wise quality data
-transformation. This approach is different from the others in that
-depending on the image compression algorithm used it is not restricted
-to lossy techniques.
-
 \begin{methods}
 \section{Methods}
 
@@ -339,15 +330,11 @@ and short-jump libraries of the \textit{Rhodobacter sphaeroides} 2.4.1
 data set (Figures \ref{fig:mse_vs_bpbp_frag} and
 \ref{fig:mse_vs_bpbp_jump}). Storing the uncompressed quality values
 requires 1 \emph{byte} per basepair because they are stored in
-\textsc{ascii} format; however, losslessly compressing the values with
+\textsc{ascii} format; however, lossless compression of the values with
 BZip2 2.112 bits per basepair. 0-order polynomial regression and
 32-profile encodings have the lowest bits per bp. 5th-order polynomial
-regression and \textsc{png} encodings have the highest bits per bp,
-but have among the lowest \textsc{mse}. Despite having similar bits
-per bp, \textsc{png} encoding has roughly one third the \textsc{mse}
-as 5th-order polynomial (3.07 vs 10.27, respectively).
-
-As the order of the polynomial increases, the bits per bp increase and
+regression has the highest bits per bp,
+but have among the lowest \textsc{mse}. As the order of the polynomial increases, the bits per bp increase and
 the \textsc{mse} decreases at an exponential rate.
 
 \begin{figure}[!tpb]%figure2
@@ -356,9 +343,7 @@ the \textsc{mse} decreases at an exponential rate.
   applied to the fragment library from \textit{Rhodobacter
     sphaeroides} 2.4.1 data set. G/B: Good/Bad encoding. P32 and P256:
   Quality profile compression with 32 and 256 profiles. R0-R5:
-  Polynomial regression-based compression using 0-5 degrees. PNG:
-  Blockwise image compres the generated SAM file for each compressing
-  approach weresion algorithm. Dashed line corresponds to lossless
+  Polynomial regression-based compression using 0-5 degrees. Dashed line corresponds to lossless
   bzip compression of quality values. \em}\label{fig:mse_vs_bpbp_frag}
 \end{figure}
 
@@ -368,8 +353,7 @@ the \textsc{mse} decreases at an exponential rate.
   applied to the short-jump library from \textit{Rhodobacter
     sphaeroides} 2.4.1 data set. G/B: Good/Bad encoding. P32 and P256:
   Quality profile compression with 32 and 256 profiles. R0-R5:
-  Polynomial regression-based compression using 0-5 degrees. PNG:
-  Blockwise image compression algorithm. Dashed line corresponds to
+  Polynomial regression-based compression using 0-5 degrees. Dashed line corresponds to
   lossless bzip compression of quality
   values. \em}\label{fig:mse_vs_bpbp_jump}
 \end{figure}
@@ -408,7 +392,7 @@ set provided by \textsc{gage} (Genome Assembly Gold-Standard
 Evaluations)~\cite{Salzberg:2012rc}. \textsc{allpaths-lg} is used to
 assemble the original data along with the quality compressed versions
 using good/bad encoding, 0--5th-order polynomial regression encodings,
-32- and 256-profile encodings, and \textsc{png} encoding. We evaluate
+and 32- and 256-profile encodings. We evaluate
 the assembly based on contiguity statistics, log average read
 probability (LAP~\cite{Ghodsi:2013hb}), and a collection of
 reference-based metrics. The contiguity statistics include number of
@@ -428,8 +412,8 @@ competition~\cite{Earl:2011fv}.
 The assembly using the uncompressed reads outperforms all compression
 methods in terms of LAP, NG50, relocations, translations, and
 inversions (Table \ref{tab:assembly_ranks}). Among the compression
-methods, the \textsc{png} encoding had the highest rank, followed by
-256- and 32-profile encoding, then the 4th-order polynomial
+methods, the 
+256- and 32-profile encoding had the highest rank, then the 4th-order polynomial
 regression, the 5th-order polynomial regression, the good/bad
 encoding, and lastly, the 3rd through 0-order polynomials.
 
@@ -439,8 +423,8 @@ sequences. All compression methods other than 0-order polynomial
 regression produce an NG50 ranging from 3.18--3.19 Mbps. Despite the
 similar contiguity statistics, the different compression methods vary
 noticeably in the amount of SNPs. The order of polynomial has an
-inverse relationship with the amount of SNPs detected. The good/bad,
-profile and PNG methods detected the least amount of SNPs compared to
+inverse relationship with the amount of SNPs detected. The good/bad and
+profile methods detected the least amount of SNPs compared to
 the reference genome, outperforming the assembly using the original
 quality sequences. A more in-depth evaluation is needed to determine
 whether these compression methods are missing actual SNPs.
@@ -469,7 +453,6 @@ coverage~\cite{Ghodsi:2013hb}.
 Compression            & rank & \textsc{snp}s & Inversions & Relocations & Translocations & Indels & fragment & short-jump \\
 \hline
 None                   & 1    & 5    & 1          & 1           & 1              & 1      & 1          & 1                    \\
-PNG                    & 2    & 4    & 1          & 2           & 2              & 3      & 4          & 2                    \\
 Profile (256)          & 3    & 2    & 1          & 3           & 3              & 4      & 2          & 4                    \\
 Profile (32)           & 4    & 3    & 1          & 4           & 6              & 5      & 3          & 3                    \\
 Regression (4th order) & 5    & 6    & 1          & 6           & 5              & 2      & 7          & 8                    \\
@@ -522,10 +505,7 @@ file. In short-run sample, the average number of mapped reads is 99.14
 the decompressed file.The average missed alignments are
 1.2\%. Regression with the 5th polynomial order captured the highest
 mapped reads of 100\%, within which 99.66\% are common and only 0.33\%
-unique mapped reads in the decompressed file. In both samples,
-\textsc{png} compression has the least number of mapped reads that are
-unique in the decompressed files (only 0.013\% and 0.89\% in the
-fragments and short-jump samples, respectively).
+unique mapped reads in the decompressed file. 
 
 \begin{table*}[!tbhp]
 \centering
@@ -554,7 +534,6 @@ fragments and short-jump samples, respectively).
 	&Regression (5th order) & 99.79 & 99.75 & 0.25 & 0.03 \\
 	&Profile (32) & 99.9 & 99.86 & 0.14 & 0.04 \\ 
 	&Profile (256) & 99.95 & 99.92 & 0.08 & 0.03 \\
-	&PNG & 99.82 & 99.81 & 0.19 & 0.01 \\ 
 
 \\ \hline \\
 
@@ -569,7 +548,6 @@ fragments and short-jump samples, respectively).
 	&Regression (5th order) & 100 & 99.67 & 0.33 & 0.33 \\ 
 	&Profile (32) & 99.74 & 99.44 & 0.56 & 0.3 \\
 	&Profile (256) & 99.76 & 99.52 & 0.48 & 0.24 \\
-	&PNG & 99.71 & 99.62 & 0.38 & 0.09 \\ \hline
 \end{tabular}
 
 \label{tab:aligner}
@@ -595,7 +573,6 @@ fragments and short-jump samples, respectively).
 	Regression (5th order) & 95.56 & 98.09 & 93.92 & 98.02 \\ 
 	Profile (32) & 99.12 & 98.96 & 102.89 & 102.24 \\
 	Profile (256) & 100 & 99.8 & 102.66 & 101.27 \\
-	PNG & 99.62 & 99.75 & 99.84 & 99 \\ \hline
 \end{tabular}
 \end{table}
 
