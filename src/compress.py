@@ -126,7 +126,7 @@ def quality_preprocessing(options):
 
             stats_file = open(options.output_dir + '/preprocessing/' + compression_method + '/' + os.path.basename(reads_filename) + '.stats', 'w')
 
-            call_arr = SICKLE_CMD.replace('[READ]', options.output_dir + '/' + compression_method + '/' + reads_filename).replace('[OUTPUT]', output_filename).split()
+            call_arr = SICKLE_CMD.replace('[READ]', options.output_dir + '/' + compression_method + '/' + os.path.basename(reads_filename)).replace('[OUTPUT]', output_filename).split()
             out_cmd("", stats_file.name, call_arr)
             call(call_arr, stdout=stats_file)
 
@@ -201,7 +201,7 @@ Illumina_02,\tassembly,\tunknown,\tjumping,\t1,\t,\t,\t3000,\t500,\toutward,\t,\
         call(call_arr, stdout=ploidy_file, stderr=std_err_file)
 
         # Run AllpathsLG
-        ALLPATHS_CMD = "RunAllPathsLG PRE=" + os.path.abspath(options.output_dir) + '/assemble/' + compression_method + " DATA_SUBDIR=. RUN=allpaths SUBDIR=run THREADS=32 OVERWRITE=True REFERENCE_NAME=."
+        ALLPATHS_CMD = "RunAllPathsLG PRE=" + os.path.abspath(options.output_dir) + '/assemble/' + compression_method + " DATA_SUBDIR=. RUN=allpaths SUBDIR=run THREADS=" + options.threads + " OVERWRITE=True REFERENCE_NAME=."
         call_arr = ALLPATHS_CMD.split()
         out_cmd("", std_err_file.name, call_arr)
         call(call_arr, stderr=std_err_file)
@@ -224,7 +224,7 @@ def align_reads(options):
     call(call_arr, stderr=std_err_file)
 
     # Align the reads.
-    BOWTIE2_CMD = "bowtie2 -x " + options.output_dir + "/align/reference -U [READ] "
+    BOWTIE2_CMD = "bowtie2 -x " + options.output_dir + "/align/reference -p " + options.threads + "-U [READ] "
 
     for compression_method in options.compressed_dirs:
         for reads_filename in options.reads_filenames:
@@ -233,7 +233,7 @@ def align_reads(options):
             ensure_dir(alignment_filename)
             alignment_file = open(alignment_filename, 'w')
 
-            call_arr = BOWTIE2_CMD.replace('[READ]', options.output_dir + '/' + compression_method + '/' + reads_filename).split()
+            call_arr = BOWTIE2_CMD.replace('[READ]', options.output_dir + '/' + compression_method + '/' + os.path.basename(reads_filename)).split()
             out_cmd(FNULL.name, alignment_filename, call_arr)
             call(call_arr, stdout=FNULL, stderr=alignment_file)
 
@@ -286,7 +286,9 @@ def get_options():
     parser.add_option("-a", "--assemble", dest="assemble", help="Run assembly evaluation", action='store_true')
     parser.add_option("-p", "--preprocessing", dest="preprocessing", help="Run preprocessing tools evaluation", action='store_true')
     parser.add_option("-b", "--alignment", dest="alignment", help="Run alignment evaluation (using Bowtie2).", action='store_true')
-
+    
+    # Additional options.
+    parser.add_option("-t", "--threads", dest="threads", help="Number of threads (default 32).", default="32")
 
     (options, args) = parser.parse_args()
 
