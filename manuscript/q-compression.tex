@@ -67,7 +67,7 @@ several challenges for compression of read data is dealing with
 different error profiles resulting from differences in underlying
 chemistries, signal detection and processing mechanisms, inherent
 biases, and other idiosyncratic properties of distinct high-throughput
-sequencing technologies. Illumina sequencing reads, the focus of this
+sequencing technologies. Illumina sequence reads, the focus of this
 research, are characterized by having relatively few insertion and
 deletion errors, but substitution (miscall) errors are much more
 frequent and have context-specific patterns. These errors are
@@ -84,13 +84,13 @@ probability of error for each base-call is typically represented by
 technology these quality values can range from 0 to 93, and are
 represented with the \textsc{ascii} characters 33 to 126 (with some
 offset). These errors are represented a single quality value per
-base-call for Illumina sequencing reads.
+base-call for Illumina sequence reads.
 
 Quality values are typically used throughout bioinformatics pipelines.
 Software such as \textsc{fastqc}~\cite{citeulike:11583827} and
 Prinseq~\cite{Schmieder:2011gd} provide the user with detailed
 descriptions of the distribution of sequence quality scores, and these
-scores can be used to guide filtering and trimming of sequencing read
+scores can be used to guide filtering and trimming of sequence read
 data as processing step before subsequent analyses. Quality values can
 be used by genome assembly software to produce better
 assemblies~\cite[e.g.,][]{Gnerre:2011kx}.  Short-read alignment
@@ -103,12 +103,12 @@ can use quality values~\cite[e.g.,][]{McKenna:2010bh}, and identified
 \textsc{snp}s with high-quality calls are deemed more reliable than
 those with low-quality calls, particularly in low coverage regions.
 
-Although the quality values are useful for later steps, the trade-off
-between storing effectively double the amount of data and the
-resulting effects on subsequent analyses has not been
-well-documented. Previous literature on sequence data compression has
-largely focused on lossless compression of base
-calls~\cite{Giancarlo:2009fk,Nalbantoglu:2010uq,Zhu:2013qr,Deorowicz:2013hq,Giancarlo:2014rw}.
+Previous literature on sequence data compression has largely focused
+on lossless compression of base calls~\cite[reviewed
+  in][]{Giancarlo:2009fk,Nalbantoglu:2010uq,Zhu:2013qr,Deorowicz:2013hq,Giancarlo:2014rw}.
+Although some recent work has included or focused on compression of
+quality
+values~\cite[e.g.,][]{Tembe:2010ys,Kozanitis:2011kl,asnani2012lossy,Hach:2012ys,Wan:2012kq,janin2013adaptive,Ochoa:2013rt,Canovas:2014fr,zhou2014compression,DBLP:conf/recomb/YuYB14}.
 Typical compression methods fail to utilize the biases inherent in
 existing sequencing technologies. Depending on the sequencing
 technology used, the base calling is more accurate in the earlier
@@ -120,15 +120,21 @@ that builds a fixed-state Markov model on adjacent quality scores and
 uses Huffman Coding for compression based on the transition
 probabilities.
 
-Little prior work has been done examining the effect of lossy
-compression of quality sequences in the context of subsequent
-analyses. Our aim here is to examine the effect of multiple lossy
-compression methods on quality sequences, focusing not only on the
-differences between the compressed and original versions, but also the
-effect of lossy compression on typical subsequent analyses.
-
-We examine three general classes of lossy compression methods:
-binning, modeling, and profiling.
+Although we recognize the need for lossless compression for some
+purposes and contexts (e.g., archiving, provenance), our perspective
+is largely pragmatic with a focus on the use of quality values in
+subsequent analyses. From this perspective some absolute loss of
+information is deemed acceptable if the inferences from analyses are
+relatively uneffected. Therefore we here describe our research
+investigating some general strategies for compression of sequence read
+quality values. Our objective provide perspective on several
+strategies logically applied to Illumina sequence read quality values
+rather than to generate a robust high-quality software for
+use. Consistent with our perspective we place emphasis not only on the
+compression efficiency, but also the effect of lossy compression on
+typical subsequent analyses.  We examine three general classes of
+lossy compression methods -- binning, modeling, and profiling -- and
+consider an exemplar of each class.
 
 One compression strategy is to look at the distribution of quality
 values and see if we can summarize the information contained within
@@ -362,7 +368,7 @@ exponential rate.
   quality values. \em}\label{fig:mse_vs_bpbp_jump}
 \end{figure}
 
-\subsection{Lossy compression effect on preprocessing quality}
+\subsection{Effects on sequence read preprocessing}
 
 One way to evaluate different compression approaches is to perform
 quality preprocessing on the generated \textsc{fastq} files and
@@ -381,7 +387,7 @@ prevent the read from being filtered and/or trimmed. This is clear in
 the good/ bad compression approach of the short-jump sample, where the
 proportion of bases and reads are 113.09\% and 103.70\% respectively.
 
-\subsection{Lossy compression effect on assembly quality}
+\subsection{Effects on genome assembly}
 
 Genome assemblers, such as \textsc{allpaths-lg}~\cite{Gnerre:2011kx},
 often utilize quality values to aid in the assembly process. By
@@ -442,7 +448,6 @@ sequence and uses roughly $1.2\%$ more of the total read set than the
 \textsc{lap} values because the \textsc{lap} value is influenced by
 total coverage~\cite{Ghodsi:2013hb}.
 
-
 \begin{table*}[!tpb]
 \centering
 \caption[]{Rankings of different assemblies produced using proposed
@@ -453,26 +458,26 @@ total coverage~\cite{Ghodsi:2013hb}.
   by their overall rank (determined by the sum of individual
   rankings).}
 {\begin{tabular}{lcccccccc}
-& Overall & & & & & & \textsc{lap} & \textsc{lap} \\
-Compression            & rank & \textsc{snp}s & Inversions & Relocations & Translocations & Indels & fragment & short-jump \\
+& overall & & & & & & \textsc{lap} & \textsc{lap} \\
+compression            & rank & \textsc{snp}s & inversions & relocations & translocations & indels & fragment & short-jump \\
 \hline
-None                   & 1    & 5    & 1          & 1           & 1              & 1      & 1          & 1                    \\
-Profile (256)          & 3    & 2    & 1          & 3           & 3              & 4      & 2          & 4                    \\
-Profile (32)           & 4    & 3    & 1          & 4           & 6              & 5      & 3          & 3                    \\
-Regression (4th order) & 5    & 6    & 1          & 6           & 5              & 2      & 7          & 8                    \\
-Regression (5th order) & 6    & 7    & 1          & 5           & 7              & 7      & 5          & 7                    \\
+none                   & 1    & 5    & 1          & 1           & 1              & 1      & 1          & 1                    \\
+profile (256)          & 3    & 2    & 1          & 3           & 3              & 4      & 2          & 4                    \\
+profile (32)           & 4    & 3    & 1          & 4           & 6              & 5      & 3          & 3                    \\
+pegression (4th order) & 5    & 6    & 1          & 6           & 5              & 2      & 7          & 8                    \\
+regression (5th order) & 6    & 7    & 1          & 5           & 7              & 7      & 5          & 7                    \\
 2-bin	               & 7    & 1    & 1          & 8           & 11             & 10     & 6          & 5                    \\
-Regression (3rd order) & 8    & 8    & 1          & 9           & 9              & 6      & 8          & 6                    \\
-Regression (2nd order) & 9    & 9    & 1          & 7           & 4              & 8      & 9          & 10                   \\
-Regression (1st order) & 10   & 10   & 11         & 10          & 8              & 9      & 10         & 9                    \\
-Regression (0 order) & 11   & 11   & 10         & 11          & 10             & 11     & 11         & 11
+regression (3rd order) & 8    & 8    & 1          & 9           & 9              & 6      & 8          & 6                    \\
+regression (2nd order) & 9    & 9    & 1          & 7           & 4              & 8      & 9          & 10                   \\
+regression (1st order) & 10   & 10   & 11         & 10          & 8              & 9      & 10         & 9                    \\
+regression (0 order) & 11   & 11   & 10         & 11          & 10             & 11     & 11         & 11
 \\ \hline
 \end{tabular}
 }
 \label{tab:assembly_ranks}
 \end{table*}
 
-\subsection{Lossy compression effect on mapping quality}
+\subsection{Effects on read mapping}
 
 Certain short read alignment tools use the quality sequence
 information when finding potential alignments. Bowtie2 (version 2.2.3)
@@ -524,34 +529,34 @@ unique mapped reads in the decompressed file.
   mapped from the decompressed data that were not mapped before
   compression.}
 \begin{tabular}{llcccc}
-    & & \multicolumn{4}{c}{Percentage of reads mapped}\\
+    & & \multicolumn{4}{c}{percentage of reads mapped}\\
     \cline{3-6}
-	Library & Compression Strategy & Total & Shared & Uncompressed only & Compressed only \\ \hline
-	& Maximum quality & 77.88 & 77.88 & 22.12 & 0 \\
-	&Minimum quality & 100 & 100 & 0 & 0 \\
+	library & compression strategy & total & shared & uncompressed only & compressed only \\ \hline
+	& maximum quality & 77.88 & 77.88 & 22.12 & 0 \\
+	&minimum quality & 100 & 100 & 0 & 0 \\
 	&2-bin & 99.92 & 99.89 & 0.11 & 0.03 \\
-	&Regression (0 order) & 93.63 & 93.62 & 6.38 & 0.02 \\
-	&Regression (1st order) & 98.62 & 98.61 & 1.39 & 0.01 \\
-	&Regression (2nd order) & 99.42 & 99.39 & 0.61 & 0.03 \\
-	Fragment&Regression (3rd order) & 99.56 & 99.53 & 0.47 & 0.03 \\
-	&Regression (4th order) & 99.71 & 99.68 & 0.32 & 0.03 \\ 
-	&Regression (5th order) & 99.79 & 99.75 & 0.25 & 0.03 \\
-	&Profile (32) & 99.9 & 99.86 & 0.14 & 0.04 \\ 
-	&Profile (256) & 99.95 & 99.92 & 0.08 & 0.03 \\
+	&regression (0 order) & 93.63 & 93.62 & 6.38 & 0.02 \\
+	&regression (1st order) & 98.62 & 98.61 & 1.39 & 0.01 \\
+	&regression (2nd order) & 99.42 & 99.39 & 0.61 & 0.03 \\
+	fragment&regression (3rd order) & 99.56 & 99.53 & 0.47 & 0.03 \\
+	&regression (4th order) & 99.71 & 99.68 & 0.32 & 0.03 \\ 
+	&regression (5th order) & 99.79 & 99.75 & 0.25 & 0.03 \\
+	&profile (32) & 99.9 & 99.86 & 0.14 & 0.04 \\ 
+	&profile (256) & 99.95 & 99.92 & 0.08 & 0.03 \\
 
 \\ \hline \\
 
-	&Maximum quality & 78.08 & 78.08 & 21.92 & 0 \\
-	&Minimum quality & 100 & 100 & 0 & 0 \\ 
+	&maximum quality & 78.08 & 78.08 & 21.92 & 0 \\
+	&minimum quality & 100 & 100 & 0 & 0 \\ 
 	&2-bin & 97.38 & 97.38 & 2.62 & 0 \\
-	&Regression (0 order) & 96.07 & 94.11 & 5.89 & 1.96 \\
-	&Regression (1st order) & 99.24 & 98.98 & 1.02 & 0.26 \\ 
-	&Regression (2nd order) & 99.66 & 99.35 & 0.65 & 0.3 \\ 
-	Short-jump&Regression (3rd order) & 99.94 & 99.61 & 0.39 & 0.33 \\ 
-	&Regression (4th order) & 99.99 & 99.64 & 0.36 & 0.35 \\ 
-	&Regression (5th order) & 100 & 99.67 & 0.33 & 0.33 \\ 
-	&Profile (32) & 99.74 & 99.44 & 0.56 & 0.3 \\
-	&Profile (256) & 99.76 & 99.52 & 0.48 & 0.24 \\
+	&regression (0 order) & 96.07 & 94.11 & 5.89 & 1.96 \\
+	&regression (1st order) & 99.24 & 98.98 & 1.02 & 0.26 \\ 
+	&regression (2nd order) & 99.66 & 99.35 & 0.65 & 0.3 \\ 
+	short-jump&regression (3rd order) & 99.94 & 99.61 & 0.39 & 0.33 \\ 
+	&regression (4th order) & 99.99 & 99.64 & 0.36 & 0.35 \\ 
+	&regression (5th order) & 100 & 99.67 & 0.33 & 0.33 \\ 
+	&profile (32) & 99.74 & 99.44 & 0.56 & 0.3 \\
+	&profile (256) & 99.76 & 99.52 & 0.48 & 0.24 \\
 \end{tabular}
 
 \label{tab:aligner}
@@ -566,17 +571,17 @@ unique mapped reads in the decompressed file.
   compression with respect to the uncompressed values.}
 \label{tab:quality_control}
 \begin{tabular}{lcccc}
-	 & \multicolumn{2}{c}{Fragments} & \multicolumn{2}{c}{Short-Jump} \\
-	 & \% Bases & \% Reads & \% Bases & \% Reads \\ \hline
+	 & \multicolumn{2}{c}{fragments} & \multicolumn{2}{c}{short-Jump} \\
+	 & \% bases & \% reads & \% bases & \% reads \\ \hline
 	2-bin & 98.15 & 98.78 & 113.09 & 103.7 \\ 
-	Regression (0 order) & 86.71 & 62.64 & 43.31 & 27.51 \\
-	Regression (1st order) & 92.96 & 95.09 & 81.31 & 91.79 \\ 
-	Regression (2nd order) & 93.93 & 96.87 & 86.31 & 94.75 \\
-	Regression (3rd order) & 93.5 & 95.68 & 88.7 & 94.51 \\ 
-	Regression (4th order) & 94.43 & 96.7 & 91.94 & 97.02 \\ 
-	Regression (5th order) & 95.56 & 98.09 & 93.92 & 98.02 \\ 
-	Profile (32) & 99.12 & 98.96 & 102.89 & 102.24 \\
-	Profile (256) & 100 & 99.8 & 102.66 & 101.27 \\
+	regression (0 order) & 86.71 & 62.64 & 43.31 & 27.51 \\
+	regression (1st order) & 92.96 & 95.09 & 81.31 & 91.79 \\ 
+	regression (2nd order) & 93.93 & 96.87 & 86.31 & 94.75 \\
+	regression (3rd order) & 93.5 & 95.68 & 88.7 & 94.51 \\ 
+	regression (4th order) & 94.43 & 96.7 & 91.94 & 97.02 \\ 
+	regression (5th order) & 95.56 & 98.09 & 93.92 & 98.02 \\ 
+	profile (32) & 99.12 & 98.96 & 102.89 & 102.24 \\
+	profile (256) & 100 & 99.8 & 102.66 & 101.27 \\
 \end{tabular}
 \end{table}
 
