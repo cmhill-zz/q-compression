@@ -41,6 +41,7 @@ def compress(options):
     std_err_file = open('compress.log', 'w')
 
     GB_COMPRESSION_CMD = "./src/good_bad_coding.py -r [READ] -c 2 -b 0 "
+    PROFILE_COMPRESSION_CMD = "python src/profile_and_compress.py [READ] [OUTPUT] [NUM_PROFILES] [TRAINING_SIZE] [OUTPUT].png "
     
     # Store which compression directories we created.
     options.compressed_dirs = []
@@ -62,7 +63,18 @@ def compress(options):
 
         # TODO: Polynomial regression.
 
-        # TODO: Profile regression.
+        # Profile compression using k-means.
+        for profiles in options.profile_sizes.split(','):
+            ensure_dir(options.output_dir + '/profile_' + profiles + '/')
+            options.compressed_dirs.append('profile_' + profiles)
+
+            call_arr = PROFILE_COMPRESSION_CMD.replace('[READ]', reads_filename)\
+                    .replace('[OUTPUT]', options.output_dir + '/profile_' + profiles + '/' + os.path.basename(reads_filename))\
+                    .replace('[NUM_PROFILES]', profiles)\
+                    .replace('[TRAINING_SIZE]', options.training_size).split()
+
+            out_cmd("", std_err_file.name, call_arr)
+            call(call_arr, stderr=std_err_file)
 
 
     # After we compress/decompress everything, write out the quality values to a separate file and then run bzip on them.
@@ -286,7 +298,11 @@ def get_options():
     parser.add_option("-a", "--assemble", dest="assemble", help="Run assembly evaluation", action='store_true')
     parser.add_option("-p", "--preprocessing", dest="preprocessing", help="Run preprocessing tools evaluation", action='store_true')
     parser.add_option("-b", "--alignment", dest="alignment", help="Run alignment evaluation (using Bowtie2).", action='store_true')
-    
+
+    # Profile-specific compression options.
+    parser.add_option("--training-size", dest="training_size", help="Training size used for clustering.", default = "10000")
+    parser.add_option("--profile-sizes", dest="profile_sizes", help="Comma-separated list of number of profiles to use.", default="256")
+
     # Additional options.
     parser.add_option("-t", "--threads", dest="threads", help="Number of threads (default 32).", default="32")
 
