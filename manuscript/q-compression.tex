@@ -2,8 +2,8 @@
 
 %\usepackage{doi}
 
-\copyrightyear{2014}
-\pubyear{2014}
+\copyrightyear{2015}
+\pubyear{2015}
 
 \begin{document}
 \firstpage{1}
@@ -88,12 +88,15 @@ offset). These errors are represented a single quality value per
 base-call for Illumina sequence reads.
 
 Quality values are typically used throughout bioinformatics pipelines.
-Software such as \textsc{fastqc}~\cite{citeulike:11583827} and
-Prinseq~\cite{Schmieder:2011gd} provide the user with detailed
-descriptions of the distribution of sequence quality scores, and these
-scores can be used to guide filtering and trimming of sequence read
-data as processing steps before subsequent analyses. Quality values
-can be used by genome assembly software to produce better
+Among the most fundamental uses of sequence quality values is as part
+of the quality assessment and quality control (\textsc{qa/qc})
+processes prior to subsequent analysis steps. Quality control based on
+quality values generally includes two operations:
+\textit{i}.~filtering, the elimination of reads that on the whole do
+not meet quality standards, which reduces the total number of reads;
+and \textit{ii}.~trimming of low quality base-calls from reads, which
+reduces the number total number of bases. Quality values can be used
+by genome assembly software to produce better
 assemblies~\cite[e.g.,][]{Bryant:2009uq,Gnerre:2011kx}. Short-read
 alignment software, such as Bowtie 2~\cite{Langmead:2012rw}, use
 quality values to weight mismatches between query and reference
@@ -136,6 +139,14 @@ typical subsequent analyses.  We examine three general classes of
 lossy compression methods -- binning, modeling, and profiling -- and
 consider an exemplar of each class.
 
+Lossy compression compromises representation accuracy for better space
+efficiency. Different lossy compression methods have different
+properties, therefore we need to evaluate a number of tradeoffs for
+each of our proposed methods. More importantly, we need to examine
+each approach in the context of typical bioinformatics tasks, such as
+quality control, \emph{de novo} genome assembly, and aligning the
+sequences to a given reference.
+
 One compression strategy is to look at the distribution of quality
 values and see if we can summarize the information contained within
 ranges of values. Specifically, we can reduce the dimensionality of
@@ -170,21 +181,21 @@ profile.
 \begin{methods}
 \section{Methods}
 
-\subsection{Binning}
+\subsection{Compression strategies}
 
-Quality values can be binned into a set of bins, and any number of
-bins less than the the number of distinct quality values is
-possible. The minimum number of bins that allows for a any distinction
-among quality values is two, i.e., two categories ``good'' and ``bad''
-quality. We implement 2-bin encoding by setting a quality value
-threshold empirically determined by the distribution of quality values
-across reads. Base-calls are marked ``bad'' if their quality value
-falls below the first quartile minus 1.5 $\times$ the interquartile
-range (IQR), which is the difference between the first and third
-quartile. 1.5 $\times$ IQR is the value used by Tukey's box
-plot~\cite{mcgill1978variations}. The main benefit of this approach is
-that it is completely data-dependent. No prior assumptions of the
-distribution of the quality values need to be made.
+\subsubsection{Binning}
+
+Quality values can be binned, and the minimum number of bins that
+allows for a any distinction among quality values is two, i.e., two
+categories ``good'' and ``bad'' quality. We implement 2-bin encoding
+by setting a quality value threshold empirically determined by the
+distribution of quality values across reads. Base-calls are marked
+``bad'' if their quality value falls below the first quartile minus
+1.5 $\times$ the interquartile range (IQR), which is the difference
+between the first and third quartile. 1.5 $\times$ IQR is the value
+used by Tukey's box plot~\cite{mcgill1978variations}. The main benefit
+of this approach is that it is completely data-dependent. No prior
+assumptions of the distribution of the quality values need to be made.
  
 Because we only have two possible choices for a quality of base, this
 makes a straightforward binary encoding possible, allowing us to use a
@@ -200,7 +211,7 @@ bad may be too limiting for some users, so we provide a few additional
 options to preserve more of the defining characteristics of the
 quality values, but we only analyze 2-bin encoding in our results.
 
-\subsection{Modeling}
+\subsubsection{Modeling}
 
 If quality values are modeled compression is conceivably possible by
 replacing the original quality values by a representation of the
@@ -221,7 +232,7 @@ relax on the least-squares approximation constraint to obtain
 compressible values on the byte level which is outside the scope of
 this study.
 
-\subsection{Profiling}
+\subsubsection{Profiling}
 
 As large sets of quality strings show similar trends of quality over
 their sequence, it makes sense to identify such common patterns in the
@@ -230,8 +241,8 @@ quality sequences. Such patterns can be readily determined by
 clustering data points (i.e. quality vectors) and using the resulting
 cluster centers as representative profiles.
 
-$k$-means clustering is a vector quantization method, partitioning a set
-of samples into $k$ sets that minimize within-cluster sum of
+$k$-means clustering is a vector quantization method, partitioning a
+set of samples into $k$ sets that minimize within-cluster sum of
 squares~\cite{macqueen1967some}. Using a random subset of read quality
 values, a compression method can use the computed cluster centers as
 read quality profiles. As the problem is NP-hard, we use a heuristic
@@ -247,10 +258,10 @@ clustering is performed on the training set until convergence. The
 obtained cluster centers will be the quality profile prototypes for
 the dataset.
 
-Once the $k$ quality profiles are determined, all quality sequences are
-passed through the trained $k$-means predictor, with the nearest quality
-profile in Euclidean space being assigned to every quality sequence as
-their compressed representation.
+Once the $k$ quality profiles are determined, all quality sequences
+are passed through the trained $k$-means predictor, with the nearest
+quality profile in Euclidean space being assigned to every quality
+sequence as their compressed representation.
 
 The compressed quality file therefore consists of an index enumerating
 the $k$ quality profiles, and a binary part containing the assigned
@@ -301,35 +312,39 @@ values (in bits) divided by the number of quality values represented.
 As a measure of information loss we use mean squared error
 (\textsc{mse}) as aloss function, and define it as
 $\frac{1}{n}\sum_{i=1}^{n}{(Q_i'-Q_i)^2}$, where $n$ is the number of
-sequences, $Q_i$ is the original quality value associated with
-sequence position $i$, and $Q_i'$ is the corresponding
-compressed/decompressed quality value.
+sequences, $Q_i'$ is the compressed/decompressed quality value, and
+$Q_i$ is the original quality value associated with sequence position
+$i$.
 
-Lossy compression compromises representation accuracy for better space
-efficiency. Different lossy compression methods have different
-properties, therefore we need to evaluate a number of tradeoffs for
-each of our proposed methods. More importantly, we need to examine
-each approach in the context of typical bioinformatics tasks, such as
-quality control, \emph{de novo} genome assembly, and aligning the
-sequences to a given reference.
+We evaluate effects of information loss from quality value compression
+on quality control steps of read filtering and trimming, which were
+performed using Sickle~\cite{sickle}, quantify read characteristics
+with PrinSeq~\cite{Schmieder:2011gd}, and make comparison to
+uncompressed data.
 
-For quality control, we use
-Sickle~\cite{sickle}. PrinSeq~\cite{Schmieder:2011gd} was used to
-count the number of bases and reads in each \textsc{fastq} file.
-
-For \emph{de novo} genome assembly, we use
+We evaluate effects of information loss from quality value compression
+on \emph{de novo} genome assembly performance using contiguity
+statistics, log average read probability
+(\textsc{lap})~\cite{Ghodsi:2013hb}, and a collection of
+reference-based metrics. The contiguity statistics include number of
+scaffolds and NG50, which is defined as the weighted median contig
+size (the length of largest contig $c$ such that the total size of the
+contigs larger than $c$â exceeds half of the known genome size). The
+\textsc{lap} score can be viewed as a log likelihood score, where a
+value closer to 0 is better. We use a reference-based evaluation
+script provided by \textsc{gage} that counts single nucleotide
+polymorphisms (\textsc{snp}s), relocations, translations, and
+inversions. The reference-based metrics are normalized by the length
+of the assembly to aid in comparison. For the genome assembly we used
+software that makes use quality values in the assembly process:
 \textsc{allpaths-lg}~\cite{Gnerre:2011kx} version r50191 with default
 settings and 32 threads.
-
-For aligning the sequences, we use Bowtie2~\cite{Langmead:2012rw} with
-default settings and modified max- and min-mismatch parameters
-detailed below.
 
 \end{methods}
 
 \section{Results}
 
-\subsection{Compressibility versus error}
+\subsection{Compression effectiveness versus information loss}
 
 We compare the \textsc{mse} versus bits/base-call of the fragment and
 short-jump libraries of the \textit{Rhodobacter sphaeroides} 2.4.1
@@ -368,13 +383,8 @@ exponential rate.
 
 \subsection{Effects on sequence read preprocessing}
 
-One way to evaluate different compression approaches is to perform
-quality preprocessing on the generated \textsc{fastq} files and
-compare the number of reads and bases with those of the uncompressed
-\textsc{fastq} files. Sickle is a tool to filter and trim reads. We
-used PrinSeq to calculate the number of reads and bases in each
-sample. Table \ref{tab:quality_control} shows the proportional numbers
-with respect to those of the uncompressed \textsc{fastq} files. In the
+Table \ref{tab:quality_control} shows the proportional numbers with
+respect to those of the uncompressed \textsc{fastq} files. In the
 fragment sample, we retain on average 95.4\% and 94.24\% of bases and
 reads, respectively. In the short-jump sample, we retain 90.4\% and
 90.98\% of bases and reads, respectively. In some cases, the
@@ -387,42 +397,13 @@ proportion of bases and reads are 113.09\% and 103.70\% respectively.
 
 \subsection{Effects on genome assembly}
 
-Genome assemblers, such as \textsc{allpaths-lg}~\cite{Gnerre:2011kx},
-often utilize quality values to aid in the assembly process. By
-reducing the information contained within the quality values, we
-introduce the potential for the resulting assembly to be affected.
-
-\textsc{allpaths-lg} is one of the leading bacterial genome
-assemblers~\cite{Salzberg:2012rc}. We examine the effect of our lossy
-compression methods on the \textit{Rhodobacter sphaeroides} 2.4.1 data
-set provided by \textsc{gage} (Genome Assembly Gold-Standard
-Evaluations)~\cite{Salzberg:2012rc}. \textsc{allpaths-lg} is used to
-assemble the original data along with the quality compressed versions
-using 2-bin encoding, 0--5th-order polynomial regression encodings,
-and 32- and 256-profile encodings. We evaluate the assembly based on
-contiguity statistics, log average read probability
-(\textsc{lap}~\cite{Ghodsi:2013hb}), and a collection of
-reference-based metrics. The contiguity statistics include number of
-scaffolds and NG50, which is defined as the weighted median contig
-size (the length of largest contig $c$ such that the total size of the
-contigs larger than $c$â exceeds half of the known genome size). The
-\textsc{lap} score can be viewed as a log likelihood score, where a
-value closer to 0 is better. We use a reference-based evaluation
-script provided by \textsc{gage} which counts single nucleotide
-polymorphisms (\textsc{snp}s), relocations, translations, and
-inversions. The reference-based metrics are normalized by the length
-of the assembly to aid in comparison. Alongside the raw metrics, we
-also provide a cummulative sum of the individual ranks of each method
-for each metric. A similar approach was utilized by the
-\textsc{Assemblathon1} competition~\cite{Earl:2011fv}.
-
-The assembly using the uncompressed reads outperforms all compression
-methods in terms of \textsc{lap}, NG50, relocations, translations, and
-inversions (Table \ref{tab:assembly_ranks}). Among the compression
-methods, the 256- and 32-profile encoding had the highest rank, then
-the 4th-order polynomial regression, the 5th-order polynomial
-regression, the 2-bin encoding, and lastly, the 3rd through 0-order
-polynomials.
+The assembly of the \textit{Rhodobacter sphaeroides} 2.4.1 data set
+using the uncompressed reads outperforms all compression methods in
+terms of \textsc{lap}, NG50, relocations, translations, and inversions
+(Table \ref{tab:assembly_ranks}). Among the compression methods, the
+256- and 32-profile encoding had the highest rank, then the 4th-order
+polynomial regression, the 5th-order polynomial regression, the 2-bin
+encoding, and lastly, the 3rd through 0-order polynomials.
 
 The lossy compression methods largely preserve the contiguity found in
 the assembly produced using the reads with unmodified quality
@@ -713,14 +694,6 @@ any event the entire draft manuscript has to be substantially revised.
 \subsubsection{Pilot Study: profile-based compression of quality 
 values}\label{sec:profile-based}
 
-As described previously, quality values in Illumina reads are
-non-uniformly distributed over the read length and show a general
-pattern of decreasing toward the 3$^{\prime}$ end. As large sets of
-quality strings show similar trends of quality over their sequence,
-one approach would be to identify common patterns in the data,
-generate profiles representing these patterns, and use the profiles as
-proxies for read quality value sequences.
-
 Quality value patterns can be readily determined by clustering
 sequences of quality values and using the resulting cluster centers as
 representative profiles. In our pilot study we used $k$-means
@@ -788,51 +761,6 @@ fragment and short-jump libraries of the \textit{Rhodobacter
   sphaeroides} as test data, and assessed the effects of lossy
 compression on each of the aforementioned bioinformatics
 operations. The results for the profile-based compression follow.
-
-\paragraph{Read quality processing}
-Among the most fundamental uses of sequence quality values is as part
-of the quality assessment and quality control (\textsc{qa/qc})
-processes prior to subsequent analysis steps. Quality control based on
-quality values generally includes two operations:
-\textit{i}.~filtering, the elimination of reads that on the whole do
-not meet quality standards, which reduces the total number of reads;
-and \textit{ii}.~trimming of low quality base-calls from reads, which
-reduces the number total number of bases.
-
-To evaluate the effect of compression on these quality control
-operations, we used Sickle~\cite{sickle} with the default
-settings. \textsc{PrinSeq}~\cite{Schmieder:2011gd} was then used to
-count the number of bases and reads in each quality control-processed
-\textsc{fastq} file. The proportion of reads retained using
-compressed/decompressed data compared to that of the uncompressed
-data: 0.998 for the fragment library reads, and 1.013 for the
-short-jump library reads; and proportion of bases retained 1.0 for the
-fragment library reads, and 1.027 for the short-jump library
-reads. Thus there is very little difference between profile-based
-compressed data compared to that of the original uncompressed data in
-read filtering and trimming.
-
-\paragraph{\textit{De novo} genome assembly}
-For de novo genome assembly, we use
-\textsc{allpaths-lg}~\cite{Gnerre:2011kx} version r50191 with default
-settings. We evaluate the assembly based on contiguity statistics, log
-average read probability (\textsc{lap})~\cite{Ghodsi:2013hb}, and a
-collection of reference-based metrics, of which the contiguity
-statistics include number of scaffolds and NG50; the latter statistic
-is defined as the weighted median contig size (the length of largest
-contig $c$ such that the total size of the contigs larger than $c$
-exceeds half of the known genome size). The \textsc{lap} score can be
-viewed as a log likelihood score, where a larger value is better. We
-use a reference-based evaluation script provided by \textsc{gage},
-which counts single nucleotide polymorphisms (\textsc{snp}s),
-relocations, translations, and inversions. The reference- based
-metrics are normalized by the length of the assembly to aid in
-comparison. The differences in assembly statistics between using the
-profile-based compressed/decompressed data compared to using
-uncompressed data are extremely small: total assembly size difference
-of 6.745 kbp ($\sim$0.00015); NG50 size difference of 2.259 kbp
-(0.0007); an \textsc{lap} score difference of 0.002 for the fragment
-library and 0.04 for the short-jump library.
 
 \paragraph{Aligning reads to a reference sequence}
 Another important analysis involving read data are the alignments of
