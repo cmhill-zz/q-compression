@@ -98,7 +98,7 @@ and \textit{ii}.~trimming of low quality base-calls from reads, which
 reduces the number total number of bases. Quality values can be used
 by genome assembly software to produce better
 assemblies~\cite[e.g.,][]{Bryant:2009uq,Gnerre:2011kx}. Short-read
-alignment software, such as Bowtie 2~\cite{Langmead:2012rw}, use
+alignment software, such as Bowtie2~\cite{Langmead:2012rw}, use
 quality values to weight mismatches between query and reference
 sequences.  Software for detecting single nucleotide polymorphisms
 (\textsc{snp}s) can use quality values, and identified \textsc{snp}s
@@ -194,22 +194,21 @@ distribution of quality values across reads. Base-calls are marked
 1.5 $\times$ the interquartile range (IQR), which is the difference
 between the first and third quartile. 1.5 $\times$ IQR is the value
 used by Tukey's box plot~\cite{mcgill1978variations}. The main benefit
-of this approach is that it is completely data-dependent. No prior
-assumptions of the distribution of the quality values need to be made.
+of this approach is that it is completely data-dependent, and no
+assumptions regarding the distribution of the quality values need to be made.
  
-Because we only have two possible choices for a quality of base, this
-makes a straightforward binary encoding possible, allowing us to use a
-single bit to represent the quality of a base instead of the default 8
+With 2-bin encoding binary encoding is possible, allowing us to use a
+single bit to represent the quality of a base instead of the standard 8
 bits used to store quality values in \textsc{ascii}. An additional
 benefit of 2-bin encoding is the potential for increased adjacency of
 identical values and repeating patterns, properties that may increase
 effectiveness of subsequent compression using established
 algorithms~\cite[e.g.,][]{HUFFMAN:1952nr,Ziv77auniversal,DBLP:journals/tit/ZivL78}.
 
-Although simple and intuitive, considering a base as either good or
-bad may be too limiting for some users, so we provide a few additional
-options to preserve more of the defining characteristics of the
-quality values, but we only analyze 2-bin encoding in our results.
+The economic costs of memory use for binning, in general terms,
+include no fixed costs, and marginal costs that are a function of the
+number of base-call quality values encoded times the cost of the
+encoding.
 
 \subsubsection{Modeling}
 
@@ -231,6 +230,11 @@ single-precision four-byte floating point numbers, one would have to
 relax on the least-squares approximation constraint to obtain
 compressible values on the byte level which is outside the scope of
 this study.
+
+The economic costs of memory use for model-based compression, in
+general terms, include no fixed costs, and marginal costs that are a
+function of the number of reads times the cost representing the model
+parameters.
 
 \subsubsection{Profiling}
 
@@ -267,11 +271,18 @@ The compressed quality file therefore consists of an index enumerating
 the $k$ quality profiles, and a binary part containing the assigned
 quality profile index for each read.
 
-Although this approach is not able to capture randomly occuring
+Although this approach is not able to capture randomly occurring
 outlier quality values, it ensures that the overall trends in quality
 sequences are retained. Quality profiles capture different overall
 qualities and different drop-off positions and gradients. An example
 of 128 quality profiles are shown on Figure \ref{fig:profiles_128}.
+
+The economic costs of memory use for profile-based compression, in
+general terms, include fixed costs associated with representing the
+profiles, which is a function of the number of profiles times the cost
+of encoding them, and these fixed costs are amortized over the entire
+set of reads to which they apply. Additionally there are marginal
+costs that are a function of the number of reads encoded.
 
 \begin{figure}[!tpb]%figure2
 \centerline{\includegraphics[width=3.35in]{profiles_128.png}}
@@ -616,26 +627,6 @@ operations such as filtering and trimming, and the operations
 transitively applied to the entire set of reads, thus saving
 substantial computation associated with evaluating the full set of
 reads.
-
-\subsection{The economics of lossy quality sequence compression}
-
-From an economics perspective, we can examine the fixed and marginal
-costs associated with our lossy compression techniques with respect to
-memory and computation. For our quality value binning and model-based
-compression methods there are no explicit fixed costs in terms of
-memory, unlike the profile--based approach, which has a small fixed
-cost in storing the profiles. However, the profile-based approach has
-a much smaller marginal compared to the rest due to the fact that we
-are simply storing the profile index for each quality sequence.
-
-Regarding computational costs, only quality binning and the
-profile--based methods have associated fixed costs. Before performing
-compression, we have to determine the optimal thresholding values for
-quality binning, and the cluster representatives for the
-profile--based method.
-
-In practice, the specific values of these costs are very sensitive to
-the implementation details.
 
 \subsection{Future of lossy compression in bioinformatics analyses}
 
