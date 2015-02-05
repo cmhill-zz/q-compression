@@ -40,7 +40,9 @@ def compress(options):
 
     std_err_file = open('compress.log', 'w')
 
+    # Basic command line scripts to run the individual compression schemes.
     GB_COMPRESSION_CMD = "./src/good_bad_coding.py -r [READ] -c 2 -b 0 "
+    POLY_REGRESSION_CMD = "python src/map_fastq.py [READ] [OUTPUT] [DEGREE]"
     PROFILE_COMPRESSION_CMD = "python src/profile_and_compress.py [READ] [OUTPUT] [NUM_PROFILES] [TRAINING_SIZE] [OUTPUT].png "
     
     # Store which compression directories we created.
@@ -61,7 +63,18 @@ def compress(options):
         out_cmd(options.output_dir + '/goodbad/' + os.path.basename(reads_filename), std_err_file.name, call_arr)
         call(call_arr, stdout=output_fp, stderr=std_err_file)
 
-        # TODO: Polynomial regression.
+        # Polynomial regression.
+        for degree in options.poly_degrees.split(','):
+            ensure_dir(options.output_dir + '/degree_' + degree + '/')
+            options.compressed_dirs.append('degree_' + degree)
+
+            call_arr = POLY_REGRESSION_CMD.replace('[READ]', reads_filename)\
+                    .replace('[OUTPUT]', options.output_dir + '/profile_' + degree + '/' + os.path.basename(reads_filename))\
+                    .replace('[DEGREE]', degree).split()
+
+            output_file = open(options.output_dir + '/degree_' + degree + '/' + os.path.basename(reads_filename), 'w')
+            out_cmd(output_file.name, std_err_file.name, call_arr)
+            call(call_arr, stdout=output_file, stderr=std_err_file)
 
         # Profile compression using k-means.
         for profiles in options.profile_sizes.split(','):
@@ -298,6 +311,9 @@ def get_options():
     parser.add_option("-a", "--assemble", dest="assemble", help="Run assembly evaluation", action='store_true')
     parser.add_option("-p", "--preprocessing", dest="preprocessing", help="Run preprocessing tools evaluation", action='store_true')
     parser.add_option("-b", "--alignment", dest="alignment", help="Run alignment evaluation (using Bowtie2).", action='store_true')
+
+    # Polynomial regression specific options.
+    parser.add_option("--poly-degrees", dest="poly_degrees", help="Comma-separated list of polynomial degrees to use for regression.")
 
     # Profile-specific compression options.
     parser.add_option("--training-size", dest="training_size", help="Training size used for clustering.", default = "10000")

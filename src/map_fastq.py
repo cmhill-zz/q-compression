@@ -12,13 +12,15 @@ def qual_ord(phred_string, offset=33):
 
 def map_qualstring(qual_string):
     x, y = qual_ord(qual_string, offset=0)
-    coeffs = polyfit(x, y, 2)
+    coeffs = polyfit(x, y, int(sys.argv[3]))
     y_out = polyval(coeffs[::-1], x)
     return ''.join([chr(min(max(int(yy),35),74)) for yy in y_out])
 
-def coeffs_for_qualstring(qual_string, degree=5):
+def coeffs_for_qualstring(qual_string, degree=int(sys.argv[3])):
     x, y = qual_ord(qual_string, offset=0)
+    #print degree
     coeffs = polyfit(x, y, degree)
+    #print coeffs
     return coeffs
 
 def process(lines, pool):
@@ -48,17 +50,20 @@ with open(sys.argv[1], 'r') as infile:
     if len(lines) > 0:
         process(lines, pool)
 
+with open(sys.argv[1], 'r') as infile:
     # # use this block to write binary file with coefficients
-    # float_list = []
-    # lines = []
-    # for i_counter, line in enumerate(infile):
-    #     if (i_counter % 1000) == 0:
-    #         process_coeffs_only(lines, pool, float_list)
-    #         lines = []
-    #     lines.append(line.rstrip())
-    # if len(lines) > 0:
-    #     process_coeffs_only(lines, pool, float_list)
-    # with open('coefficients_binary.bin', 'wb') as output_file:
-    #     float_array = array('f', float_list)
-    #     float_array.tofile(output_file)
+    float_list = []
+    lines = []
+    for i_counter, line in enumerate(infile):
+        if (i_counter % 1000) == 0:
+            process_coeffs_only(lines, pool, float_list)
+            lines = []
+        lines.append(line.rstrip())
+    if len(lines) > 0:
+        process_coeffs_only(lines, pool, float_list)
+    with open(sys.argv[2] + '.bin', 'wb') as output_file:
+        #print float_list
+        #print len(float_list)
+        float_array = array('f', np.hstack(float_list))
+        float_array.tofile(output_file)
 

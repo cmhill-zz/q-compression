@@ -51,7 +51,6 @@ center_qualstrings = [''.join([chr(max(35,int(x)+33)) for x in center]) for cent
 
 
 #pred = km.predict(quals)
-print 'starting writing'
 with open(sys.argv[1], 'r') as zzz:
     with open(sys.argv[2], 'w') as outfile_decomp:
          with open(sys.argv[2]+'.compressed', 'w') as outfile_comp:
