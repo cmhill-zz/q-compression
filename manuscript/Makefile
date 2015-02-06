@@ -2,15 +2,15 @@ OUTNAME = compression-$(shell date +%F).pdf
 
 all: compression.pdf
 
-compression.pdf: document.tex
-	pdflatex document.tex; bibtex document; pdflatex document.tex; pdflatex document.tex;
-	mv document.pdf ${OUTNAME}
+compression.pdf: q-compression.tex
+	pdflatex q-compression.tex; bibtex q-compression; pdflatex q-compression.tex; pdflatex q-compression.tex;
+	mv q-compression.pdf ${OUTNAME}
 
 clean:
-	rm -rf compression*.pdf
-	rm -f document.log 
-	rm -f document.dvi 
-	rm -f document.aux 
-	rm -f document.bbl
-	rm -f document.blg
-	rm -f document.bcf
+	rm -rf q-compression*.pdf
+	rm -f q-compression.log 
+	rm -f q-compression.dvi 
+	rm -f q-compression.aux 
+	rm -f q-compression.bbl
+	rm -f q-compression.blg
+	rm -f q-compression.bcf
