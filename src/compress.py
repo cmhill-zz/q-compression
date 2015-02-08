@@ -42,7 +42,7 @@ def compress(options):
 
     # Basic command line scripts to run the individual compression schemes.
     GB_COMPRESSION_CMD = "./src/good_bad_coding.py -r [READ] -c 2 -b 0 "
-    POLY_REGRESSION_CMD = "python src/map_fastq.py [READ] [OUTPUT] [DEGREE]"
+    POLY_REGRESSION_CMD = "Rscript src/poly_regression.R [READ] [OUTPUT] [DEGREE]"
     PROFILE_COMPRESSION_CMD = "python src/profile_and_compress.py [READ] [OUTPUT] [NUM_PROFILES] [TRAINING_SIZE] [OUTPUT].png "
     
     # Store which compression directories we created.
@@ -69,12 +69,11 @@ def compress(options):
             options.compressed_dirs.append('degree_' + degree)
 
             call_arr = POLY_REGRESSION_CMD.replace('[READ]', reads_filename)\
-                    .replace('[OUTPUT]', options.output_dir + '/profile_' + degree + '/' + os.path.basename(reads_filename))\
+                    .replace('[OUTPUT]', options.output_dir + '/degree_' + degree + '/' + os.path.basename(reads_filename))\
                     .replace('[DEGREE]', degree).split()
 
-            output_file = open(options.output_dir + '/degree_' + degree + '/' + os.path.basename(reads_filename), 'w')
-            out_cmd(output_file.name, std_err_file.name, call_arr)
-            call(call_arr, stdout=output_file, stderr=std_err_file)
+            out_cmd("", std_err_file.name, call_arr)
+            call(call_arr, stderr=std_err_file)
 
         # Profile compression using k-means.
         for profiles in options.profile_sizes.split(','):
