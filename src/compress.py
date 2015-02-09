@@ -43,8 +43,8 @@ def compress(options):
     # Basic command line scripts to run the individual compression schemes.
     GB_COMPRESSION_CMD = "./src/good_bad_coding.py -r [READ] -c 2 -b 0 "
     POLY_REGRESSION_CMD = "Rscript src/poly_regression.R [READ] [OUTPUT] [DEGREE]"
-    PROFILE_COMPRESSION_CMD = "python src/profile_and_compress.py [READ] [OUTPUT] [NUM_PROFILES] [TRAINING_SIZE] [OUTPUT].png "
-    
+    PROFILE_COMPRESSION_CMD = "Rscript src/profile.R [READ] [OUTPUT] [TRAINING_SIZE] [NUM_PROFILES]"
+
     # Store which compression directories we created.
     options.compressed_dirs = []
     options.compressed_dirs.append('original')

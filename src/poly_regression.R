@@ -12,10 +12,10 @@ output_file <- file(args[2], "w")
 
 # Set the min-max quality values.
 min_max <- function(x) {
-  if (x > 74)
-    return(74)
-  else if (x < 35)
-    return(35)
+  if (x > 73)
+    return(73)
+  else if (x < 33)
+    return(33)
   else
     return(x)
 }
