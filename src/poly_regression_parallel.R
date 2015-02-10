@@ -30,13 +30,12 @@ poly_regression <- function(quals) {
   x = seq(1,length(quals))
   
   # Fit the polynomial function.
-  fit = lm(quals ~ poly(x, strtoi(degree), raw=TRUE))
+  fit = lm(quals ~ poly(x, strtoi(degree)))
   
   # Predict the quality values using the above equation.
   predicted_quals = rawToChar(as.raw(unlist(lapply(round(predict(fit)), min_max))))
   return(predicted_quals)
 }
-
 
 # Read an entire fastq file
 records <- readFastq(args[1])
@@ -48,10 +47,10 @@ threads <- args[4]
 cl <- makeCluster(strtoi(threads))
 clusterExport(cl=cl, varlist=c("min_max", "degree"))
 
-# ptm <- proc.time()
-results <- parApply(cl = cl, original_reads, MARGIN = 1, poly_regression)
+#ptm <- proc.time()
+results <- parRapply(cl = cl, original_reads, poly_regression)
 
-# proc.time() - ptm
+#print(proc.time() - ptm)
 # poly_regression
 # fptm <- proc.time()
 # results2 <- apply(original_reads, MARGIN = 1, poly_regression)
@@ -59,20 +58,24 @@ results <- parApply(cl = cl, original_reads, MARGIN = 1, poly_regression)
 
 stopCluster(cl)
 
-## Iterating over the FASTQ file again and print out the new quality values.
-f <- FastqStreamer(fl, 1)
+con  <- file(args[1], open = "r")
 counter <- 1
-while (length(fq <- yield(f))) {
+while (length(oneLine <- readLines(con, n = 1, warn = FALSE)) > 0) {
+  # Write the header...
+  writeLines(oneLine, con=output_file)
+  oneLine <- readLines(con, n = 1, warn = FALSE)
   
-  # Predict the quality values using the above equation.
-  predicted_quals <- results[[counter]]
+  # ... then the DNA sequence ...
+  writeLines(oneLine, con=output_file)
+  oneLine <- readLines(con, n = 1, warn = FALSE)
   
-  # Write out the fastq file to disk.
-  # TODO: Replace with writeFastQ.
-  writeLines(c(paste("@",as.vector(id(fq)), sep = ""), as.vector(sread(fq)), "+", predicted_quals), con=output_file)
+  # ... then the + ...
+  writeLines(oneLine, con=output_file)
+  oneLine <- readLines(con, n = 1, warn = FALSE)
   
+  # ... and finally the new quality values.
+  writeLines(results[[counter]], con=output_file)
   counter <- counter + 1
-}
+} 
 
-close(output_file)
-close(f)
+close(con)
