@@ -33,7 +33,7 @@ while (length(fq <- yield(f))) {
   
   # Predict the quality values using the above equation.
   predicted_quals = rawToChar(as.raw(unlist(lapply(round(predict(fit)), min_max))))
-  #lines(x, round(predict(fit)))
+  #lines(x, round(predict(fit)))0
 
   # Write out the fastq file to disk.
   # TODO: Replace with writeFastQ.

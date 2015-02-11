@@ -33,7 +33,8 @@ def main():
     for line in reads_file:
         line_counter += 1
 
-        if line_counter % 4 == 0:
+        # Read every 10th line.
+        if line_counter % 40 == 0:
             
             raw_values = map(ord, line.strip())
             normalized_values = map(lambda x: int(x) - 33, raw_values)
