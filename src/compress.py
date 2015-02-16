@@ -5,6 +5,7 @@ from collections import deque
 from subprocess import call
 from optparse import OptionParser
 from tempfile import mkstemp
+import glob
 import os
 import random
 import re
@@ -30,6 +31,45 @@ class bcolors:
     ENDC = '\033[0m'
 
 
+def sort_reads_command(options,reads_filename):
+    """
+    Sort the incoming FASTQ filename.
+    """
+
+    SORT_CMD = "fastq-sort " + reads_filename
+    call_arr = SORT_CMD.split()
+    output_fp = open(options.output_dir + '/sorted/' + os.path.basename(reads_filename), 'w')
+    out_cmd(output_fp.name, FNULL.name, call_arr)
+    call(call_arr, stdout=output_fp, stderr=FNULL)
+    return output_fp.name
+
+
+def sort_reads(options):
+    """
+    Sort the FASTQ reads and update the options accordingly.
+    """
+
+    ensure_dir(options.output_dir + '/sorted/')
+
+    if options.unpaired_reads_filenames:
+        new_filenames = []
+        for reads_filenames in options.unpaired_reads_filenames.split(','):
+            new_filenames.append(sort_reads_command(options, reads_filenames))
+        options.unpaired_reads_filenames = ','.join(new_filenames)
+
+    if options.first_mate_filenames:
+        new_filenames = []
+        for reads_filenames in options.first_mate_filenames.split(','):
+            new_filenames.append(sort_reads_command(options, reads_filenames))
+        options.first_mate_filenames = ','.join(new_filenames)
+
+    if options.second_mate_filenames:
+        new_filenames = []
+        for reads_filenames in options.second_mate_filenames.split(','):
+            new_filenames.append(sort_reads_command(options, reads_filenames))
+        options.second_mate_filenames = ','.join(new_filenames)
+
+
 def compress(options):
     """
     Compress the reads using all methods.
@@ -44,6 +84,9 @@ def compress(options):
     GB_COMPRESSION_CMD = "./src/good_bad_coding.py -r [READ] -c 2 -b 0 "
     POLY_REGRESSION_CMD = "Rscript src/poly_regression_parallel.R [READ] [OUTPUT] [DEGREE] [NUM_THREADS]"
     PROFILE_COMPRESSION_CMD = "Rscript src/profile_parallel.R [READ] [OUTPUT] [TRAINING_SIZE] [NUM_PROFILES] [NUM_THREADS]"
+
+    QUALCOMP_COMPRESS_CMD = "./runCompress.sh -i [READ] -c [CLUSTERS] -r [RATE]"
+    QUALCOMP_DECOMPRESS_CMD = "./runDecompress.sh -p [DIR] -c [CLUSTERS] -r [RATE]"
 
     # Store which compression directories we created.
     options.compressed_dirs = []
@@ -90,6 +133,60 @@ def compress(options):
             out_cmd("", std_err_file.name, call_arr)
             call(call_arr, stderr=std_err_file)
 
+        # Compress using QualComp.
+        for rate in options.rates.split(','):
+            #continue
+            ensure_dir(options.output_dir + '/qualcomp_r' + rate + '/')
+            options.compressed_dirs.append('qualcomp_r' + rate)
+
+            """
+            QUALCOMP_COMPRESS_CMD = "$QUALCOMP/runCompressMod.sh -i [READ] -c [CLUSTERS] -r [RATE]"
+            QUALCOMP_DECOMPRESS_CMD = "$QUALCOMP/runDecompress.sh -p [DIR] -c [CLUSTERS] -r [RATE]"
+            """
+
+            reads_abs_path = os.path.abspath(reads_filename)
+            prev_dir = os.getcwd()
+            os.chdir(os.environ["QUALCOMP"])
+
+            call_arr = QUALCOMP_COMPRESS_CMD.replace('[READ]', reads_abs_path)\
+                    .replace('[CLUSTERS]', options.clusters)\
+                    .replace('[RATE]', rate).split()
+
+            out_cmd(std_err_file.name, std_err_file.name, call_arr)
+            call(call_arr, stdout=std_err_file, stderr=std_err_file)
+
+            # Also decompress using QualComp special function.
+            qualcomp_prefix = reads_abs_path.split('.')[0]
+            call_arr = QUALCOMP_DECOMPRESS_CMD.replace('[DIR]', qualcomp_prefix)\
+                    .replace('[CLUSTERS]', options.clusters)\
+                    .replace('[RATE]', rate).split()
+
+            out_cmd(std_err_file.name, std_err_file.name, call_arr)
+            call(call_arr, stdout=std_err_file, stderr=std_err_file)
+
+            os.chdir(prev_dir)
+
+            # QualComp writes the files into the original directory,
+            # so move the fastq files into the QualComp directory.
+            mv_cmd = "mv " + qualcomp_prefix + "_" + options.clusters + "_" + rate + ".fastq " + options.output_dir + '/qualcomp_r' + rate + '/' + os.path.basename(reads_filename)
+            call_arr = mv_cmd.split()
+            out_cmd("", std_err_file.name, call_arr)
+            call(call_arr, stderr=std_err_file)
+
+            filename_list = glob.glob(qualcomp_prefix + "_" + options.clusters + "_*")
+            mv_cmd = "mv " + ' '.join(filename_list) + ' ' + options.output_dir + '/qualcomp_r' + rate + '/'
+            call_arr = mv_cmd.split()
+            out_cmd("", std_err_file.name, call_arr)
+            call(call_arr, stderr=std_err_file)
+
+            # Concatenate all the binary files to create a single 'compressed' file.
+            filename_list = glob.glob(options.output_dir + '/qualcomp_r' + rate + '/' + os.path.basename(reads_filename).split(".")[0] +  "*bin")
+            cat_cmd = "cat " + ' '.join(filename_list)
+            call_arr = cat_cmd.split()
+            bin_file = open(options.output_dir + '/qualcomp_r' + rate + '/' + os.path.basename(reads_filename) + '.comp', 'w')
+            out_cmd(bin_file.name, std_err_file.name, call_arr)
+            call(call_arr, stdout=bin_file, stderr=std_err_file)
+
 
     # After we compress/decompress everything, write out the quality values to a separate file and then run bzip on them.
     for compression_method in options.compressed_dirs:
@@ -110,6 +207,12 @@ def compress(options):
             out_cmd("", std_err_file.name, cmd.split())
             call(cmd.split(), stderr=std_err_file)
 
+            # Bzip2 the compressed quality values.
+            if os.path.isfile(options.output_dir + '/' + compression_method + '/' + os.path.basename(reads_filename) + '.comp'):
+                cmd = "bzip2 -k " + options.output_dir + '/' + compression_method + '/' + os.path.basename(reads_filename) + '.comp'
+                out_cmd("", std_err_file.name, cmd.split())
+                call(cmd.split(), stderr=std_err_file)
+                
 
     # Calculate the information lost from compression.
     calc_mean_squared_error(options)
@@ -250,7 +353,7 @@ def align_reads(options):
     call(call_arr, stderr=std_err_file)
 
     # Align the reads.
-    BOWTIE2_CMD = "bowtie2 -x " + options.output_dir + "/align/reference -p " + options.threads + "-U [READ] "
+    BOWTIE2_CMD = "bowtie2 -x " + options.output_dir + "/align/reference -p " + options.threads + " -U [READ] "
 
     for compression_method in options.compressed_dirs:
         for reads_filename in options.reads_filenames:
@@ -264,6 +367,62 @@ def align_reads(options):
             call(call_arr, stdout=FNULL, stderr=alignment_file)
 
 
+
+def post_process_results(options):
+    """
+    Consolidate the results.
+    """
+
+    process_compression_stats(options)
+
+    pass
+
+
+def process_compression_stats(options):
+    """
+    Ouput compression results for each FASTQ file:
+            compression_method original_size compressed_size bzip2_size
+    """
+
+    ensure_dir(options.output_dir + "/results/")
+
+    for reads_filename in options.reads_filenames:
+
+        # Store the amount of bases we see.
+        bases = 0
+        for line in open(options.output_dir + '/original/' + os.path.basename(reads_filename) + '.quals', 'r'):
+            bases += len(line.strip())
+
+
+        results_file = open(options.output_dir + "/results/" + os.path.basename(reads_filename), 'w')
+        for compression_method in options.compressed_dirs:
+
+            filename = options.output_dir + '/' + compression_method + '/' + os.path.basename(reads_filename)
+
+            results = compression_method + '\t' 
+
+            # Get the original size.
+            results += str(os.path.getsize(filename + '.quals')) + '\t'
+
+            # Get the bzip2 size.
+            results += str(os.path.getsize(filename + '.quals.bz2')) + '\t'
+
+            # Get the compressed size.
+            if os.path.isfile(filename + '.comp'):
+                results += str(os.path.getsize(filename + '.comp')) + '\t'
+
+                results += str(os.path.getsize(filename + '.comp.bz2')) + '\t'
+
+            # Get the MSE.
+            results += str(grab_value_from_file(filename + '.mse')) + '\t'
+
+            # Print the bits/bp.
+            results += str((os.path.getsize(filename + '.quals.bz2') * 8) / float(bases)) + '\n'
+
+            results_file.write(results)
+
+        results_file.close()
+
 """
 I/O Helpers
 """
@@ -271,11 +430,13 @@ def setup_shell_file():
     if shell_file_fp:
         shell_file_fp.write("#!/bin/bash\n")
 
+
 def ensure_dir(f):
     d = os.path.dirname(f)
     if not os.path.exists(d):
         os.makedirs(d)
     assert os.path.exists(d)
+
 
 def out_cmd(std_out = "", std_err = "", *objs):
     #line(75)
@@ -291,6 +452,14 @@ def out_cmd(std_out = "", std_err = "", *objs):
         shell_file_fp.write(' '.join(*objs) + std_out_sht + std_err_sht + "\n")
         shell_file_fp.flush()
     print(bcolors.OKBLUE + "COMMAND:\t" + bcolors.ENDC, ' '.join(*objs) + std_out_sht, file=sys.stderr)
+
+
+def grab_value_from_file(filename):
+    """
+    Return the value from the first line of a file.
+    """
+    return open(filename, 'r').readline().strip().split()[0]
+
 """
 I/O Helpers
 """    
@@ -312,6 +481,7 @@ def get_options():
     parser.add_option("-a", "--assemble", dest="assemble", help="Run assembly evaluation", action='store_true')
     parser.add_option("-p", "--preprocessing", dest="preprocessing", help="Run preprocessing tools evaluation", action='store_true')
     parser.add_option("-b", "--alignment", dest="alignment", help="Run alignment evaluation (using Bowtie2).", action='store_true')
+    parser.add_option("-s", "--sort", dest="sort_reads", help="Sort FASTQ reads before the pipeline begins (requires fastq-sort).", action='store_true')
 
     # Polynomial regression specific options.
     parser.add_option("--poly-degrees", dest="poly_degrees", help="Comma-separated list of polynomial degrees to use for regression.")
@@ -319,6 +489,10 @@ def get_options():
     # Profile-specific compression options.
     parser.add_option("--training-size", dest="training_size", help="Training size used for clustering.", default = "10000")
     parser.add_option("--profile-sizes", dest="profile_sizes", help="Comma-separated list of number of profiles to use.", default="256")
+
+    # QualComp-specific compression options.
+    parser.add_option("--rates", dest="rates", help="QualComp parameter for setting the  bits/reads.", default="30")
+    parser.add_option("--clusters", dest="clusters", help="QualComp parameter for setting number of clusters.", default="3")
 
     # Additional options.
     parser.add_option("-t", "--threads", dest="threads", help="Number of threads (default 32).", default="32")
@@ -339,6 +513,10 @@ def main():
     global shell_file_fp
     shell_file_fp = open(shell_file, 'w')
     setup_shell_file()
+
+    # Sort the fastq files first if necessary.
+    if options.sort_reads:
+        sort_reads(options)
 
     # Gather all the filenames.
     reads_filenames = []
@@ -366,6 +544,8 @@ def main():
     if options.alignment:
         align_reads(options)
 
+    # Output the compression results.
+    post_process_results(options)
 
 
 if __name__ == '__main__':
