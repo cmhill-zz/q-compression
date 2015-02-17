@@ -81,7 +81,7 @@ def compress(options):
     std_err_file = open('compress.log', 'w')
 
     # Basic command line scripts to run the individual compression schemes.
-    GB_COMPRESSION_CMD = "./src/good_bad_coding.py -r [READ] -c 2 -b 0 "
+    GB_COMPRESSION_CMD = "./src/good_bad_coding.py -r [READ] -c 2 -b 0 -i [COMPRESSED_FILE]"
     POLY_REGRESSION_CMD = "Rscript src/poly_regression_parallel.R [READ] [OUTPUT] [DEGREE] [NUM_THREADS]"
     PROFILE_COMPRESSION_CMD = "Rscript src/profile_parallel.R [READ] [OUTPUT] [TRAINING_SIZE] [NUM_PROFILES] [NUM_THREADS]"
 
@@ -100,7 +100,8 @@ def compress(options):
         shutil.copyfile(reads_filename, options.output_dir + '/original/' + os.path.basename(reads_filename))
 
         # Good/bad binary compression.
-        call_arr = GB_COMPRESSION_CMD.replace('[READ]', reads_filename).split()
+        call_arr = GB_COMPRESSION_CMD.replace('[READ]', reads_filename)\
+                .replace('[COMPRESSED_FILE]', options.output_dir + '/goodbad/' + os.path.basename(reads_filename) + '.comp').split()
         output_fp = open(options.output_dir + '/goodbad/' + os.path.basename(reads_filename), 'w')
 
         out_cmd(options.output_dir + '/goodbad/' + os.path.basename(reads_filename), std_err_file.name, call_arr)
@@ -135,7 +136,7 @@ def compress(options):
 
         # Compress using QualComp.
         for rate in options.rates.split(','):
-            #continue
+            continue
             ensure_dir(options.output_dir + '/qualcomp_r' + rate + '/')
             options.compressed_dirs.append('qualcomp_r' + rate)
 
@@ -212,7 +213,7 @@ def compress(options):
                 cmd = "bzip2 -k " + options.output_dir + '/' + compression_method + '/' + os.path.basename(reads_filename) + '.comp'
                 out_cmd("", std_err_file.name, cmd.split())
                 call(cmd.split(), stderr=std_err_file)
-                
+
 
     # Calculate the information lost from compression.
     calc_mean_squared_error(options)
@@ -401,6 +402,8 @@ def process_compression_stats(options):
 
             results = compression_method + '\t' 
 
+            results += str(bases) + '\t'
+
             # Get the original size.
             results += str(os.path.getsize(filename + '.quals')) + '\t'
 
@@ -412,6 +415,8 @@ def process_compression_stats(options):
                 results += str(os.path.getsize(filename + '.comp')) + '\t'
 
                 results += str(os.path.getsize(filename + '.comp.bz2')) + '\t'
+            else:
+                results += "NA\tNA\t"
 
             # Get the MSE.
             results += str(grab_value_from_file(filename + '.mse')) + '\t'

@@ -5,13 +5,20 @@
 """
 
 from optparse import OptionParser
-import math, os, sys
+import math, os, sys, struct
 
 cutoff = 0
 good_value = 40
 bad_value = 10
 offset_value = 33
 bin_size = 10
+
+def chunks(s):
+    """
+    Taken from: http://stackoverflow.com/questions/20165736/python-write-string-1001101-as-binary-stream-to-file
+    """
+    for i in xrange(0, len(s), 32):
+         yield s[i:i+32]
 
 def main():
     
@@ -71,6 +78,7 @@ def main():
     reads_file = open(options.reads_filename, 'r')
 
     new_qualities = []
+    binary_file = open(options.binary_file, 'wb') if options.binary_file else None
 
     for line in reads_file:
         line_counter += 1
@@ -85,6 +93,11 @@ def main():
         else:
             print line,
             pass
+
+    if binary_file:
+        ints = (int(x, 2) for x in chunks(''.join(new_qualities)))
+        binary_file.write(''.join(struct.pack('I', i) for i in ints))
+        binary_file.close()
 
     #print(new_qualities.count("0"))
     #print(new_qualities.count("1"))
@@ -169,6 +182,8 @@ def get_options():
     parser.add_option("-a", "--categories", dest="num_categories", default=2, type="int", \
             help="Number of categories to use.")
     parser.add_option("-y", "--use-category", dest="use_category", default=False, action="store_true")
+    parser.add_option("-i", "--binary-file", dest="binary_file", \
+            help="Write out the encoding to a binary file.")
 
     #parser.add_option("-")
 
