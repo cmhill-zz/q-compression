@@ -37,18 +37,31 @@ poly_regression <- function(quals) {
   return(predicted_quals)
 }
 
+poly_regression_coef <- function(quals) {
+  # Get the quality values. Use a hardcoded quality offset.
+  quals = quals + 33
+  x = seq(1,length(quals))
+  
+  # Fit the polynomial function.
+  fit = lm(quals ~ poly(x, strtoi(degree)))
+  
+  # Return the coefficients.
+  return(as.vector(fit$coefficients))
+}
+
 # Read an entire fastq file
 records <- readFastq(args[1])
 
 original_reads <- as(quality(records),'matrix')
 
-threads <- args[4]
+threads <- args[5]
 
 cl <- makeCluster(strtoi(threads))
 clusterExport(cl=cl, varlist=c("min_max", "degree"))
 
 #ptm <- proc.time()
 results <- parRapply(cl = cl, original_reads, poly_regression)
+coef_results <- parRapply(cl = cl, original_reads, poly_regression_coef)
 
 #print(proc.time() - ptm)
 # poly_regression
@@ -57,6 +70,10 @@ results <- parRapply(cl = cl, original_reads, poly_regression)
 # proc.time() - ptm
 
 stopCluster(cl)
+
+binary_output = file(args[4], "wb")
+writeBin(coef_results, binary_output)
+close(binary_output)
 
 con  <- file(args[1], open = "r")
 counter <- 1

@@ -82,7 +82,7 @@ def compress(options):
 
     # Basic command line scripts to run the individual compression schemes.
     GB_COMPRESSION_CMD = "./src/good_bad_coding.py -r [READ] -c 2 -b 0 -i [COMPRESSED_FILE]"
-    POLY_REGRESSION_CMD = "Rscript src/poly_regression_parallel.R [READ] [OUTPUT] [DEGREE] [NUM_THREADS]"
+    POLY_REGRESSION_CMD = "Rscript src/poly_regression_parallel.R [READ] [OUTPUT] [DEGREE] [COMPRESSED_FILE] [NUM_THREADS]"
     PROFILE_COMPRESSION_CMD = "Rscript src/profile_parallel.R [READ] [OUTPUT] [TRAINING_SIZE] [NUM_PROFILES] [COMPRESSED_FILE] [NUM_THREADS]"
 
     QUALCOMP_COMPRESS_CMD = "./runCompress.sh -i [READ] -c [CLUSTERS] -r [RATE]"
@@ -115,6 +115,7 @@ def compress(options):
             call_arr = POLY_REGRESSION_CMD.replace('[READ]', reads_filename)\
                     .replace('[OUTPUT]', options.output_dir + '/degree_' + degree + '/' + os.path.basename(reads_filename))\
                     .replace('[DEGREE]', degree)\
+                    .replace('[COMPRESSED_FILE]', options.output_dir + '/degree_' + degree +'/' + os.path.basename(reads_filename) + '.comp')\
                     .replace('[NUM_THREADS]', options.threads).split()
 
             out_cmd("", std_err_file.name, call_arr)
@@ -411,11 +412,13 @@ def process_compression_stats(options):
             # Get the bzip2 size.
             results += str(os.path.getsize(filename + '.quals.bz2')) + '\t'
 
+            compressed_size = os.path.getsize(filename + '.quals.bz2')
+
             # Get the compressed size.
             if os.path.isfile(filename + '.comp'):
                 results += str(os.path.getsize(filename + '.comp')) + '\t'
-
                 results += str(os.path.getsize(filename + '.comp.bz2')) + '\t'
+                compressed_size = os.path.getsize(filename + '.comp.bz2')
             else:
                 results += "NA\tNA\t"
 
@@ -423,7 +426,7 @@ def process_compression_stats(options):
             results += str(grab_value_from_file(filename + '.mse')) + '\t'
 
             # Print the bits/bp.
-            results += str((os.path.getsize(filename + '.quals.bz2') * 8) / float(bases)) + '\n'
+            results += str((compressed_size * 8) / float(bases)) + '\n'
 
             results_file.write(results)
 
