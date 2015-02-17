@@ -83,7 +83,7 @@ def compress(options):
     # Basic command line scripts to run the individual compression schemes.
     GB_COMPRESSION_CMD = "./src/good_bad_coding.py -r [READ] -c 2 -b 0 -i [COMPRESSED_FILE]"
     POLY_REGRESSION_CMD = "Rscript src/poly_regression_parallel.R [READ] [OUTPUT] [DEGREE] [NUM_THREADS]"
-    PROFILE_COMPRESSION_CMD = "Rscript src/profile_parallel.R [READ] [OUTPUT] [TRAINING_SIZE] [NUM_PROFILES] [NUM_THREADS]"
+    PROFILE_COMPRESSION_CMD = "Rscript src/profile_parallel.R [READ] [OUTPUT] [TRAINING_SIZE] [NUM_PROFILES] [COMPRESSED_FILE] [NUM_THREADS]"
 
     QUALCOMP_COMPRESS_CMD = "./runCompress.sh -i [READ] -c [CLUSTERS] -r [RATE]"
     QUALCOMP_DECOMPRESS_CMD = "./runDecompress.sh -p [DIR] -c [CLUSTERS] -r [RATE]"
@@ -129,6 +129,7 @@ def compress(options):
                     .replace('[OUTPUT]', options.output_dir + '/profile_' + profiles + '/' + os.path.basename(reads_filename))\
                     .replace('[NUM_PROFILES]', profiles)\
                     .replace('[TRAINING_SIZE]', options.training_size)\
+                    .replace('[COMPRESSED_FILE]', options.output_dir + '/profile_' + profiles +'/' + os.path.basename(reads_filename) + '.comp')\
                     .replace('[NUM_THREADS]', options.threads).split()
 
             out_cmd("", std_err_file.name, call_arr)

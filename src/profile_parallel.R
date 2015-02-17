@@ -31,7 +31,7 @@ mat = as(quality(training_set), 'matrix')
 fit <- kmeans(mat, centers = num_profiles, iter.max = 600)
 centers <- fit$centers
 
-threads <- args[5]
+threads <- args[6]
 
 cl <- makeCluster(strtoi(threads))
 clusterExport(cl=cl, varlist=c("assign_to_cluster", "centers"))
@@ -42,6 +42,12 @@ cluster_assignments <- parRapply(cl = cl, original_reads, assign_to_cluster)
 
 #print(proc.time() - ptm)
 stopCluster(cl)
+
+# Write the profiles and cluster assignments out to a binary file.
+binary_output = file(args[5], "wb")
+writeBin(as.raw(fit$centers), binary_output)
+writeBin(as.raw(cluster_assignments), binary_output)
+close(binary_output)
 
 con  <- file(args[1], open = "r")
 counter <- 1
