@@ -13,6 +13,7 @@ import shlex
 import shutil
 import subprocess
 import sys
+import tempfile
 import time
 import resource
 #import file
@@ -200,7 +201,7 @@ def compress(options):
 
             with open(decompressed_file) as fin, open(decompressed_file + '.quals', 'w') as fout:
                 fout.writelines(islice(fin, 3, None, 4))
-            
+
             # Even though we do it in python, output the awk command in case someone runs it independently.
             cmd = 'awk \'{if (NR % 4 == 0) print $0}\' ' + options.output_dir + '/' + compression_method + '/' + os.path.basename(reads_filename)
             out_cmd(decompressed_file + '.quals', std_err_file.name, 'awk \'{if (NR % 4 == 0) print $0}\''.split())
@@ -278,15 +279,21 @@ def quality_preprocessing(options):
                     records_kept = line.strip().split()[3]
                     open(stats_file.name + '.records_kept', 'w').write(records_kept + '\n')
 
-            # Find out many bases were kept.
+            # Find out many bases were kept and write out the header files to a separate file.
             line_number = 1
             bases = 0
+            headers = []
             for line in open(output_filename, 'r'):
+                if (line_number % 4) == 1:
+                    headers.append(line.strip())
                 if (line_number % 4) == 2:
                     bases += len(line.strip())
                 line_number += 1
 
             open(stats_file.name + '.bases', 'w').write(str(bases) + '\n')
+
+            headers.sort()
+            open(options.output_dir + '/preprocessing/' + compression_method + '/' + os.path.basename(reads_filename) + '.headers', 'w').write('\n'.join(headers))
 
 
 
@@ -378,6 +385,8 @@ def post_process_results(options):
 
     process_compression_stats(options)
 
+    process_preprocessing_stats(options)
+
     pass
 
 
@@ -432,6 +441,79 @@ def process_compression_stats(options):
 
         results_file.close()
 
+
+def process_preprocessing_stats(options):
+    """
+    Output the preprocessing results.
+    """
+
+    for reads_filename in options.reads_filenames:
+        sequence_count = num_lines(reads_filename)
+
+        results_file = open(options.output_dir + "/results/" + os.path.basename(reads_filename) + '.preprocessing', 'w')
+        for compression_method in options.compressed_dirs:
+
+            results = compression_method + '\t'
+
+            # Get the number of sequences kept unique to original.
+            unique_to_orig = run_comm_and_return_line_count(options, "23", options.output_dir + '/preprocessing/original/'\
+                    + os.path.basename(reads_filename) + '.headers',\
+                    options.output_dir + '/preprocessing/' + compression_method + '/'\
+                     + os.path.basename(reads_filename) + '.headers')
+            results += unique_to_orig + '\t'
+
+            # Get the number of sequences kept unique to the compression method.
+            unique_to_compress = run_comm_and_return_line_count(options, "13", options.output_dir + '/preprocessing/original/'\
+                    + os.path.basename(reads_filename) + '.headers',\
+                    options.output_dir + '/preprocessing/' + compression_method + '/'\
+                     + os.path.basename(reads_filename) + '.headers')
+            results += unique_to_compress + '\t'
+
+            # Get the number of sequences kept by both methods.
+            common_count = run_comm_and_return_line_count(options, "12", options.output_dir + '/preprocessing/original/'\
+                    + os.path.basename(reads_filename) + '.headers',\
+                    options.output_dir + '/preprocessing/' + compression_method + '/'\
+                     + os.path.basename(reads_filename) + '.headers')
+            results += common_count + '\t'
+
+            # Get the number of sequences filtered by both methods.
+            results += str(sequence_count - int(unique_to_orig) - int(unique_to_compress) - int(common_count))
+
+            results += '\n'
+            results_file.write(results)
+
+        results_file.close()
+
+
+def run_comm_and_return_line_count(options, suppress, file1, file2):
+    """
+    Run: comm -1 [suppress] [file1] [file2] | wc -l
+    """
+
+    std_err_file = open('preprocessing.log', 'a')
+
+    cmd = "comm -" + suppress + " " + file1 + " " + file2
+    tmp_file = tempfile.NamedTemporaryFile('w', dir=options.output_dir)
+
+    call_arr = cmd.split()
+    out_cmd(tmp_file.name, "", call_arr)
+    call(call_arr, stdout=tmp_file, stderr=std_err_file) 
+
+   
+    cmd = "wc -l " + tmp_file.name
+    tmp_wc_file = tempfile.NamedTemporaryFile('w', dir=options.output_dir)
+    call_arr = cmd.split()
+    out_cmd(tmp_wc_file.name, "", call_arr)
+    call(call_arr, stdout=tmp_wc_file, stderr=std_err_file) 
+
+    count = grab_value_from_file(tmp_wc_file.name)
+
+    tmp_file.close()
+    tmp_wc_file.close()
+
+    return count
+
+
 """
 I/O Helpers
 """
@@ -468,6 +550,12 @@ def grab_value_from_file(filename):
     Return the value from the first line of a file.
     """
     return open(filename, 'r').readline().strip().split()[0]
+
+def num_lines(filename):
+    """
+    http://stackoverflow.com/questions/845058/how-to-get-line-count-cheaply-in-python
+    """
+    return sum(1 for line in open(filename, 'r'))/4
 
 """
 I/O Helpers
