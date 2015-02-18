@@ -111,7 +111,9 @@ def compress(options):
         # Polynomial regression.
         for degree in options.poly_degrees.split(','):
             ensure_dir(options.output_dir + '/degree_' + degree + '/')
-            options.compressed_dirs.append('degree_' + degree)
+
+            if 'degree_' + degree not in options.compressed_dirs:
+                 options.compressed_dirs.append('degree_' + degree)
 
             call_arr = POLY_REGRESSION_CMD.replace('[READ]', reads_filename)\
                     .replace('[OUTPUT]', options.output_dir + '/degree_' + degree + '/' + os.path.basename(reads_filename))\
@@ -125,7 +127,9 @@ def compress(options):
         # Profile compression using k-means.
         for profiles in options.profile_sizes.split(','):
             ensure_dir(options.output_dir + '/profile_' + profiles + '/')
-            options.compressed_dirs.append('profile_' + profiles)
+
+            if 'profile_' + profiles not in options.compressed_dirs:
+                options.compressed_dirs.append('profile_' + profiles)
 
             call_arr = PROFILE_COMPRESSION_CMD.replace('[READ]', reads_filename)\
                     .replace('[OUTPUT]', options.output_dir + '/profile_' + profiles + '/' + os.path.basename(reads_filename))\
@@ -139,9 +143,11 @@ def compress(options):
 
         # Compress using QualComp.
         for rate in options.rates.split(','):
-            continue
+            #continue
             ensure_dir(options.output_dir + '/qualcomp_r' + rate + '/')
-            options.compressed_dirs.append('qualcomp_r' + rate)
+            
+            if 'qualcomp_r' + rate not in options.compressed_dirs:
+                options.compressed_dirs.append('qualcomp_r' + rate)
 
             """
             QUALCOMP_COMPRESS_CMD = "$QUALCOMP/runCompressMod.sh -i [READ] -c [CLUSTERS] -r [RATE]"
