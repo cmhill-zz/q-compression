@@ -299,7 +299,7 @@ def quality_preprocessing(options):
             open(stats_file.name + '.bases', 'w').write(str(bases) + '\n')
 
             headers.sort()
-            open(options.output_dir + '/preprocessing/' + compression_method + '/' + os.path.basename(reads_filename) + '.headers', 'w').write('\n'.join(headers))
+            open(options.output_dir + '/preprocessing/' + compression_method + '/' + os.path.basename(reads_filename) + '.headers', 'w').write('\n'.join(headers) + '\n')
 
 
 
@@ -412,7 +412,7 @@ def process_compression_stats(options):
             bases += len(line.strip())
 
 
-        results_file = open(options.output_dir + "/results/" + os.path.basename(reads_filename), 'w')
+        results_file = open(options.output_dir + "/results/" + os.path.basename(reads_filename) + '.compression', 'w')
         for compression_method in options.compressed_dirs:
 
             filename = options.output_dir + '/' + compression_method + '/' + os.path.basename(reads_filename)
@@ -483,7 +483,10 @@ def process_preprocessing_stats(options):
             results += common_count + '\t'
 
             # Get the number of sequences filtered by both methods.
-            results += str(sequence_count - int(unique_to_orig) - int(unique_to_compress) - int(common_count))
+            results += str(sequence_count - int(unique_to_orig) - int(unique_to_compress) - int(common_count)) + '\t'
+
+            # Get the bases kept in the file.
+            results += str(grab_value_from_file(options.output_dir + '/preprocessing/' + compression_method + '/' + os.path.basename(reads_filename) + '.stats.bases'))
 
             results += '\n'
             results_file.write(results)
