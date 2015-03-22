@@ -2,7 +2,9 @@
 from __future__ import print_function
 from collections import defaultdict
 from collections import deque
-from subprocess import call
+from itertools import islice
+#from subprocess import call
+import subprocess
 from optparse import OptionParser
 from tempfile import mkstemp
 import glob
@@ -21,7 +23,7 @@ import resource
 
 FNULL = open('/dev/null', 'w')
 base_path = os.path.dirname(sys.argv[0])[:-len('src/')]
-
+dry_run = False
 
 class bcolors:
     HEADER = '\033[95m'
@@ -30,6 +32,12 @@ class bcolors:
     WARNING = '\033[93m'
     FAIL = '\033[91m'
     ENDC = '\033[0m'
+
+
+def call(call_arr, stdout=sys.stdout, stderr=sys.stderr):
+
+    if not dry_run:
+        subprocess.call(call_arr, stdout=stdout, stderr=stderr)
 
 
 def sort_reads_command(options,reads_filename):
@@ -108,12 +116,16 @@ def compress(options):
         out_cmd(options.output_dir + '/goodbad/' + os.path.basename(reads_filename), std_err_file.name, call_arr)
         call(call_arr, stdout=output_fp, stderr=std_err_file)
 
+        #continue
+
         # Polynomial regression.
         for degree in options.poly_degrees.split(','):
             ensure_dir(options.output_dir + '/degree_' + degree + '/')
 
             if 'degree_' + degree not in options.compressed_dirs:
-                 options.compressed_dirs.append('degree_' + degree)
+                options.compressed_dirs.append('degree_' + degree)
+
+            #continue
 
             call_arr = POLY_REGRESSION_CMD.replace('[READ]', reads_filename)\
                     .replace('[OUTPUT]', options.output_dir + '/degree_' + degree + '/' + os.path.basename(reads_filename))\
@@ -130,6 +142,8 @@ def compress(options):
 
             if 'profile_' + profiles not in options.compressed_dirs:
                 options.compressed_dirs.append('profile_' + profiles)
+
+            #continue
 
             call_arr = PROFILE_COMPRESSION_CMD.replace('[READ]', reads_filename)\
                     .replace('[OUTPUT]', options.output_dir + '/profile_' + profiles + '/' + os.path.basename(reads_filename))\
@@ -148,6 +162,8 @@ def compress(options):
             
             if 'qualcomp_r' + rate not in options.compressed_dirs:
                 options.compressed_dirs.append('qualcomp_r' + rate)
+
+            #continue
 
             """
             QUALCOMP_COMPRESS_CMD = "$QUALCOMP/runCompressMod.sh -i [READ] -c [CLUSTERS] -r [RATE]"
@@ -201,7 +217,6 @@ def compress(options):
     # After we compress/decompress everything, write out the quality values to a separate file and then run bzip on them.
     for compression_method in options.compressed_dirs:
         for reads_filename in options.reads_filenames:
-            from itertools import islice
 
             decompressed_file = options.output_dir + '/' + compression_method + '/' + os.path.basename(reads_filename)
 
@@ -351,7 +366,40 @@ Illumina_02,\tassembly,\tunknown,\tjumping,\t1,\t,\t,\t3000,\t500,\toutward,\t,\
         out_cmd("", std_err_file.name, call_arr)
         call(call_arr, stderr=std_err_file)
 
+        # Calculate the assembly likelihood.
         # /cbcb/project-scratch/cmhill/metalap/calc_prob.py -1 original/frag_1.fastq -2 original/frag_2.fastq -q -a decomp_0/allpaths/ASSEMBLIES/run/final.assembly.fasta  -I 0 -X 500  -m 180 -t 18  -p 32
+        reads_filenames = ','.join(options.reads_filenames)
+        assembly_filename = os.path.abspath(options.output_dir + '/assemble/' + compression_method + '/allpaths/ASSEMBLIES/run/final.assembly.fasta')
+        CALC_PROB_CMD = os.environ["CALCPROB"] + "/calc_prob.py -q -i " + reads_filenames + ' -a ' + assembly_filename + ' -p ' + options.threads
+
+        # tmp_rhodo/assemble/original/allpaths/ASSEMBLIES/run/final.assembly.fasta
+        probs_file = open(options.output_dir + '/assemble/' + compression_method + '/output.probs', 'w')
+
+        call_arr = CALC_PROB_CMD.split()
+        out_cmd(probs_file.name, std_err_file.name, call_arr)
+        call(call_arr, stdout=probs_file, stderr=std_err_file)
+
+        # Sum the read probabilities.
+        SUM_PROB_CMD = os.environ["CALCPROB"] + '/sum_prob.py -t 1e-80 -i ' + probs_file.name
+        sum_file = open(options.output_dir + '/assemble/' + compression_method + '/output.sum', 'w')
+        call_arr = SUM_PROB_CMD.split()
+        out_cmd(sum_file.name, std_err_file.name, call_arr)
+        call(call_arr, stdout=sum_file, stderr=std_err_file)
+
+        # Run the getCorrectnessStatistics.sh
+        #  sh getCorrectnessStats.sh [reference] [assembly] [assembly]
+        #reads_abs_path = os.path.abspath(reads_filename)
+        output_abs_dir = os.path.abspath(options.output_dir + '/assemble/' + compression_method + '/')
+        reference_abs_path = os.path.abspath(options.reference_fasta)
+        prev_dir = os.getcwd()
+        os.chdir(os.environ["MUMMER"])
+        GET_CORRECTNESS_STATS_CMD = "sh ./getCorrectnessStats.sh " + reference_abs_path + ' ' + assembly_filename + ' ' + assembly_filename
+        correctness_stats_file = open(output_abs_dir + '/assembly.correctness', 'w')
+        call_arr = GET_CORRECTNESS_STATS_CMD.split()
+        out_cmd(correctness_stats_file.name, std_err_file.name, call_arr)
+        call(call_arr, stdout=correctness_stats_file, stderr=std_err_file)
+
+        os.chdir(prev_dir)
 
 
 def align_reads(options):
@@ -366,10 +414,10 @@ def align_reads(options):
     BOWTIE2_INDEX_CMD = "bowtie2-build " + options.reference_fasta +  " " + options.output_dir + "/align/reference"
     call_arr = BOWTIE2_INDEX_CMD.split()
     out_cmd("", "", call_arr)
-    call(call_arr, stderr=std_err_file)
+    call(call_arr, stdout=FNULL, stderr=std_err_file)
 
     # Align the reads.
-    BOWTIE2_CMD = "bowtie2 -x " + options.output_dir + "/align/reference -p " + options.threads + " -U [READ] "
+    BOWTIE2_CMD = "bowtie2 -x " + options.output_dir + "/align/reference -p " + options.threads + " --reorder -U [READ] --al [ALIGNED]"
 
     for compression_method in options.compressed_dirs:
         for reads_filename in options.reads_filenames:
@@ -378,10 +426,14 @@ def align_reads(options):
             ensure_dir(alignment_filename)
             alignment_file = open(alignment_filename, 'w')
 
-            call_arr = BOWTIE2_CMD.replace('[READ]', options.output_dir + '/' + compression_method + '/' + os.path.basename(reads_filename)).split()
+            call_arr = BOWTIE2_CMD.replace('[READ]', options.output_dir + '/' + compression_method + '/' + os.path.basename(reads_filename))\
+                    .replace('[ALIGNED]', options.output_dir + '/align/' + compression_method + '/' + os.path.basename(reads_filename) + '.aligned').split()
             out_cmd(FNULL.name, alignment_filename, call_arr)
             call(call_arr, stdout=FNULL, stderr=alignment_file)
 
+            # Print out the headers of the aligned sequences.
+            with open(options.output_dir + '/align/' + compression_method + '/' + os.path.basename(reads_filename) + '.aligned', 'r') as aligned_file, open(options.output_dir + '/align/' + compression_method + '/' + os.path.basename(reads_filename) + '.headers', 'w') as headers:
+                headers.writelines(islice(aligned_file, 0, None, 4))
 
 
 def post_process_results(options):
@@ -391,9 +443,14 @@ def post_process_results(options):
 
     process_compression_stats(options)
 
-    process_preprocessing_stats(options)
+    if options.preprocessing:
+        process_preprocessing_stats(options)
 
-    pass
+    if options.assemble:
+        process_assembly_stats(options)
+
+    if options.alignment:
+        process_alignment_stats(options)
 
 
 def process_compression_stats(options):
@@ -413,6 +470,7 @@ def process_compression_stats(options):
 
 
         results_file = open(options.output_dir + "/results/" + os.path.basename(reads_filename) + '.compression', 'w')
+        results_file.write("compression\tbases\torig_size\torig_bzip2\tcomp_size\tcomp_bzip2\tmse\tbits_bp\n")
         for compression_method in options.compressed_dirs:
 
             filename = options.output_dir + '/' + compression_method + '/' + os.path.basename(reads_filename)
@@ -454,9 +512,10 @@ def process_preprocessing_stats(options):
     """
 
     for reads_filename in options.reads_filenames:
-        sequence_count = num_lines(reads_filename)
+        sequence_count = num_lines(reads_filename) / 4
 
         results_file = open(options.output_dir + "/results/" + os.path.basename(reads_filename) + '.preprocessing', 'w')
+        results_file.write("compression\tuniq_orig\tuniq_comp\tcommon_kept\tcommon_discard\tbases_kept\n")
         for compression_method in options.compressed_dirs:
 
             results = compression_method + '\t'
@@ -487,6 +546,153 @@ def process_preprocessing_stats(options):
 
             # Get the bases kept in the file.
             results += str(grab_value_from_file(options.output_dir + '/preprocessing/' + compression_method + '/' + os.path.basename(reads_filename) + '.stats.bases'))
+
+            results += '\n'
+            results_file.write(results)
+
+        results_file.close()
+
+
+def process_assembly_stats(options):
+    """
+    Output the assembly stats.
+    """
+
+    results_file = open(options.output_dir + "/results/assembly", 'w')
+    results_file.write("compression\tref_bases\tasm_bases\tN50\tmissing_ref_bases\tavg_idy\tsnps\tindels_gt5bp\tinversions\treloc\ttransloc\tcorr_N50\tLAP\n")
+
+    for compression_method in options.compressed_dirs:
+        results = compression_method + '\t'
+
+        results += "\t".join(parse_correctness_stats(options.output_dir + '/assemble/' + compression_method + '/assembly.correctness'))
+
+        results += '\t' + str(grab_value_from_file(options.output_dir + '/assemble/' + compression_method + '/output.sum'))
+
+        results += '\n'
+        results_file.write(results)
+
+    results_file.close()
+
+
+def parse_correctness_stats(filename):
+    """
+    Parse the results returned from get_Correctness.sh
+    """
+
+    results = []
+
+    stats_file = open(filename, 'r')
+
+    line = stats_file.readline()
+    while not line.startswith('Reference:'):
+        line = stats_file.readline()
+
+    # Add Reference bases.
+    results.append(line.strip().split()[1])
+
+    # Add the genome bases.
+    line = stats_file.readline()
+    results.append(line.strip().split()[1])
+
+    line = stats_file.readline()
+    while not line.startswith('N50:'):
+        line = stats_file.readline()
+
+    # Add N50.
+    results.append(line.split()[1])
+
+    line = stats_file.readline()
+    while not line.startswith('Missing Reference'):
+        line = stats_file.readline()
+
+    # Missing reference bases.
+    results.append(line.strip().split(' ')[3].split('(')[0])
+
+    line = stats_file.readline()
+    while not line.startswith('Avg Idy:'):
+        line = stats_file.readline()
+
+    # Add Avg Idy.
+    results.append(line.strip().split(' ')[2])
+
+    # Add SNPs.
+    line = stats_file.readline()
+    results.append(line.strip().split(' ')[1])
+
+    # Add Indels > 5bp.
+    line = stats_file.readline()
+    line = stats_file.readline()
+    results.append(line.strip().split(' ')[3])
+
+    # Add Inversions.
+    line = stats_file.readline()
+    results.append(line.strip().split(' ')[1])
+
+    # Add Relocations.
+    line = stats_file.readline()
+    results.append(line.strip().split(' ')[1])
+
+    # Add translocations.
+    line = stats_file.readline()
+    results.append(line.strip().split(' ')[1])
+
+    line = stats_file.readline()
+    while not line.startswith('N50:'):
+        line = stats_file.readline()
+
+    # Add Corrected N50.
+    results.append(line.strip().split()[1])
+
+    stats_file.close()
+
+    return results
+
+
+def process_alignment_stats(options):
+    """
+    Process the bowtie2 alignment results.
+    """
+
+    # options.output_dir + '/' + compression_method + '/' + os.path.basename(reads_filename) + '.aligned'
+    for reads_filename in options.reads_filenames:
+        sequence_count = num_lines(reads_filename)
+
+        results_file = open(options.output_dir + "/results/" + os.path.basename(reads_filename) + '.alignment', 'w')
+        results_file.write("compression\tmapped\tshared\tuniq_orig\tuniq_comp\n")
+        for compression_method in options.compressed_dirs:
+
+            results = compression_method + '\t'
+
+            # Get aligned reads.
+            results += str(num_lines(options.output_dir + '/align/' + compression_method + '/'\
+                    + os.path.basename(reads_filename) + '.headers')) + '\t'
+
+            # Get the number of sequences kept by both methods.
+            common_count = run_comm_and_return_line_count(options, "12", options.output_dir + '/align/original/'\
+                    + os.path.basename(reads_filename) + '.headers',\
+                    options.output_dir + '/align/' + compression_method + '/'\
+                     + os.path.basename(reads_filename) + '.headers')
+            results += common_count + '\t'
+
+            # Get the number of sequences kept unique to original.
+            unique_to_orig = run_comm_and_return_line_count(options, "23", options.output_dir + '/align/original/'\
+                    + os.path.basename(reads_filename) + '.headers',\
+                    options.output_dir + '/align/' + compression_method + '/'\
+                     + os.path.basename(reads_filename) + '.headers')
+            results += unique_to_orig + '\t'
+
+            # Get the number of sequences kept unique to the compression method.
+            unique_to_compress = run_comm_and_return_line_count(options, "13", options.output_dir + '/align/original/'\
+                    + os.path.basename(reads_filename) + '.headers',\
+                    options.output_dir + '/align/' + compression_method + '/'\
+                     + os.path.basename(reads_filename) + '.headers')
+            results += unique_to_compress + '\t'
+
+            # Get the number of sequences filtered by both methods.
+            #results += str(sequence_count - int(unique_to_orig) - int(unique_to_compress) - int(common_count)) + '\t'
+
+            # Get the bases kept in the file.
+            #results += str(grab_value_from_file(options.output_dir + '/align/' + compression_method + '/' + os.path.basename(reads_filename) + '.stats.bases'))
 
             results += '\n'
             results_file.write(results)
@@ -564,7 +770,7 @@ def num_lines(filename):
     """
     http://stackoverflow.com/questions/845058/how-to-get-line-count-cheaply-in-python
     """
-    return sum(1 for line in open(filename, 'r'))/4
+    return sum(1 for line in open(filename, 'r'))
 
 """
 I/O Helpers
@@ -602,6 +808,7 @@ def get_options():
 
     # Additional options.
     parser.add_option("-t", "--threads", dest="threads", help="Number of threads (default 32).", default="32")
+    parser.add_option("-d", "--dry-run", dest="dry_run", help="Don't run any commands.", action='store_true')
 
     (options, args) = parser.parse_args()
 
@@ -619,6 +826,9 @@ def main():
     global shell_file_fp
     shell_file_fp = open(shell_file, 'w')
     setup_shell_file()
+
+    global dry_run
+    dry_run = options.dry_run
 
     # Sort the fastq files first if necessary.
     if options.sort_reads:

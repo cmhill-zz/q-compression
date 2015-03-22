@@ -28,13 +28,18 @@ poly_regression <- function(quals) {
   # Get the quality values. Use a hardcoded quality offset.
   quals = quals + 33
   x = seq(1,length(quals))
-  
+  print(degree)
+  if (strtoi(degree) > 0) {
   # Fit the polynomial function.
-  fit = lm(quals ~ poly(x, strtoi(degree)))
+    fit = lm(quals ~ poly(x, strtoi(degree)))
   
-  # Predict the quality values using the above equation.
-  predicted_quals = rawToChar(as.raw(unlist(lapply(round(predict(fit)), min_max))))
-  return(predicted_quals)
+    # Predict the quality values using the above equation.
+    predicted_quals = rawToChar(as.raw(unlist(lapply(round(predict(fit)), min_max))))
+    return(predicted_quals)
+  } else {
+    predicted_quals = rawToChar(as.raw(unlist(rep(round(mean(quals)), length(quals)))))
+    return(predicted_quals)
+  }
 }
 
 poly_regression_coef <- function(quals) {
@@ -42,11 +47,16 @@ poly_regression_coef <- function(quals) {
   quals = quals + 33
   x = seq(1,length(quals))
   
-  # Fit the polynomial function.
-  fit = lm(quals ~ poly(x, strtoi(degree)))
-  
-  # Return the coefficients.
-  return(as.vector(fit$coefficients))
+  if (strtoi(degree) > 0) {
+    # Fit the polynomial function.
+    fit = lm(quals ~ poly(x, strtoi(degree)))
+    
+    # Return the coefficients.
+    return(as.vector(fit$coefficients))
+  } else {
+    #predicted_quals = rep(mean(quals), length(quals))
+    return(as.vector(round(mean(quals))))
+  }
 }
 
 # Read an entire fastq file
