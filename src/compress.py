@@ -93,8 +93,8 @@ def compress(options):
 
     # Basic command line scripts to run the individual compression schemes.
     GB_COMPRESSION_CMD = "./src/good_bad_coding.py -r [READ] -c 2 -b 0 -i [COMPRESSED_FILE]"
-    MAX_VALUE_COMPRESSION_CMD = "./src/good_bad_coding.py -r [READ] -g 40 -b 40 -c 2 -b 0 -i [COMPRESSED_FILE]"
-    MIN_VALUE_COMPRESSION_CMD = "./src/good_bad_coding.py -r [READ] -g 10 -b 10 -c 2 -b 0 -i [COMPRESSED_FILE]"
+    MAX_VALUE_COMPRESSION_CMD = "./src/good_bad_coding.py -r [READ] -g 40 -b 40 -c 2 -i [COMPRESSED_FILE]"
+    MIN_VALUE_COMPRESSION_CMD = "./src/good_bad_coding.py -r [READ] -g 0 -b 0 -c 2 -i [COMPRESSED_FILE]"
     POLY_REGRESSION_CMD = "Rscript src/poly_regression_parallel.R [READ] [OUTPUT] [DEGREE] [COMPRESSED_FILE] [NUM_THREADS]"
     PROFILE_COMPRESSION_CMD = "Rscript src/profile_parallel.R [READ] [OUTPUT] [TRAINING_SIZE] [NUM_PROFILES] [COMPRESSED_FILE] [NUM_THREADS]"
 
