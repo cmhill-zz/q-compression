@@ -84,8 +84,10 @@ def compress(options):
     Compress the reads using all methods.
     """
 
-    ensure_dir(options.output_dir + '/goodbad/')
     ensure_dir(options.output_dir + '/original/')
+    ensure_dir(options.output_dir + '/goodbad/')
+    ensure_dir(options.output_dir + '/maxqual/')
+    ensure_dir(options.output_dir + '/minqual/')
 
     std_err_file = open('compress.log', 'w')
 
