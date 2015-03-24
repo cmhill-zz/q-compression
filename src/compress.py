@@ -91,6 +91,8 @@ def compress(options):
 
     # Basic command line scripts to run the individual compression schemes.
     GB_COMPRESSION_CMD = "./src/good_bad_coding.py -r [READ] -c 2 -b 0 -i [COMPRESSED_FILE]"
+    MAX_VALUE_COMPRESSION_CMD = "./src/good_bad_coding.py -r [READ] -g 40 -b 40 -c 2 -b 0 -i [COMPRESSED_FILE]"
+    MIN_VALUE_COMPRESSION_CMD = "./src/good_bad_coding.py -r [READ] -g 10 -b 10 -c 2 -b 0 -i [COMPRESSED_FILE]"
     POLY_REGRESSION_CMD = "Rscript src/poly_regression_parallel.R [READ] [OUTPUT] [DEGREE] [COMPRESSED_FILE] [NUM_THREADS]"
     PROFILE_COMPRESSION_CMD = "Rscript src/profile_parallel.R [READ] [OUTPUT] [TRAINING_SIZE] [NUM_PROFILES] [COMPRESSED_FILE] [NUM_THREADS]"
 
@@ -101,6 +103,8 @@ def compress(options):
     options.compressed_dirs = []
     options.compressed_dirs.append('original')
     options.compressed_dirs.append('goodbad')
+    options.compressed_dirs.append('maxqual')
+    options.compressed_dirs.append('minqual')
 
     for reads_filename in options.reads_filenames:
         
@@ -114,6 +118,21 @@ def compress(options):
         output_fp = open(options.output_dir + '/goodbad/' + os.path.basename(reads_filename), 'w')
 
         out_cmd(options.output_dir + '/goodbad/' + os.path.basename(reads_filename), std_err_file.name, call_arr)
+        call(call_arr, stdout=output_fp, stderr=std_err_file)
+
+        # Max/min quality value compression. We can use good_bad.py script to do this.
+        call_arr = MAX_VALUE_COMPRESSION_CMD.replace('[READ]', reads_filename)\
+                .replace('[COMPRESSED_FILE]', options.output_dir + '/maxqual/' + os.path.basename(reads_filename) + '.comp').split()
+        output_fp = open(options.output_dir + '/maxqual/' + os.path.basename(reads_filename), 'w')
+
+        out_cmd(options.output_dir + '/maxqual/' + os.path.basename(reads_filename), std_err_file.name, call_arr)
+        call(call_arr, stdout=output_fp, stderr=std_err_file)
+
+        call_arr = MIN_VALUE_COMPRESSION_CMD.replace('[READ]', reads_filename)\
+                .replace('[COMPRESSED_FILE]', options.output_dir + '/minqual/' + os.path.basename(reads_filename) + '.comp').split()
+        output_fp = open(options.output_dir + '/minqual/' + os.path.basename(reads_filename), 'w')
+
+        out_cmd(options.output_dir + '/minqual/' + os.path.basename(reads_filename), std_err_file.name, call_arr)
         call(call_arr, stdout=output_fp, stderr=std_err_file)
 
         #continue
@@ -418,6 +437,8 @@ def align_reads(options):
 
     # Align the reads.
     BOWTIE2_CMD = "bowtie2 -x " + options.output_dir + "/align/reference -p " + options.threads + " --reorder -U [READ] --al [ALIGNED]"
+
+    # Have to do max/min alignment
 
     for compression_method in options.compressed_dirs:
         for reads_filename in options.reads_filenames:
@@ -805,6 +826,10 @@ def get_options():
     # QualComp-specific compression options.
     parser.add_option("--rates", dest="rates", help="QualComp parameter for setting the  bits/reads.", default="30")
     parser.add_option("--clusters", dest="clusters", help="QualComp parameter for setting number of clusters.", default="3")
+
+    # Max, min quality value compression options.
+    parser.add_option("--max-qv", dest="max_quality", help="Use this value for max quality value compression.", default="40")
+    parser.add_option("--min-qv", dest="min_quality", help="Use this value for min quality value compression.", default="10")
 
     # Additional options.
     parser.add_option("-t", "--threads", dest="threads", help="Number of threads (default 32).", default="32")
