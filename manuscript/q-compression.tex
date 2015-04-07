@@ -191,6 +191,32 @@ parameters.
 
 \subsubsection{Profiling}
 
+\begin{figure}[!tpb]%figure2
+\centerline{\includegraphics[width=3.35in]{profiles_128.png}}
+\caption{Quality profiles obtained by $k$-means clustering on the
+  fragment library from \textit{Rhodobacter sphaeroides} 2.4.1 data
+  set using $k$ = 128, with each row corresponding to a quality
+  profile. Dark to light colors represent low to high quality
+  values. It is readily visible that the two most distinctive features
+  of quality profiles is their drop-off position and average overall
+  quality. One can also see sporadic low-position values in a handful
+  of profiles, likely capturing intermittent problems in the
+  sequencing process affecting thousands of reads at a
+  time.}\label{fig:profiles_128}
+\end{figure}
+
+\begin{figure*}[!tb]%figure2
+%\centerline{\includegraphics[width=3.65in]{mse_frag.png}}
+\centerline{\includegraphics[width=7in]{compression_results.pdf}}
+\caption{Mean squared error versus bits/base-call for different
+  compression methods applied to the fragment library from
+  \textit{Rhodobacter sphaeroides} 2.4.1 data set. G/B: 2-bin
+  encoding. P32 and P256: Quality profile compression with 32 and 256
+  profiles. R0-R5: Polynomial regression-based compression using 0-5
+  degrees. Dashed line corresponds to lossless bzip compression of
+  quality values. \em}\label{fig:mse_vs_bpbp_frag}
+\end{figure*}
+
 As large sets of quality strings show similar trends of quality over
 their sequence, it makes sense to identify such common patterns in the
 data and use them as reference profiles to approximate individual
@@ -236,20 +262,6 @@ profiles, which is a function of the number of profiles times the cost
 of encoding them, and these fixed costs are amortized over the entire
 set of reads to which they apply. Additionally there are marginal
 costs that are a function of the number of reads encoded.
-
-\begin{figure}[!tpb]%figure2
-\centerline{\includegraphics[width=3.35in]{profiles_128.png}}
-\caption{Quality profiles obtained by $k$-means clustering on the
-  fragment library from \textit{Rhodobacter sphaeroides} 2.4.1 data
-  set using $k$ = 128, with each row corresponding to a quality
-  profile. Dark to light colors represent low to high quality
-  values. It is readily visible that the two most distinctive features
-  of quality profiles is their drop-off position and average overall
-  quality. One can also see sporadic low-position values in a handful
-  of profiles, likely capturing intermittent problems in the
-  sequencing process affecting thousands of reads at a
-  time.}\label{fig:profiles_128}
-\end{figure}
 
 \subsection{Data sets}
 
@@ -335,27 +347,16 @@ the lowest \textsc{mse}. As the order of the polynomial increases, the
 bits/base-call increase and the \textsc{mse} decreases at an
 exponential rate.
 
-\begin{figure}[!tpb]%figure2
-\centerline{\includegraphics[width=3.65in]{mse_frag.png}}
-\caption{Mean squared error versus bits/base-call for different
-  compression methods applied to the fragment library from
-  \textit{Rhodobacter sphaeroides} 2.4.1 data set. G/B: 2-bin
-  encoding. P32 and P256: Quality profile compression with 32 and 256
-  profiles. R0-R5: Polynomial regression-based compression using 0-5
-  degrees. Dashed line corresponds to lossless bzip compression of
-  quality values. \em}\label{fig:mse_vs_bpbp_frag}
-\end{figure}
-
-\begin{figure}[!tpb]%figure2
-\centerline{\includegraphics[width=3.65in]{mse_short.png}}
-\caption{Mean squared error versus bits/base-call for for different
-  compression methods applied to the short-jump library from
-  \textit{Rhodobacter sphaeroides} 2.4.1 data set. G/B: 2-bin
-  encoding. P32 and P256: Quality profile compression with 32 and 256
-  profiles. R0-R5: Polynomial regression-based compression using 0-5
-  degrees. Dashed line corresponds to lossless bzip compression of
-  quality values. \em}\label{fig:mse_vs_bpbp_jump}
-\end{figure}
+%\begin{figure}[!tpb]%figure3
+%\centerline{\includegraphics[width=3.65in]{mse_short.png}}
+%\caption{Mean squared error versus bits/base-call for for different
+%  compression methods applied to the short-jump library from
+%  \textit{Rhodobacter sphaeroides} 2.4.1 data set. G/B: 2-bin
+%  encoding. P32 and P256: Quality profile compression with 32 and 256
+%  profiles. R0-R5: Polynomial regression-based compression using 0-5
+%  degrees. Dashed line corresponds to lossless bzip compression of
+%  quality values. \em}\label{fig:mse_vs_bpbp_jump}
+%\end{figure}
 
 \subsection{Effects on sequence read preprocessing}
 
@@ -403,34 +404,20 @@ sequence and uses roughly $1.2\%$ more of the total read set than the
 \textsc{lap} values because the \textsc{lap} value is influenced by
 total coverage~\cite{Ghodsi:2013hb}.
 
-\begin{table*}[!tpb]
-\centering
-\caption[]{Rankings of different assemblies produced using proposed
+
+\begin{figure}[!tbp]%figure2
+%\centerline{\includegraphics[width=3.65in]{mse_frag.png}}
+\centerline{\includegraphics[width=3.65in]{rhodo_assembly_results.pdf}}
+\caption{Rankings of different assemblies produced using proposed
   compression methods. Assemblies were constructed using
   \textsc{allpaths-lg} and the \textit{Rhodobacter sphaeroides}
   2.4.1. data set provided by
   \textsc{gage}~\cite{Salzberg:2012rc}. Regression methods are sorted
   by their overall rank (determined by the sum of individual
-  rankings).}
-{\begin{tabular}{lcccccccc}
-& overall & & & & & & \textsc{lap} & \textsc{lap} \\
-compression            & rank & \textsc{snp}s & inversions & relocations & translocations & indels & fragment & short-jump \\
-\hline
-none                   & 1    & 5    & 1          & 1           & 1              & 1      & 1          & 1                    \\
-profile (256)          & 3    & 2    & 1          & 3           & 3              & 4      & 2          & 4                    \\
-profile (32)           & 4    & 3    & 1          & 4           & 6              & 5      & 3          & 3                    \\
-pegression (4th order) & 5    & 6    & 1          & 6           & 5              & 2      & 7          & 8                    \\
-regression (5th order) & 6    & 7    & 1          & 5           & 7              & 7      & 5          & 7                    \\
-2-bin	               & 7    & 1    & 1          & 8           & 11             & 10     & 6          & 5                    \\
-regression (3rd order) & 8    & 8    & 1          & 9           & 9              & 6      & 8          & 6                    \\
-regression (2nd order) & 9    & 9    & 1          & 7           & 4              & 8      & 9          & 10                   \\
-regression (1st order) & 10   & 10   & 11         & 10          & 8              & 9      & 10         & 9                    \\
-regression (0 order) & 11   & 11   & 10         & 11          & 10             & 11     & 11         & 11
-\\ \hline
-\end{tabular}
-}
-\label{tab:assembly_ranks}
-\end{table*}
+  rankings). \em}
+  \label{tab:assembly_ranks}
+\end{figure}
+
 
 \subsection{Effects on read mapping}
 
@@ -471,6 +458,51 @@ the decompressed file.The average missed alignments are
 mapped reads of 100\%, within which 99.66\% are common and only 0.33\%
 unique mapped reads in the decompressed file.
 
+
+\begin{table*}[!tbhp]
+\centering
+\caption[]{Quality filtering/trimming for the uncompressed and
+  decompressed \textsc{fastq} files. Numbers correspond to the
+  number of reads that are kept or discarded after applying
+  compression with respect to the original, uncompressed values.}
+\label{tab:quality_control}
+\begin{tabular}{lr|cc|cc|cc|cc|cc}
+ & & \multicolumn{2}{c|}{{\em MaxQual}} & \multicolumn{2}{c|}{{\em MinQual}} & \multicolumn{2}{c|}{{\em 2-bin}} & \multicolumn{2}{c|}{{\em Degree 0}} & \multicolumn{2}{c}{{\em Degree 1}} \\
+ & & kept & discarded & kept & discarded & kept & discarded & kept & discarded & kept & discarded \\ 
+  \cline{2-12}
+& kept & 883576 &   0 &   0 & 883576 & 871035 & 12541 & 728349 & 155227 & 871510 & 12066 \\ 
+{\em original} & discarded & 141858 &   0 &   0 & 141858 & 1882 & 139976 & 1475 & 140383 & 9214 & 132644 \\ 
+\cline{2-12}
+ & sum & 1025434 &   0 &   0 & 1025434 & 872917 & 152517 & 729824 & 295610 & 880724 & 144710 \\ 
+\end{tabular}
+
+\bigskip
+
+\begin{tabular}{lr|cc|cc|cc|cc|cc}
+ & & \multicolumn{2}{c|}{{\em Degree 3}} & \multicolumn{2}{c|}{{\em Degree 5}} & \multicolumn{2}{c|}{{\em Degree 7}} & \multicolumn{2}{c|}{{\em Profile (64)}} & \multicolumn{2}{c}{{\em Profile (128)}} \\
+ & & kept & discarded & kept & discarded & kept & discarded & kept & discarded & kept & discarded \\ 
+\cline{2-12}
+& kept & 872006 & 11570 & 878936 & 4640 & 877802 & 5774 & 876149 & 7427 & 877513 & 6063 \\ 
+{\em original}  &  discarded & 10369 & 131489 & 10004 & 131854 & 8821 & 133037 & 15795 & 126063 & 17453 & 124405 \\
+\cline{2-12}
+&  sum & 882375 & 143059 & 888940 & 136494 & 886623 & 138811 & 891944 & 133490 & 894966 & 130468 \\
+\end{tabular}
+
+\bigskip
+
+\begin{tabular}{lr|cc|cc|cc|cc|cc}
+&  & \multicolumn{2}{c|}{{\em Profile (256)}} & \multicolumn{2}{c|}{{\em QualComp (6)}} & \multicolumn{2}{c|}{{\em QualComp (10)}} & \multicolumn{2}{c|}{{\em QualComp (30)}} & \multicolumn{2}{c}{{\em QualComp (100)}} \\
+ & &  kept & discarded & kept & discarded & kept & discarded & kept & discarded & kept & discarded \\ 
+\cline{2-12}
+& kept & 881215 & 2361 & 878702 & 4874 & 879682 & 3894 & 881948 & 1628 & 881939 & 1637 \\ 
+{\em original}  & discarded & 15985 & 125873 & 13434 & 128424 & 12855 & 129003 & 10872 & 130986 & 7179 & 134679 \\ 
+\cline{2-12}
+&  sum & 897200 & 128234 & 892136 & 133298 & 892537 & 132897 & 892820 & 132614 & 889118 & 136316 \\ 
+\end{tabular}
+\end{table*}
+
+
+
 \begin{table*}[!tbhp]
 \centering
 \caption[]{Mapping results of decompressed \textsc{fastq} files
@@ -483,62 +515,44 @@ unique mapped reads in the decompressed file.
   decompression. ``Compressed only'' denotes the percentage of reads
   mapped from the decompressed data that were not mapped before
   compression.}
-\begin{tabular}{llcccc}
-    & & \multicolumn{4}{c}{percentage of reads mapped}\\
-    \cline{3-6}
-	library & compression strategy & total & shared & uncompressed only & compressed only \\ \hline
-	& maximum quality & 77.88 & 77.88 & 22.12 & 0 \\
-	&minimum quality & 100 & 100 & 0 & 0 \\
-	&2-bin & 99.92 & 99.89 & 0.11 & 0.03 \\
-	&regression (0 order) & 93.63 & 93.62 & 6.38 & 0.02 \\
-	&regression (1st order) & 98.62 & 98.61 & 1.39 & 0.01 \\
-	&regression (2nd order) & 99.42 & 99.39 & 0.61 & 0.03 \\
-	fragment&regression (3rd order) & 99.56 & 99.53 & 0.47 & 0.03 \\
-	&regression (4th order) & 99.71 & 99.68 & 0.32 & 0.03 \\ 
-	&regression (5th order) & 99.79 & 99.75 & 0.25 & 0.03 \\
-	&profile (32) & 99.9 & 99.86 & 0.14 & 0.04 \\ 
-	&profile (256) & 99.95 & 99.92 & 0.08 & 0.03 \\
+\begin{tabular}{lr|cc|cc|cc|cc|cc}
+ & & \multicolumn{2}{c|}{{\em MaxQual}} & \multicolumn{2}{c|}{{\em MinQual}} & \multicolumn{2}{c|}{{\em 2-bin}} & \multicolumn{2}{c|}{{\em Degree 0}} & \multicolumn{2}{c}{{\em Degree 1}} \\
+& & mapped & unmapped & mapped & unmapped & mapped & unmapped & mapped & unmapped & mapped & unmapped \\ 
+\cline{2-12}
+& mapped & 746716 & 145897 & 892613 &   0 & 891864 & 749 & 851682 & 40931 & 883390 & 9223 \\ 
+{\em original} & unmapped &   0 & 132821 & 10821 & 122000 & 186 & 132635 &  67 & 132754 &  55 & 132766 \\ 
+\cline{2-12}
+& sum & 746716 & 278718 & 903434 & 122000 & 892050 & 133384 & 851749 & 173685 & 883445 & 141989 \\ 
+\end{tabular}
 
-\\ \hline \\
+\bigskip
 
-	&maximum quality & 78.08 & 78.08 & 21.92 & 0 \\
-	&minimum quality & 100 & 100 & 0 & 0 \\ 
-	&2-bin & 97.38 & 97.38 & 2.62 & 0 \\
-	&regression (0 order) & 96.07 & 94.11 & 5.89 & 1.96 \\
-	&regression (1st order) & 99.24 & 98.98 & 1.02 & 0.26 \\ 
-	&regression (2nd order) & 99.66 & 99.35 & 0.65 & 0.3 \\ 
-	short-jump&regression (3rd order) & 99.94 & 99.61 & 0.39 & 0.33 \\ 
-	&regression (4th order) & 99.99 & 99.64 & 0.36 & 0.35 \\ 
-	&regression (5th order) & 100 & 99.67 & 0.33 & 0.33 \\ 
-	&profile (32) & 99.74 & 99.44 & 0.56 & 0.3 \\
-	&profile (256) & 99.76 & 99.52 & 0.48 & 0.24 \\
+\begin{tabular}{lr|cc|cc|cc|cc|cc}
+ & & \multicolumn{2}{c|}{{\em Degree 3}} & \multicolumn{2}{c|}{{\em Degree 5}} & \multicolumn{2}{c|}{{\em Degree 7}} & \multicolumn{2}{c|}{{\em Profile (64)}} & \multicolumn{2}{c}{{\em Profile (128)}} \\
+& & mapped & unmapped & mapped & unmapped & mapped & unmapped & mapped & unmapped & mapped & unmapped \\ 
+\cline{2-12}
+& mapped & 889537 & 3076 & 891019 & 1594 & 891479 & 1134 & 891753 & 860 & 891952 & 661 \\ 
+{\em original} & unmapped & 117 & 132704 & 155 & 132666 & 154 & 132667 & 144 & 132677 & 143 & 132678 \\ 
+\cline{2-12}
+& sum & 889654 & 135780 & 891174 & 134260 & 891633 & 133801 & 891897 & 133537 & 892095 & 133339 \\ 
+\end{tabular}
+
+\bigskip
+
+\begin{tabular}{lr|cc|cc|cc|cc|cc}
+&  & \multicolumn{2}{c|}{{\em Profile (256)}} & \multicolumn{2}{c|}{{\em QualComp (6)}} & \multicolumn{2}{c|}{{\em QualComp (10)}} & \multicolumn{2}{c|}{{\em QualComp (30)}} & \multicolumn{2}{c}{{\em QualComp (100)}} \\
+& &  kept & discarded & kept & discarded & kept & discarded & kept & discarded & kept & discarded \\ 
+\cline{2-12}
+& mapped & 892051 & 562 & 891375 & 1238 & 891777 & 836 & 892233 & 380 & 892454 & 159 \\ 
+{\em original}  & unmapped & 119 & 132702 & 304 & 132517 & 265 & 132556 & 220 & 132601 & 172 & 132649 \\ 
+\cline{2-12}
+& sum & 892170 & 133264 & 891679 & 133755 & 892042 & 133392 & 892453 & 132981 & 892626 & 132808 \\ 
+
 \end{tabular}
 
 \label{tab:aligner}
 \end{table*}
 
-
-\begin{table}[!tbhp]
-\centering
-\caption[]{Quality filtering/trimming for the uncompressed and
-  decompressed \textsc{fastq} files. Numbers correspond to the
-  proportion of bases/reads that are missed or gained after applying
-  compression with respect to the uncompressed values.}
-\label{tab:quality_control}
-\begin{tabular}{lcccc}
-	 & \multicolumn{2}{c}{fragments} & \multicolumn{2}{c}{short-Jump} \\
-	 & \% bases & \% reads & \% bases & \% reads \\ \hline
-	2-bin & 98.15 & 98.78 & 113.09 & 103.7 \\ 
-	regression (0 order) & 86.71 & 62.64 & 43.31 & 27.51 \\
-	regression (1st order) & 92.96 & 95.09 & 81.31 & 91.79 \\ 
-	regression (2nd order) & 93.93 & 96.87 & 86.31 & 94.75 \\
-	regression (3rd order) & 93.5 & 95.68 & 88.7 & 94.51 \\ 
-	regression (4th order) & 94.43 & 96.7 & 91.94 & 97.02 \\ 
-	regression (5th order) & 95.56 & 98.09 & 93.92 & 98.02 \\ 
-	profile (32) & 99.12 & 98.96 & 102.89 & 102.24 \\
-	profile (256) & 100 & 99.8 & 102.66 & 101.27 \\
-\end{tabular}
-\end{table}
 
 \section{Discussion}
 
