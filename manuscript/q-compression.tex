@@ -25,6 +25,7 @@ $^{4}$Center for Bioinformatics and Computational Biology, University of Marylan
 \begin{abstract}
 
 \section{Motivation:}
+
 The \textsc{fastq} file format has become the \emph{de facto} standard
 for storing next-generation sequencing data, containing nucleotide
 information along with a quantitative measure of the reliability of
@@ -67,8 +68,8 @@ has the potential for substantial improvement in data storage and
 transfer efficiency.
 
 Quality values comprise a standard component of \textsc{fastq}
-files~\citep{Cock:2010ve}, a very common format for sequence read data.
-At the level of sequence read the probability of error for each
+files~\citep{Cock:2010ve}, a very common format for sequence read
+data. At the level of sequence read the probability of error for each
 base-call is typically represented by \textsc{phred} quality value,
 which is defined as $Q =
 -10\,log_{10}P$~\citep{Ewing:1998ly}. Depending on the sequencing
@@ -77,7 +78,7 @@ represented with the \textsc{ascii} characters 33 to 126 (with some
 offset). There is a single quality value per base-call for Illumina
 sequence reads.
 
-Quality values can be used throughout bioinformatics pipelines.  Among
+Quality values can be used throughout bioinformatics pipelines. Among
 the most fundamental uses of sequence quality values is as part of the
 quality assessment and quality control (\textsc{qa/qc}) processes
 prior to subsequent analysis steps. Quality control based on quality
@@ -103,7 +104,7 @@ on lossless compression of base calls~\cite[reviewed
 addressed compression of quality
 values~\cite[e.g.,][]{asnani2012lossy,Canovas:2014fr,Hach:2012ys,
   janin2013adaptive,Kozanitis:2011kl,Ochoa:2013rt,Tembe:2010ys,
-  Wan:2012kq,DBLP:conf/recomb/YuYB14,zhou2014compression}.  Among the
+  Wan:2012kq,DBLP:conf/recomb/YuYB14,zhou2014compression}. Among the
 several challenges for compression of read data is dealing with
 different error profiles resulting from differences in underlying
 chemistries, signal detection and processing mechanisms, inherent
@@ -214,12 +215,16 @@ parameters.
 %\centerline{\includegraphics[width=3.65in]{mse_frag.png}}
 \centerline{\includegraphics[width=7in]{compression_results.pdf}}
 \caption{Mean squared error versus bits/base-call for different
-  compression methods applied to the
-  \textit{Rhodobacter sphaeroides} 2.4.1, and \textit{Homo sapiens} chromosome 14 fragment libraries, and \textit{Escherichia coli} str. K-12 MG1655, and \textit{Mus musculus} data sets. 2B: 2-bin
-  encoding. P64, P128, and P256: Quality profile compression with 64, 128, and 256
-  profiles. R0-R7: Polynomial regression-based compression using 0-7
-  degrees. Dashed line corresponds to lossless Bzip2 compression of
-  quality values. \em}\label{fig:mse_vs_bpbp}
+  compression methods applied to the \textit{Rhodobacter sphaeroides}
+  2.4.1, and \textit{Homo sapiens} chromosome 14 fragment libraries,
+  and \textit{Escherichia coli} str. K-12 MG1655, and \textit{Mus
+    musculus} data sets. 2B --- 2-bin encoding; P$n$ 
+  --- profiling with $n$ profiles; R$n$ --- modeling with polynomial regression
+  models of degree $n$; Q$n$ --- QualComp with rate parameter 
+  of $n$. Dashed line corresponds to lossless Bzip2
+  compression of quality values, and dotted line corresponds to
+  original uncompressed data.}
+\label{fig:mse_vs_bpbp}
 \end{figure*}
 
 As large sets of quality strings show similar trends of quality over
@@ -231,11 +236,11 @@ cluster centers as representative profiles.
 
 $k$-means clustering is a vector quantization method, partitioning a
 set of samples into $k$ sets that minimize within-cluster sum of
-squares~\citep{macqueen1967some}. Using a random subset of read quality
-values, a compression method can use the computed cluster centers as
-read quality profiles. As the problem is NP-hard, we use a heuristic
-iterative refinement approach quickly converging to a locally optimal
-minimum provided by the Python package scikit-learn
+squares~\citep{macqueen1967some}. Using a random subset of read
+quality values, a compression method can use the computed cluster
+centers as read quality profiles. As the problem is NP-hard, we use a
+heuristic iterative refinement approach quickly converging to a
+locally optimal minimum provided by the Python package scikit-learn
 0.15~\citep{pedregosa2011scikit}.
 
 First, the method samples an adjustable number of quality sequences
@@ -294,12 +299,15 @@ and short-jump library (insert sizes ranging from 2283-2803 nt;
 22,669,408 reads).  The corresponding reference sequence was obtained
 from the NCBI RefSeq database (NC\_000014.8).
 
-\textit{Escherichia coli} str. K-12 MG1655 MiSeq data was downloaded from \url{http://www.illumina.com/systems/miseq/scientific_data.html}, which are generated from a
-fragment library (insert size of 180bp nt; 1,145,8940 paired-end reads). 
-The corresponding reference sequence was obtained
-from the NCBI RefSeq database (NC\_000913.2).
+\textit{Escherichia coli} str. K-12 MG1655 MiSeq data was downloaded
+from \url{http://www.illumina.com/systems/miseq/scientific_data.html},
+which are generated from a fragment library (insert size of 180bp nt;
+1,145,8940 paired-end reads).  The corresponding reference sequence
+was obtained from the NCBI RefSeq database (NC\_000913.2).
 
-\textit{Mus musculus} data was downloaded from \url{http://trace.ddbj.nig.ac.jp/DRASearch/run?acc=SRR032209}, which consisted of 18,828,274 reads of length 36.
+\textit{Mus musculus} data was downloaded from
+\url{http://trace.ddbj.nig.ac.jp/DRASearch/run?acc=SRR032209}, which
+consisted of 18,828,274 reads of length 36.
 
 \subsection{Performance evaluation}
 
@@ -343,33 +351,42 @@ settings and 32 threads.
 
 \subsection{Compression effectiveness versus information loss}
 
-We compare the \textsc{mse} versus bits/base-call of the \textit{Rhodobacter sphaeroides} 2.4.1, \textit{Homo sapiens} chromosome 14, \textit{Escherichia coli} str. K-12 MG1655, and \textit{Mus musculus} data sets (Figure \ref{fig:mse_vs_bpbp}). We only include the fragment libraries for the \textit{Rhodobacter sphaeroides} 2.4.1, and \textit{Homo sapiens} chromosome 14 data sets, but the additional short-jump library results are available in the supplementary (TODO:TABLE). Storing the uncompressed quality values
-requires 1 byte per base-call because they are stored in
-\textsc{ascii} format and is denoted by the dotted black line in the figure.
-The lossless compression of each data set using BZip2 ranges from 2.19 - 3.10 bits/base-call and is denoted by the colored dotted lines.
-The compression methods tend to cluster together across the different data sets.
-Across all data sets, the 0-order polynomial regression, profile encodings, and QualComp have the lowest bits/base-call. 
+We compare the \textsc{mse} versus bits/base-call of the
+\textit{Rhodobacter sphaeroides} 2.4.1, \textit{Homo sapiens}
+chromosome 14, \textit{Escherichia coli} str. K-12 MG1655, and
+\textit{Mus musculus} data sets (Figure \ref{fig:mse_vs_bpbp}). We
+only include the fragment libraries for the \textit{Rhodobacter
+  sphaeroides} 2.4.1, and \textit{Homo sapiens} chromosome 14 data
+sets, but the additional short-jump library results are available in
+the supplementary (TODO:TABLE). Storing the uncompressed quality
+values requires 1 byte per base-call because they are stored in
+\textsc{ascii} format and is denoted by the dotted black line in the
+figure.  The lossless compression of each data set using BZip2 ranges
+from 2.19 - 3.10 bits/base-call and is denoted by the colored dotted
+lines.  The compression methods tend to cluster together across the
+different data sets.  Across all data sets, the 0-order polynomial
+regression, profile encodings, and QualComp have the lowest
+bits/base-call.
 
-QualComp with the rate parameter set to 100 bits/read has the lowest \textsc{mse}, but requires 10-15x more storage than the profile encoding methods for only a 2-3x reduction in \textsc{mse}.
-When QualComp's rate parameter is set to match the profile encoding methods, QualComp performs slightly worse in terms of \textsc{mse}.
-In the \textit{Rhodobacter sphaeroides} 2.4.1 fragment library, QualComp with rate 10 bits/read (0.099 bits/bp) has a \textsc{mse} of 17.29.  Using 256-profile encoding requires less storage (0.079 bits/bp) and has a lower \textsc{mse} (11.85).
+QualComp with the rate parameter set to 100 bits/read has the lowest
+\textsc{mse}, but requires 10-15x more storage than the profile
+encoding methods for only a 2-3x reduction in \textsc{mse}.  When
+QualComp's rate parameter is set to match the profile encoding
+methods, QualComp performs slightly worse in terms of \textsc{mse}.
+In the \textit{Rhodobacter sphaeroides} 2.4.1 fragment library,
+QualComp with rate 10 bits/read (0.099 bits/bp) has a \textsc{mse} of
+17.29.  Using 256-profile encoding requires less storage (0.079
+bits/bp) and has a lower \textsc{mse} (11.85).
 
-As the order of the polynomial increases, the
-bits/base-call increase and the \textsc{mse} decreases at an
-exponential rate.
-The 7th-order polynomial regression has the highest bits/base-call and in the \textit{Mus musculus} data set, and requires more storage than the \textsc{ascii} original quality values.  A 7th-order polynomial requires storing eight floating point values, resulting in 32 bytes per quality sequence.  The read length of the \textit{Mus musculus} data set is only 26, so the 7th-order polynomial regression is storing six more bytes than necessary to losslessly encode the quality data.
-
-
-%\begin{figure}[!tpb]%figure3
-%\centerline{\includegraphics[width=3.65in]{mse_short.png}}
-%\caption{Mean squared error versus bits/base-call for for different
-%  compression methods applied to the short-jump library from
-%  \textit{Rhodobacter sphaeroides} 2.4.1 data set. G/B: 2-bin
-%  encoding. P32 and P256: Quality profile compression with 32 and 256
-%  profiles. R0-R5: Polynomial regression-based compression using 0-5
-%  degrees. Dashed line corresponds to lossless bzip compression of
-%  quality values. \em}\label{fig:mse_vs_bpbp_jump}
-%\end{figure}
+As the order of the polynomial increases, the bits/base-call increase
+and the \textsc{mse} decreases at an exponential rate.  The 7th-order
+polynomial regression has the highest bits/base-call and in the
+\textit{Mus musculus} data set, and requires more storage than the
+\textsc{ascii} original quality values.  A 7th-degree polynomial
+requires storing eight floating point values, resulting in 32 bytes
+per quality sequence.  The read length of the \textit{Mus musculus}
+data set is only 26, so the 7th-degree polynomial regression is storing
+six more bytes than necessary for lossless encoding the quality data.
 
 \subsection{Effects on sequence read preprocessing}
 
@@ -417,7 +434,6 @@ sequence and uses roughly $1.2\%$ more of the total read set than the
 \textsc{lap} values because the \textsc{lap} value is influenced by
 total coverage~\citep{Ghodsi:2013hb}.
 
-
 \begin{figure}[!tbp]%figure2
 %\centerline{\includegraphics[width=3.65in]{mse_frag.png}}
 \centerline{\includegraphics[width=3.65in]{rhodo_assembly_results.pdf}}
@@ -428,7 +444,6 @@ total coverage~\citep{Ghodsi:2013hb}.
   magenta}
   \label{tab:assembly_ranks}
 \end{figure}
-
 
 \subsection{Effects on read mapping}
 
@@ -473,9 +488,9 @@ unique mapped reads in the decompressed file.
 \begin{table*}[!tbhp]
 \centering
 \caption[]{Quality filtering/trimming for the uncompressed and
-  decompressed \textsc{fastq} files. Numbers correspond to the
-  number of reads that are kept or discarded after applying
-  compression with respect to the original, uncompressed values.}
+  decompressed \textsc{fastq} files. Numbers correspond to the number
+  of reads that are kept or discarded after applying compression with
+  respect to the original, uncompressed values.}
 \label{tab:quality_control}
 \begin{tabular}{lr|cc|cc|cc|cc|cc}
  & & \multicolumn{2}{c|}{{\em MaxQual}} & \multicolumn{2}{c|}{{\em MinQual}} & \multicolumn{2}{c|}{{\em 2-bin}} & \multicolumn{2}{c|}{{\em Degree 0}} & \multicolumn{2}{c}{{\em Degree 1}} \\
@@ -511,8 +526,6 @@ unique mapped reads in the decompressed file.
 &  sum & 897200 & 128234 & 892136 & 133298 & 892537 & 132897 & 892820 & 132614 & 889118 & 136316 \\ 
 \end{tabular}
 \end{table*}
-
-
 
 \begin{table*}[!tbhp]
 \centering
