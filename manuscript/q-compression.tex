@@ -404,18 +404,15 @@ proportion of bases and reads are 113.09\% and 103.70\% respectively.
 
 \subsection{Effects on genome assembly}
 
-The assembly of the \textit{Rhodobacter sphaeroides} 2.4.1 data set
-using the uncompressed reads outperforms all compression methods in
-terms of \textsc{lap}, NG50, relocations, translations, and inversions
-(Table \ref{tab:assembly_ranks}). Among the compression methods, the
-256- and 32-profile encoding had the highest rank, then the 4th-order
-polynomial regression, the 5th-order polynomial regression, the 2-bin
-encoding, and lastly, the 3rd through 0-order polynomials.
+No assembly of the \textit{Rhodobacter sphaeroides} 2.4.1 data set outperforms all others in all metrics (Table \ref{fig:assembly_ranks}).
+%The assembly of the \textit{Rhodobacter sphaeroides} 2.4.1 data set using the uncompressed reads outperforms all compression methods in terms of \textsc{lap}, NG50, relocations, translations, and inversions.
+Among the compression methods, the
+256-, 64-, 128-profile encoding had the highest ranks, followed by QualComp with rates 10 bits/read, 30 bits/read, 100 bits/read, then 7th-order polynomial regression, followed by the QualComp with rate 6 bits/read, the 2-bin encoding, and lastly, the 3rd-order, 5th-order, and 0-order polynomials.
 
 The lossy compression methods largely preserve the contiguity found in
 the assembly produced using the reads with unmodified quality
 sequences. All compression methods other than 0-order polynomial
-regression produce an NG50 ranging from 3.18--3.19 Mbps. Despite the
+regression produce an N50 ranging from 3.17--3.22 Mbps (see Supplemental Table TODO). Despite the
 similar contiguity statistics, the different compression methods vary
 noticeably in the amount of \textsc{snp}s. The order of polynomial has
 an inverse relationship with the amount of \textsc{snp}s detected. The
@@ -425,14 +422,20 @@ original quality sequences. A more in-depth evaluation is needed to
 determine whether these compression methods are missing actual
 \textsc{snp}s.
 
-It is important to highlight the result that the 4th-order polynomial
-regression outperforms the 5th-order in all of the reference-based
-metrics, but not the \emph{de novo} \textsc{lap} metrics. The
-5th-order polynomial regression assembles approximately 2.5 kb more
-sequence and uses roughly $1.2\%$ more of the total read set than the
-4th-order (Supplemental Table 1), which may explain the discrepency in
-\textsc{lap} values because the \textsc{lap} value is influenced by
-total coverage~\citep{Ghodsi:2013hb}.
+It is important to highlight that using uncompressed reads does not produce the best assembly in terms of any of the metrics.
+The uncompressed reads scores worse than the top overall assembly (256-profile encoding) in terms of assembled bases, missing reference bases, N50, \textsc{snp}s, indels $>$5bp, and relocations.
+The assembly using uncompressed reads has an error rate of roughly 8.75 errors per 100 kb of assembled sequence, while the 256-profile encoding has an error rate of 8.02 errors per 100 kb (see Supplemental table TODO).
+
+In general, the greater the polynomial order, the better overall assembly; however, the 5th-order polynomial regression performs slightly worse than the 3rd-order polynomial.
+Their respective ranks in terms of N50 and relocations are fairly distant, which lowers the 5th-order polynomial's overall ranking barely below the 3rd-order's.
+The 1st- and 0-order polynomial regression methods perform poor in all metrics except assembled bases.
+One explanation is that the high error portions of sequences are being marked as high quality, so \textsc{allpaths-lg} is unable to trim or error correct the sequences.  Assembled sequences that overlap maybe unable to align to the errors at the end of the reads, artificially inflating the assembled genome size.
+
+Among the different QualComp rate parameters, the 10 bits/read rate ranked highest overall, outperforming the other rate parameters in terms of corrected N50, least missing reference bases, \textsc{snp}s, and indels $>$5bp.
+With the exception of the 6 bits/read rate, the assemblies decrease in rank with the increase in the rate parameter in terms of corrected N50, and least missing reference bases.
+This trend runs counter to the the decrease in \textsc{mse} of the different rates. 
+
+
 
 \begin{figure}[!tbp]%figure2
 %\centerline{\includegraphics[width=3.65in]{mse_frag.png}}
@@ -442,7 +445,7 @@ total coverage~\citep{Ghodsi:2013hb}.
   \textsc{allpaths-lg} and the \textit{Rhodobacter sphaeroides}.
   Rankings above the median value are in cyan, those below in
   magenta}
-  \label{tab:assembly_ranks}
+  \label{fig:assembly_ranks}
 \end{figure}
 
 \subsection{Effects on read mapping}
