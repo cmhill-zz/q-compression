@@ -491,26 +491,19 @@ values on mapping in general, Bowtie2 was adjusted so that the maximum
 and minimum mismatch penalty were equivalent to maximum and minimum
 quality scores (with parameters: --mp 6,6 and --mp 2,2 respectively).
 
-Generally, increasing the regression model polynomial order from 0 to
-5 results in more mapped reads with the most marked change from order
-1 to order 2. The best compression approach is the one that has
-highest proportion of reads shared between the uncompressed and
-decompressed files and least number of reads that are unique in both
-uncompressed and decompressed files. In fragment sample, on average,
-99.03\% of reads were mapped using different compression approaches,
-within which 99\% are shared with the uncompressed alignments and
-0.02\% unique mapped reads in the decompressed file. The average
-missed alignments are 0.99\%. Compression with profile 256 approach
-was shown to be the best performing approach in the fragment
-decompressed sample, as a proportional of 99.94\% reads are mapped
-with respect to the uncompressed mapped reads within which 99.91\% are
-common and only 0.08\% unique mapped reads in the decompressed
-file. In short-run sample, the average number of mapped reads is 99.14
-\% within which 98.73\% are common and 0.41\% unique mapped reads in
-the decompressed file.The average missed alignments are
-1.2\%. Regression with the 5th polynomial order captured the highest
-mapped reads of 100\%, within which 99.66\% are common and only 0.33\%
-unique mapped reads in the decompressed file.
+We evaluate the compression methods using two approaches.  In the first approach, we order the compression  methods based on how similar the alignment results are to the uncompressed sequences, i.e., the amount of reads aligned by both the uncompressed and compressed methods minus the amount of reads uniquely aligned by the uncompressed and compression method.  In the second approach, we order the compression methods by total proportion of aligned reads.
+
+The best compression method in terms of similarity with the uncompressed reads is QualComp with rate 100 bits/read, followed by QualComp with rate 30 bits/read, 256-, and 128-profile encoding, then 2-bin encoding, 64-profile encoding, QualComp with rate 10 bits/read, 7th-degree polynomial regression, QualComp with rate 6 bits/read, and finally, 5th-degree through 0-degree polynomial regression.
+
+Ranking the compression methods by overall alignment rate produces an identical ordering as above.  Aside from 0-degree polynomial regression (83.1\%), all other compression methods have an alignment rate between 87\% and 86.1\%.
+
+Most of the compression methods did not vary greatly in terms of the number of reads that were mapped \emph{only} by the compression method; however, there is a sizable difference in the amount of reads that are originally mapped, but unmapped by the compressed methods.
+QualComp with rate 100 bits/read results in the fewest missing original read alignments (159).
+Increasing the regression model polynomial degree results in a decreasing amount of reads that are originally mapped, but unmapped by the regression model (40,931 to 1,134 reads for 0-degree and 7th-degree, respectively).
+There is no such trend for reads that are mapped only by the regression model.
+
+Setting all bases as minimum quality results in the highest fraction of mapped reads 88.1\%.
+Conversely, setting all bases as maximum quality results in the lowest fraction of mapped reads 72.8\%.
 
 
 \begin{table*}[!tbhp]
@@ -527,7 +520,7 @@ unique mapped reads in the decompressed file.
 & kept & 883576 &   0 &   0 & 883576 & 871035 & 12541 & 728349 & 155227 & 871510 & 12066 \\ 
 {\em original} & discarded & 141858 &   0 &   0 & 141858 & 1882 & 139976 & 1475 & 140383 & 9214 & 132644 \\ 
 \cline{2-12}
- & sum & 1025434 &   0 &   0 & 1025434 & 872917 & 152517 & 729824 & 295610 & 880724 & 144710 \\ 
+ & fraction & 1.000 & 0.000 & 0.000 & 1.000 & 0.851 & 0.149 & 0.712 & 0.288 & 0.859 & 0.141 \\ 
 \end{tabular}
 
 \bigskip
@@ -539,7 +532,7 @@ unique mapped reads in the decompressed file.
 & kept & 872006 & 11570 & 878936 & 4640 & 877802 & 5774 & 876149 & 7427 & 877513 & 6063 \\ 
 {\em original}  &  discarded & 10369 & 131489 & 10004 & 131854 & 8821 & 133037 & 15795 & 126063 & 17453 & 124405 \\
 \cline{2-12}
-&  sum & 882375 & 143059 & 888940 & 136494 & 886623 & 138811 & 891944 & 133490 & 894966 & 130468 \\
+& fraction & 0.860 & 0.140 & 0.867 & 0.133 & 0.865 & 0.135 & 0.870 & 0.130 & 0.873 & 0.127 \\ 
 \end{tabular}
 
 \bigskip
@@ -551,7 +544,7 @@ unique mapped reads in the decompressed file.
 & kept & 881215 & 2361 & 878702 & 4874 & 879682 & 3894 & 881948 & 1628 & 881939 & 1637 \\ 
 {\em original}  & discarded & 15985 & 125873 & 13434 & 128424 & 12855 & 129003 & 10872 & 130986 & 7179 & 134679 \\ 
 \cline{2-12}
-&  sum & 897200 & 128234 & 892136 & 133298 & 892537 & 132897 & 892820 & 132614 & 889118 & 136316 \\ 
+& fraction & 0.875 & 0.125 & 0.870 & 0.130 & 0.870 & 0.130 & 0.871 & 0.129 & 0.867 & 0.133 \\ 
 \end{tabular}
 \end{table*}
 
@@ -574,7 +567,8 @@ unique mapped reads in the decompressed file.
 & mapped & 746716 & 145897 & 892613 &   0 & 891864 & 749 & 851682 & 40931 & 883390 & 9223 \\ 
 {\em original} & unmapped &   0 & 132821 & 10821 & 122000 & 186 & 132635 &  67 & 132754 &  55 & 132766 \\ 
 \cline{2-12}
-& sum & 746716 & 278718 & 903434 & 122000 & 892050 & 133384 & 851749 & 173685 & 883445 & 141989 \\ 
+%& sum & 746716 & 278718 & 903434 & 122000 & 892050 & 133384 & 851749 & 173685 & 883445 & 141989 \\ 
+& fraction & 0.728 & 0.272 & 0.881 & 0.119 & 0.870 & 0.130 & 0.831 & 0.169 & 0.862 & 0.138 \\ 
 \end{tabular}
 
 \bigskip
@@ -586,7 +580,8 @@ unique mapped reads in the decompressed file.
 & mapped & 889537 & 3076 & 891019 & 1594 & 891479 & 1134 & 891753 & 860 & 891952 & 661 \\ 
 {\em original} & unmapped & 117 & 132704 & 155 & 132666 & 154 & 132667 & 144 & 132677 & 143 & 132678 \\ 
 \cline{2-12}
-& sum & 889654 & 135780 & 891174 & 134260 & 891633 & 133801 & 891897 & 133537 & 892095 & 133339 \\ 
+%& sum & 889654 & 135780 & 891174 & 134260 & 891633 & 133801 & 891897 & 133537 & 892095 & 133339 \\ 
+& fraction & 0.868 & 0.132 & 0.869 & 0.131 & 0.870 & 0.130 & 0.870 & 0.130 & 0.870 & 0.130 \\ 
 \end{tabular}
 
 \bigskip
@@ -598,7 +593,8 @@ unique mapped reads in the decompressed file.
 & mapped & 892051 & 562 & 891375 & 1238 & 891777 & 836 & 892233 & 380 & 892454 & 159 \\ 
 {\em original}  & unmapped & 119 & 132702 & 304 & 132517 & 265 & 132556 & 220 & 132601 & 172 & 132649 \\ 
 \cline{2-12}
-& sum & 892170 & 133264 & 891679 & 133755 & 892042 & 133392 & 892453 & 132981 & 892626 & 132808 \\ 
+%& sum & 892170 & 133264 & 891679 & 133755 & 892042 & 133392 & 892453 & 132981 & 892626 & 132808 \\ 
+& fraction & 0.870 & 0.130 & 0.870 & 0.130 & 0.870 & 0.130 & 0.870 & 0.130 & 0.870 & 0.130 \\
 
 \end{tabular}
 
