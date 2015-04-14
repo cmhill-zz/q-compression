@@ -360,10 +360,9 @@ only include the fragment libraries for the \textit{Rhodobacter
 sets, but the additional short-jump library results are available in
 the supplementary (TODO:TABLE). Storing the uncompressed quality
 values requires 1 byte per base-call because they are stored in
-\textsc{ascii} format and is denoted by the dotted black line in the
+\textsc{ascii} format and is denoted by the dotted black asterisk in the
 figure.  The lossless compression of each data set using BZip2 ranges
-from 2.19 - 3.10 bits/base-call and is denoted by the colored dotted
-lines.  The compression methods tend to cluster together across the
+from 2.19 - 3.10 bits/base-call and is denoted by the colored asterisks on the x-axis.  The compression methods tend to cluster together across the
 different data sets.  Across all data sets, the 0-degree polynomial
 regression, profile encodings, and QualComp have the lowest
 bits/base-call.
@@ -388,19 +387,38 @@ per quality sequence.  The read length of the \textit{Mus musculus}
 data set is only 26, so the 7th-degree polynomial regression is storing
 six more bytes than necessary for lossless encoding the quality data.
 
+
+\begin{figure}[!tbp]%figure2
+%\centerline{\includegraphics[width=3.65in]{mse_frag.png}}
+\centerline{\includegraphics[width=3.65in]{preprocessing_results.pdf}}
+\caption{Preprocessing results of \textit{Rhodobacter sphaeroides}
+  2.4.1, and \textit{Homo sapiens} chromosome 14 fragment libraries,
+  and \textit{Escherichia coli} str. K-12 MG1655, and \textit{Mus
+    musculus} data sets. Sequences were trimmed using Sickle. The total amount of bases filtered by each compression method is compared with the amount of bases filtered using the uncompressed sequences.}
+  \label{fig:preprocessing}
+\end{figure}
+
+
 \subsection{Effects on sequence read preprocessing}
 
-Table \ref{tab:quality_control} shows the proportional numbers with
-respect to those of the uncompressed \textsc{fastq} files. In the
-fragment sample, we retain on average 95.4\% and 94.24\% of bases and
-reads, respectively. In the short-jump sample, we retain 90.4\% and
-90.98\% of bases and reads, respectively. In some cases, the
-proportion of reads and/or bases compared to the original is more than
-100\%; this means that the number of the reads and bases in the
-compressed samples are more because altering quality values may
-prevent the read from being filtered and/or trimmed. This is clear in
-the good/ bad compression approach of the short-jump sample, where the
-proportion of bases and reads are 113.09\% and 103.70\% respectively.
+The majority of compression methods retain more base-pairs after preprocessing than the uncompressed sequences (Figure \ref{fig:preprocessing}).
+In general, as a given compression model increases in complexity, i.e., as the number of profiles, polynomial degrees, or rate increases, the amount of base-pairs kept approaches the number base-pairs kept using the uncompressed sequences.
+The compression methods on the \emph{Mus Musculus} data set have the greatest proportion of retained base-pairs compared to the uncompressed sequences.
+The \textit{Escherichia coli} str. K-12 MG1655 MiSeq data set has the smallest range.
+
+The 2-bin approach is the only compression method that results in a higher number of filtered base-pairs across all data sets.
+Sickle uses a sliding window approach to smooth the quality sequences before it trims the sequence based on a specific quality threshold.
+In the 2-bin approach, there is not an even distribution of values per bin.
+In other words, \emph{bad} quality values may range from 0-33, whereas \emph{good} values may only range from 34-40.
+Thus, mid-range quality values that are above the threshold (20 by default) are set below the quality threshold when compressed, resulting in an increased number of filtered bases.
+
+The 0-degree polynomial regression results in the highest proportion of bases kept.
+If the average quality value of the sequence is above the filtering threshold, then no base-pairs are trimmed.
+Only sequences that are comprised of mainly low quality values will be filtered.
+
+It is important to highlight that the even though a compression method may result in the same number of filtered base-pairs as the uncompressed sequences, it does not mean the \emph{same} base-pairs were filtered.
+The 1st-degree and 5th-degree polynomial regression of the \textit{Rhodobacter sphaeroides} fragment library filters nearly as many bases as each other.
+However, if we examine the specific sequences filtered, the 5th-degree polynomial regression discards approximately two thirds less sequences than the 1st-degree polynomial regression that are kept by the uncompressed sequences (4,640 and 12,066 sequences, respectively) (TODO: move to Supplemental Table \ref{tab:quality_control}).
 
 \subsection{Effects on genome assembly}
 
@@ -462,6 +480,7 @@ terms of corrected N50, and least missing reference bases. This trend
 runs counter to the the decrease in \textsc{mse} of the different
 rates.
 
+
 \begin{figure}[!tbp]%figure2
 %\centerline{\includegraphics[width=3.65in]{mse_frag.png}}
 \centerline{\includegraphics[width=3.65in]{rhodo_assembly_results.pdf}}
@@ -491,11 +510,11 @@ values on mapping in general, Bowtie2 was adjusted so that the maximum
 and minimum mismatch penalty were equivalent to maximum and minimum
 quality scores (with parameters: --mp 6,6 and --mp 2,2 respectively).
 
-We evaluate the compression methods using two approaches.  In the first approach, we order the compression  methods based on how similar the alignment results are to the uncompressed sequences, i.e., the amount of reads aligned by both the uncompressed and compressed methods minus the amount of reads uniquely aligned by the uncompressed and compression method.  In the second approach, we order the compression methods by total proportion of aligned reads.
+We evaluate the compression methods using two approaches.  In the first approach, we order the compression  methods based on how similar the alignment results are to the uncompressed sequences, i.e., the amount of reads aligned by both the uncompressed and compressed methods plus the amount of reads unaligned by both methods minus the amount of reads uniquely aligned by the uncompressed and compression method.  In the second approach, we order the compression methods by total proportion of aligned reads.
 
 The best compression method in terms of similarity with the uncompressed reads is QualComp with rate 100 bits/read, followed by QualComp with rate 30 bits/read, 256-, and 128-profile encoding, then 2-bin encoding, 64-profile encoding, QualComp with rate 10 bits/read, 7th-degree polynomial regression, QualComp with rate 6 bits/read, and finally, 5th-degree through 0-degree polynomial regression.
 
-Ranking the compression methods by overall alignment rate produces an identical ordering as above.  Aside from 0-degree polynomial regression (83.1\%), all other compression methods have an alignment rate between 87\% and 86.1\%.
+Ranking the compression methods by overall alignment rate produces an identical ordering as above.  Aside from 0-degree polynomial regression (83.1\%), all other compression methods have an alignment rate between 87\% and 86.1\%. The alignment rate of the uncompressed reads is 87\%.
 
 Most of the compression methods did not vary greatly in terms of the number of reads that were mapped \emph{only} by the compression method; however, there is a sizable difference in the amount of reads that are originally mapped, but unmapped by the compressed methods.
 QualComp with rate 100 bits/read results in the fewest missing original read alignments (159).
