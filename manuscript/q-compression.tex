@@ -220,9 +220,9 @@ parameters.
   and \textit{Escherichia coli} str. K-12 MG1655, and \textit{Mus
     musculus} data sets. 2B --- 2-bin encoding; P$n$ --- profiling
   with $n$ profiles; R$n$ --- modeling with polynomial regression
-  models of degree $n$; Q$n$ --- QualComp with rate parameter of
+  models of degree $n$; Q$n$ --- \textsc{q}ual\textsc{c}omp with rate parameter of
   $n$. Asterisks denote the corresponding lossless compression using
-  Bzip2, with the black asterisk corresponds to original uncompressed
+  \textsc{bz}ip2, with the black asterisk corresponds to original uncompressed
   data.}
 \label{fig:mse_vs_bpbp}
 \end{figure*}
@@ -361,20 +361,20 @@ sets, but the additional short-jump library results are available in
 the supplementary (TODO:TABLE). Storing the uncompressed quality
 values requires 1 byte per base-call because they are stored in
 \textsc{ascii} format and is denoted by the dotted black asterisk in
-the figure.  The lossless compression of each data set using BZip2
+the figure.  The lossless compression of each data set using \textsc{bz}ip2
 ranges from 2.19 - 3.10 bits/base-call and is denoted by the colored
 asterisks on the abscissa. The compression methods tend to cluster
 together across the different data sets. Across all data sets, the
-0-degree polynomial regression, profile encodings, and QualComp have
+0-degree polynomial regression, profile encodings, and \textsc{q}ual\textsc{c}omp have
 the lowest bits/base-call.
 
-QualComp with the rate parameter set to 100 bits/read has the lowest
+\textsc{q}ual\textsc{c}omp with the rate parameter set to 100 bits/read has the lowest
 \textsc{mse}, but requires 10-15x more storage than the profile
 encoding methods for only a 2-3x reduction in \textsc{mse}.  When
-QualComp's rate parameter is set to match the profile encoding
-methods, QualComp performs slightly worse in terms of \textsc{mse}.
+\textsc{q}ual\textsc{c}omp's rate parameter is set to match the profile encoding
+methods, \textsc{q}ual\textsc{c}omp performs slightly worse in terms of \textsc{mse}.
 In the \textit{Rhodobacter sphaeroides} 2.4.1 fragment library,
-QualComp with rate 10 bits/read (0.099 bits/bp) has a \textsc{mse} of
+\textsc{q}ual\textsc{c}omp with rate 10 bits/read (0.099 bits/bp) has a \textsc{mse} of
 17.29.  Using 256-profile encoding requires less storage (0.079
 bits/bp) and has a lower \textsc{mse} (11.85).
 
@@ -411,7 +411,7 @@ preprocessing than the uncompressed sequences (Figure
 increases in complexity, i.e., as the number of profiles, polynomial
 degrees, or rate increases, the amount of base-pairs kept approaches
 the number base-pairs kept using the uncompressed sequences.  The
-compression methods on the \textit{Mus Musculus} data set have the
+compression methods on the \textit{Mus musculus} data set have the
 greatest proportion of retained base-pairs compared to the
 uncompressed sequences.  The \textit{Escherichia coli} str. K-12
 MG1655 MiSeq data set has the smallest range.
@@ -455,9 +455,9 @@ outperforms all others in all metrics (Table
 %terms of \textsc{lap}, NG50, relocations, translations, and
 %inversions.
 Among the compression methods, the 256-, 64-, 128-profile encoding had
-the highest ranks, followed by QualComp with rates 10 bits/read, 30
+the highest ranks, followed by \textsc{q}ual\textsc{c}omp with rates 10 bits/read, 30
 bits/read, 100 bits/read, then 7th-degree polynomial regression,
-followed by the QualComp with rate 6 bits/read, the 2-bin encoding,
+followed by the \textsc{q}ual\textsc{c}omp with rate 6 bits/read, the 2-bin encoding,
 and lastly, the 3rd-degree, 5th-degree, and 0-degree polynomials.
 
 The lossy compression methods largely preserve the contiguity found in
@@ -496,7 +496,7 @@ error correct the sequences. Assembled sequences that overlap maybe
 unable to align to the errors at the end of the reads, artificially
 inflating the assembled genome size.
 
-Among the different QualComp rate parameters, the 10 bits/read rate
+Among the different \textsc{q}ual\textsc{c}omp rate parameters, the 10 bits/read rate
 ranked highest overall, outperforming the other rate parameters in
 terms of corrected N50, least missing reference bases, \textsc{snp}s,
 and indels $>$5bp.  With the exception of the 6 bits/read rate, the
@@ -509,11 +509,11 @@ rates.
 \begin{figure}[!tbp]%figure2
 %\centerline{\includegraphics[width=3.65in]{mse_frag.png}}
 \centerline{\includegraphics[width=3.65in]{rhodo_assembly_results.pdf}}
-\caption{Rankings of different assemblies produced using proposed
-  compression methods. Assemblies were constructed using
-  \textsc{allpaths-lg} and the \textit{Rhodobacter sphaeroides}.
-  Rankings above the median value are in cyan, those below in
-  magenta}
+\caption{Rankings of compression methods based on \textit{Rhodobacter
+    sphaeroides} assembly attributes sorted by overall
+  rank. Assemblies were constructed using \textsc{allpaths-lg}.
+  Rankings above the median value are in cyan, those below the median
+  value in magenta.}
   \label{fig:assembly_ranks}
 \end{figure}
 
@@ -545,10 +545,10 @@ method.  In the second approach, we order the compression methods by
 total proportion of aligned reads.
 
 The best compression method in terms of similarity with the
-uncompressed reads is QualComp with rate 100 bits/read, followed by
-QualComp with rate 30 bits/read, 256-, and 128-profile encoding, then
-2-bin encoding, 64-profile encoding, QualComp with rate 10 bits/read,
-7th-degree polynomial regression, QualComp with rate 6 bits/read, and
+uncompressed reads is \textsc{q}ual\textsc{c}omp with rate 100 bits/read, followed by
+\textsc{q}ual\textsc{c}omp with rate 30 bits/read, 256-, and 128-profile encoding, then
+2-bin encoding, 64-profile encoding, \textsc{q}ual\textsc{c}omp with rate 10 bits/read,
+7th-degree polynomial regression, \textsc{q}ual\textsc{c}omp with rate 6 bits/read, and
 finally, 5th-degree through 0-degree polynomial regression.
 
 Ranking the compression methods by overall alignment rate produces an
@@ -561,7 +561,7 @@ Most of the compression methods did not vary greatly in terms of the
 number of reads that were mapped \emph{only} by the compression
 method; however, there is a sizable difference in the amount of reads
 that are originally mapped, but unmapped by the compressed methods.
-QualComp with rate 100 bits/read results in the fewest missing
+\textsc{q}ual\textsc{c}omp with rate 100 bits/read results in the fewest missing
 original read alignments (159).  Increasing the regression model
 polynomial degree results in a decreasing amount of reads that are
 originally mapped, but unmapped by the regression model (40,931 to
@@ -581,7 +581,7 @@ quality results in the lowest proportion of mapped reads 72.8\%.
   respect to the original, uncompressed values.}
 \label{tab:quality_control}
 \begin{tabular}{lr|cc|cc|cc|cc|cc}
- & & \multicolumn{2}{c|}{{\em MaxQual}} & \multicolumn{2}{c|}{{\em MinQual}} & \multicolumn{2}{c|}{{\em 2-bin}} & \multicolumn{2}{c|}{{\em Degree 0}} & \multicolumn{2}{c}{{\em Degree 1}} \\
+ & & \multicolumn{2}{c|}{MaxQual} & \multicolumn{2}{c|}{MinQual} & \multicolumn{2}{c|}{2-bin} & \multicolumn{2}{c|}{Degree 0} & \multicolumn{2}{c}{Degree 1} \\
  & & kept & discarded & kept & discarded & kept & discarded & kept & discarded & kept & discarded \\ 
   \cline{2-12}
 & kept & 883576 &   0 &   0 & 883576 & 871035 & 12541 & 728349 & 155227 & 871510 & 12066 \\ 
@@ -593,7 +593,7 @@ quality results in the lowest proportion of mapped reads 72.8\%.
 \bigskip
 
 \begin{tabular}{lr|cc|cc|cc|cc|cc}
- & & \multicolumn{2}{c|}{{\em Degree 3}} & \multicolumn{2}{c|}{{\em Degree 5}} & \multicolumn{2}{c|}{{\em Degree 7}} & \multicolumn{2}{c|}{{\em Profile (64)}} & \multicolumn{2}{c}{{\em Profile (128)}} \\
+ & & \multicolumn{2}{c|}{Degree 3} & \multicolumn{2}{c|}{Degree 5} & \multicolumn{2}{c|}{Degree 7} & \multicolumn{2}{c|}{Profile (64)} & \multicolumn{2}{c}{Profile (128)} \\
  & & kept & discarded & kept & discarded & kept & discarded & kept & discarded & kept & discarded \\ 
 \cline{2-12}
 & kept & 872006 & 11570 & 878936 & 4640 & 877802 & 5774 & 876149 & 7427 & 877513 & 6063 \\ 
@@ -605,7 +605,7 @@ quality results in the lowest proportion of mapped reads 72.8\%.
 \bigskip
 
 \begin{tabular}{lr|cc|cc|cc|cc|cc}
-&  & \multicolumn{2}{c|}{{\em Profile (256)}} & \multicolumn{2}{c|}{{\em QualComp (6)}} & \multicolumn{2}{c|}{{\em QualComp (10)}} & \multicolumn{2}{c|}{{\em QualComp (30)}} & \multicolumn{2}{c}{{\em QualComp (100)}} \\
+&  & \multicolumn{2}{c|}{Profile (256)} & \multicolumn{2}{c|}{\textsc{q}ual\textsc{c}omp (6)} & \multicolumn{2}{c|}{\textsc{q}ual\textsc{c}omp (10)} & \multicolumn{2}{c|}{\textsc{q}ual\textsc{c}omp (30)} & \multicolumn{2}{c}{\textsc{q}ual\textsc{c}omp (100)} \\
  & &  kept & discarded & kept & discarded & kept & discarded & kept & discarded & kept & discarded \\ 
 \cline{2-12}
 & kept & 881215 & 2361 & 878702 & 4874 & 879682 & 3894 & 881948 & 1628 & 881939 & 1637 \\ 
@@ -628,7 +628,7 @@ quality results in the lowest proportion of mapped reads 72.8\%.
   mapped from the decompressed data that were not mapped before
   compression.}
 \begin{tabular}{lr|cc|cc|cc|cc|cc}
- & & \multicolumn{2}{c|}{{\em MaxQual}} & \multicolumn{2}{c|}{{\em MinQual}} & \multicolumn{2}{c|}{{\em 2-bin}} & \multicolumn{2}{c|}{{\em Degree 0}} & \multicolumn{2}{c}{{\em Degree 1}} \\
+ & & \multicolumn{2}{c|}{MaxQual} & \multicolumn{2}{c|}{MinQual} & \multicolumn{2}{c|}{2-bin} & \multicolumn{2}{c|}{Degree 0} & \multicolumn{2}{c}{Degree 1} \\
 & & mapped & unmapped & mapped & unmapped & mapped & unmapped & mapped & unmapped & mapped & unmapped \\ 
 \cline{2-12}
 & mapped & 746716 & 145897 & 892613 &   0 & 891864 & 749 & 851682 & 40931 & 883390 & 9223 \\ 
@@ -641,7 +641,7 @@ quality results in the lowest proportion of mapped reads 72.8\%.
 \bigskip
 
 \begin{tabular}{lr|cc|cc|cc|cc|cc}
- & & \multicolumn{2}{c|}{{\em Degree 3}} & \multicolumn{2}{c|}{{\em Degree 5}} & \multicolumn{2}{c|}{{\em Degree 7}} & \multicolumn{2}{c|}{{\em Profile (64)}} & \multicolumn{2}{c}{{\em Profile (128)}} \\
+ & & \multicolumn{2}{c|}{Degree 3} & \multicolumn{2}{c|}{Degree 5} & \multicolumn{2}{c|}{Degree 7} & \multicolumn{2}{c|}{Profile (64)} & \multicolumn{2}{c}{Profile (128)} \\
 & & mapped & unmapped & mapped & unmapped & mapped & unmapped & mapped & unmapped & mapped & unmapped \\ 
 \cline{2-12}
 & mapped & 889537 & 3076 & 891019 & 1594 & 891479 & 1134 & 891753 & 860 & 891952 & 661 \\ 
@@ -654,7 +654,7 @@ quality results in the lowest proportion of mapped reads 72.8\%.
 \bigskip
 
 \begin{tabular}{lr|cc|cc|cc|cc|cc}
-&  & \multicolumn{2}{c|}{{\em Profile (256)}} & \multicolumn{2}{c|}{{\em QualComp (6)}} & \multicolumn{2}{c|}{{\em QualComp (10)}} & \multicolumn{2}{c|}{{\em QualComp (30)}} & \multicolumn{2}{c}{{\em QualComp (100)}} \\
+&  & \multicolumn{2}{c|}{Profile (256)} & \multicolumn{2}{c|}{\textsc{q}ual\textsc{c}omp (6)} & \multicolumn{2}{c|}{\textsc{q}ual\textsc{c}omp (10)} & \multicolumn{2}{c|}{\textsc{q}ual\textsc{c}omp (30)} & \multicolumn{2}{c}{\textsc{q}ual\textsc{c}omp (100)} \\
 & &  mapped & unmapped & mapped & unmapped & mapped & unmapped & mapped & unmapped & mapped & unmapped \\ 
 \cline{2-12}
 & mapped & 892051 & 562 & 891375 & 1238 & 891777 & 836 & 892233 & 380 & 892454 & 159 \\ 
@@ -731,7 +731,7 @@ additional biological data sets, such as human and mouse, along with
 different sequencing technologies. A more direct comparison against
 related lossy compression tools, such as
 \textsc{SlimGene}~\citep{Kozanitis:2011kl} and
-\textsc{QualComp}~\citep{Ochoa:2013rt}, needs to be
+\textsc{\textsc{q}ual\textsc{c}omp}~\citep{Ochoa:2013rt}, needs to be
 performed. Additionally, other types of sequencing data can be
 analyzed apart from the Illumina data examined here. For example, the
 PacBio sequencing instruments produce very long reads (with average
@@ -764,10 +764,11 @@ have additional built-in sensitivity to handle significant loss of
 information in the compressed quality values.
 
 \section*{Acknowledgement}
-We thank the organizers and participants of the 2014 Bioinformatics
-Exchange for Students and Teachers (BEST) Summer School, which was
+We thank the 2014 Bioinformatics
+Exchange for Students and Teachers (\textsc{best}) Summer School, 
 funded by the offices of the Dean of The Graduate School at University
-of Maryland and the Rektor of University of T\"{u}bingen.
+of Maryland and the Rektor of University of T\"{u}bingen, where this 
+research was initiated.
 
 \bibliographystyle{natbib}
 \bibliographystyle{achemnat}
