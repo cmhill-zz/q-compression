@@ -130,9 +130,9 @@ some perspective on several strategies rather than to develop a robust
 high-quality software for use. Recognizing these properties of
 Illumina sequence reads motivates our exploration of three general
 classes of lossy compression methods -- binning, modeling, and
-profiling -- and consider an exemplar of each class. In addition to
-quantifying compression efficiency, we also assess the effects of
-quality value information loss resulting from compression on
+profiling -- and consider an exemplar of each class. ~\cite{Canovas:2014fr} and~\cite{janin2013adaptive} evaluated the effects of lossy compression on identifying variants within a data set.  We build on these prior works and access the effects of
+% quantifying compression efficiency, we also assess the effects of
+quality value information loss resulting from compression on additional
 subsequent genomic analyses including read preprocessing (filtering
 and trimming), genome assembly, and read mapping.
 
@@ -169,6 +169,26 @@ The economic costs of memory use for binning, in general terms,
 include no fixed costs, and marginal costs that are a function of the
 number of base-call quality values times the cost of the encoding.
 
+\cite{Wan:2012kq} provide three similar lossy compression strategies based on binning the base error probability distribution: UniBinning, Truncating, and LogBinning.
+UniBinning evenly splits the error probability distribution into a user-defined number of partitions.
+Truncating treats a user-defined number of highest quality values as a single bin.
+LogBinning works similar to UniBinning, except with the \emph{log} of the error probability distribution, which effectively bins the \textsc{ascii} quality values evenly.
+Our 2-bin encoding is a combination of LogBinning and Truncating in that we are placing the highest quality values (as defined above) of the log of the error probability distribution into a single bin.
+
+\begin{figure}[!tpb]%figure2
+\centerline{\includegraphics[width=3.35in]{profiles_128.png}}
+\caption{Quality profiles obtained by $k$-means clustering on the
+  fragment library from \textit{Rhodobacter sphaeroides} 2.4.1 data
+  set using $k$ = 128, with each row corresponding to a quality
+  profile. Dark to light colors represent low to high quality
+  values. It is readily visible that the two most distinctive features
+  of quality profiles is their drop-off position and average overall
+  quality. One can also see sporadic low-position values in a handful
+  of profiles, likely capturing intermittent problems in the
+  sequencing process affecting thousands of reads at a
+  time.}\label{fig:profiles_128}
+\end{figure}
+
 \subsubsection{Modeling}
 
 If quality values are modeled compression is conceivably possible by
@@ -195,21 +215,15 @@ general terms, include no fixed costs, and marginal costs that are a
 function of the number of reads times the cost representing the model
 parameters.
 
-\subsubsection{Profiling}
+\textsc{QualComp} is a lossy compression tool that models the quality sequence as a multivariate Gaussian distribution, computing the mean and covariance for each position in the read\citep{Ochoa:2013rt}.
+Once the model parameters are calculated, they are stored by the decoder to later reconstruct a \emph{representative} quality value.
+\textsc{QualComp} takes as input a user-specified rate (bits per read) and then poses an optimization problem of how to allot these bits for a given position in a quality sequence while minimizing the \textsc{mse}.
+The quality sequences can be clustered before hand to produce more accurate models.
 
-\begin{figure}[!tpb]%figure2
-\centerline{\includegraphics[width=3.35in]{profiles_128.png}}
-\caption{Quality profiles obtained by $k$-means clustering on the
-  fragment library from \textit{Rhodobacter sphaeroides} 2.4.1 data
-  set using $k$ = 128, with each row corresponding to a quality
-  profile. Dark to light colors represent low to high quality
-  values. It is readily visible that the two most distinctive features
-  of quality profiles is their drop-off position and average overall
-  quality. One can also see sporadic low-position values in a handful
-  of profiles, likely capturing intermittent problems in the
-  sequencing process affecting thousands of reads at a
-  time.}\label{fig:profiles_128}
-\end{figure}
+% they are stored for use by the decoder, and used to derive the number of bits used to encode each quality value, by minimizing the mean square error of a rate distortion problem. This optimization problem is parameterized by a user input, which is the total number of output bits the quality scores can consume, expressed as a rate r. The solution to the problem specifies, for position i in a read, the number of bits, 􏰗i, that should be used to encode the quality value in position i. For each quality value, if it is to be coded in 􏰗i bits, the Gaussian for that position is split into 2􏰗i regions of equal probability, and a bit pattern selected to indicate the region in which the quality value lies. The decoder reads in the Gaussian parameters and r, performs the optimization to recover the 􏰗i values and then emits a representative correspond- ing to the region specified by each code word.
+
+
+\subsubsection{Profiling}
 
 \begin{figure*}[!tb]%figure2
 %\centerline{\includegraphics[width=3.65in]{mse_frag.png}}
@@ -287,11 +301,12 @@ corresponding reference sequence was obtained from the NCBI RefSeq
 database (NC\_007488.1, NC\_007489.1, NC\_007490.1, NC\_007493.1,
 NC\_007494.1, NC\_009007.1, NC\_009008.1).
 
-\textit{Stapylococcus aureus} USA300, which are generated from a
-fragment library (insert size of 180 nt; 1,294,104 paired-end reads)
-and short-jump library (insert size of 3,500 nt; 3,494,070 reads).
-The corresponding reference sequence was obtained from the NCBI RefSeq
-database (NC\_010063.1, NC\_010079.1, NC\_012417.1).
+% Will be moved to supplemental.
+%\textit{Stapylococcus aureus} USA300, which are generated from a
+%fragment library (insert size of 180 nt; 1,294,104 paired-end reads)
+%and short-jump library (insert size of 3,500 nt; 3,494,070 reads).
+%The corresponding reference sequence was obtained from the NCBI RefSeq
+%database (NC\_010063.1, NC\_010079.1, NC\_012417.1).
 
 \textit{Homo sapiens} chromosome 14 data, which are generated from a
 fragment library (insert size of 155 nt; 36,504,800 paired-end reads)
@@ -323,18 +338,16 @@ $i$.
 
 We evaluate effects of information loss from quality value compression
 on quality control steps of read filtering and trimming, which were
-performed using Sickle~\citep{sickle}, quantify read characteristics
-with PrinSeq~\citep{Schmieder:2011gd}, and make comparison to
+performed using Sickle~\citep{sickle}, and make comparison to
 uncompressed data.
 
 We evaluate effects of information loss from quality value compression
 on \emph{de novo} genome assembly performance using contiguity
 statistics, log average read probability
 (\textsc{lap})~\citep{Ghodsi:2013hb}, and a collection of
-reference-based metrics. The contiguity statistics include number of
-scaffolds and NG50, which is defined as the weighted median contig
+reference-based metrics. The contiguity statistics include N50, which is defined as the median contig
 size (the length of largest contig $c$ such that the total size of the
-contigs larger than $c$� exceeds half of the known genome size). The
+contigs larger than $c$ exceeds half of the assembly size) and corrected N50, which is the recalculated N50 size after the contigs are broken apart at locations of errors.  The
 \textsc{lap} score can be viewed as a log likelihood score, where a
 value closer to 0 is better. We use a script provided by \textsc{gage}
 reference-based evaluation to count single nucleotide polymorphisms
@@ -573,47 +586,47 @@ of mapped reads 88.1\%.  Conversely, setting all bases as maximum
 quality results in the lowest proportion of mapped reads 72.8\%.
 
 
-\begin{table*}[!tbhp]
-\centering
-\caption[]{Quality filtering/trimming for the uncompressed and
-  decompressed \textsc{fastq} files. Numbers correspond to the number
-  of reads that are kept or discarded after applying compression with
-  respect to the original, uncompressed values.}
-\label{tab:quality_control}
-\begin{tabular}{lr|cc|cc|cc|cc|cc}
- & & \multicolumn{2}{c|}{MaxQual} & \multicolumn{2}{c|}{MinQual} & \multicolumn{2}{c|}{2-bin} & \multicolumn{2}{c|}{Degree 0} & \multicolumn{2}{c}{Degree 1} \\
- & & kept & discarded & kept & discarded & kept & discarded & kept & discarded & kept & discarded \\ 
-  \cline{2-12}
-& kept & 883576 &   0 &   0 & 883576 & 871035 & 12541 & 728349 & 155227 & 871510 & 12066 \\ 
-{\em original} & discarded & 141858 &   0 &   0 & 141858 & 1882 & 139976 & 1475 & 140383 & 9214 & 132644 \\ 
-\cline{2-12}
- & proportion & 1.000 & 0.000 & 0.000 & 1.000 & 0.851 & 0.149 & 0.712 & 0.288 & 0.859 & 0.141 \\ 
-\end{tabular}
+% \begin{table*}[!tbhp]
+% \centering
+% \caption[]{Quality filtering/trimming for the uncompressed and
+%   decompressed \textsc{fastq} files. Numbers correspond to the number
+%   of reads that are kept or discarded after applying compression with
+%   respect to the original, uncompressed values.}
+% \label{tab:quality_control}
+% \begin{tabular}{lr|cc|cc|cc|cc|cc}
+%  & & \multicolumn{2}{c|}{MaxQual} & \multicolumn{2}{c|}{MinQual} & \multicolumn{2}{c|}{2-bin} & \multicolumn{2}{c|}{Degree 0} & \multicolumn{2}{c}{Degree 1} \\
+%  & & kept & discarded & kept & discarded & kept & discarded & kept & discarded & kept & discarded \\ 
+%   \cline{2-12}
+% & kept & 883576 &   0 &   0 & 883576 & 871035 & 12541 & 728349 & 155227 & 871510 & 12066 \\ 
+% {\em original} & discarded & 141858 &   0 &   0 & 141858 & 1882 & 139976 & 1475 & 140383 & 9214 & 132644 \\ 
+% \cline{2-12}
+%  & proportion & 1.000 & 0.000 & 0.000 & 1.000 & 0.851 & 0.149 & 0.712 & 0.288 & 0.859 & 0.141 \\ 
+% \end{tabular}
 
-\bigskip
+% \bigskip
 
-\begin{tabular}{lr|cc|cc|cc|cc|cc}
- & & \multicolumn{2}{c|}{Degree 3} & \multicolumn{2}{c|}{Degree 5} & \multicolumn{2}{c|}{Degree 7} & \multicolumn{2}{c|}{Profile (64)} & \multicolumn{2}{c}{Profile (128)} \\
- & & kept & discarded & kept & discarded & kept & discarded & kept & discarded & kept & discarded \\ 
-\cline{2-12}
-& kept & 872006 & 11570 & 878936 & 4640 & 877802 & 5774 & 876149 & 7427 & 877513 & 6063 \\ 
-{\em original}  &  discarded & 10369 & 131489 & 10004 & 131854 & 8821 & 133037 & 15795 & 126063 & 17453 & 124405 \\
-\cline{2-12}
-& proportion & 0.860 & 0.140 & 0.867 & 0.133 & 0.865 & 0.135 & 0.870 & 0.130 & 0.873 & 0.127 \\ 
-\end{tabular}
+% \begin{tabular}{lr|cc|cc|cc|cc|cc}
+%  & & \multicolumn{2}{c|}{Degree 3} & \multicolumn{2}{c|}{Degree 5} & \multicolumn{2}{c|}{Degree 7} & \multicolumn{2}{c|}{Profile (64)} & \multicolumn{2}{c}{Profile (128)} \\
+%  & & kept & discarded & kept & discarded & kept & discarded & kept & discarded & kept & discarded \\ 
+% \cline{2-12}
+% & kept & 872006 & 11570 & 878936 & 4640 & 877802 & 5774 & 876149 & 7427 & 877513 & 6063 \\ 
+% {\em original}  &  discarded & 10369 & 131489 & 10004 & 131854 & 8821 & 133037 & 15795 & 126063 & 17453 & 124405 \\
+% \cline{2-12}
+% & proportion & 0.860 & 0.140 & 0.867 & 0.133 & 0.865 & 0.135 & 0.870 & 0.130 & 0.873 & 0.127 \\ 
+% \end{tabular}
 
-\bigskip
+% \bigskip
 
-\begin{tabular}{lr|cc|cc|cc|cc|cc}
-&  & \multicolumn{2}{c|}{Profile (256)} & \multicolumn{2}{c|}{\textsc{q}ual\textsc{c}omp (6)} & \multicolumn{2}{c|}{\textsc{q}ual\textsc{c}omp (10)} & \multicolumn{2}{c|}{\textsc{q}ual\textsc{c}omp (30)} & \multicolumn{2}{c}{\textsc{q}ual\textsc{c}omp (100)} \\
- & &  kept & discarded & kept & discarded & kept & discarded & kept & discarded & kept & discarded \\ 
-\cline{2-12}
-& kept & 881215 & 2361 & 878702 & 4874 & 879682 & 3894 & 881948 & 1628 & 881939 & 1637 \\ 
-{\em original}  & discarded & 15985 & 125873 & 13434 & 128424 & 12855 & 129003 & 10872 & 130986 & 7179 & 134679 \\ 
-\cline{2-12}
-& proportion & 0.875 & 0.125 & 0.870 & 0.130 & 0.870 & 0.130 & 0.871 & 0.129 & 0.867 & 0.133 \\ 
-\end{tabular}
-\end{table*}
+% \begin{tabular}{lr|cc|cc|cc|cc|cc}
+% &  & \multicolumn{2}{c|}{Profile (256)} & \multicolumn{2}{c|}{\textsc{q}ual\textsc{c}omp (6)} & \multicolumn{2}{c|}{\textsc{q}ual\textsc{c}omp (10)} & \multicolumn{2}{c|}{\textsc{q}ual\textsc{c}omp (30)} & \multicolumn{2}{c}{\textsc{q}ual\textsc{c}omp (100)} \\
+%  & &  kept & discarded & kept & discarded & kept & discarded & kept & discarded & kept & discarded \\ 
+% \cline{2-12}
+% & kept & 881215 & 2361 & 878702 & 4874 & 879682 & 3894 & 881948 & 1628 & 881939 & 1637 \\ 
+% {\em original}  & discarded & 15985 & 125873 & 13434 & 128424 & 12855 & 129003 & 10872 & 130986 & 7179 & 134679 \\ 
+% \cline{2-12}
+% & proportion & 0.875 & 0.125 & 0.870 & 0.130 & 0.870 & 0.130 & 0.871 & 0.129 & 0.867 & 0.133 \\ 
+% \end{tabular}
+% \end{table*}
 
 \begin{table*}[!tbhp]
 \centering
