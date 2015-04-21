@@ -50,7 +50,7 @@ bioinformatic analyses using sequence read data.
 \section{Results:}
 Lossy compression of quality information can greatly decrease storage
 and memory requirements with little discernible effects on subsequent
-analysis results. The four compression strategies in this study were
+analysis results. The three compression strategies in this study were
 able to produce similar results to those obtained with uncompressed
 quality sequences in terms of quality control, genome assembly, and
 alignment of short read to a reference sequence.
@@ -191,7 +191,7 @@ Our 2-bin encoding is a combination of LogBinning and Truncating in that we are 
 
 \subsubsection{Modeling}
 
-If quality values are modeled compression is conceivably possible by
+If quality values are modeled, compression is conceivably possible by
 replacing the original quality values by a representation of the
 model. For example, quality values can be conceptualized as bivariate
 data with the ordered nucleotides (1 to read length) representing the
@@ -253,9 +253,8 @@ set of samples into $k$ sets that minimize within-cluster sum of
 squares~\citep{macqueen1967some}. Using a random subset of read
 quality values, a compression method can use the computed cluster
 centers as read quality profiles. As the problem is NP-hard, we use a
-heuristic iterative refinement approach quickly converging to a
-locally optimal minimum provided by the Python package scikit-learn
-0.15~\citep{pedregosa2011scikit}.
+heuristic iterative refinement approach by quickly converging to a
+locally optimal minimum provided by R~\citep{hartigan1979algorithm}.
 
 First, the method samples an adjustable number of quality sequences
 randomly from the file to be used as a training set. Quality sequences
@@ -506,7 +505,7 @@ regression methods perform poor in all metrics except assembled bases.
 One explanation is that the high error portions of sequences are being
 marked as high quality, so \textsc{allpaths-lg} is unable to trim or
 error correct the sequences. Assembled sequences that overlap maybe
-unable to align to the errors at the end of the reads, artificially
+unable to align across the errors at the end of the reads, artificially
 inflating the assembled genome size.
 
 Among the different \textsc{q}ual\textsc{c}omp rate parameters, the 10 bits/read rate
