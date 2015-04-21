@@ -575,6 +575,11 @@ originally mapped, but unmapped by the regression model (40,931 to
 1,134 reads for 0-degree and 7th-degree, respectively). There is no
 such trend for reads that are mapped only by the regression model.
 
+It is important to highlight the result that the 2-bin method aligns a greater portion of reads than the various regression models.   
+If a poor quality base is flanked by high quality sequence, then the low degree polynomial regression models tend to smooth out the base quality, erroneously marking the low quality base as higher quality.    
+During alignment, Bowtie2 penalizes mismatches at high quality bases more so than mismatches at lower quality bases.   
+Thus, the polynomial regression models incur a high penalty for these bases, resulting in less alignments, despite having a better \textsc{mse} than 2-bin in most cases.
+
 Setting all bases as minimum quality results in the highest proportion
 of mapped reads 88.1\%. Conversely, setting all bases as maximum
 quality results in the lowest proportion of mapped reads 72.8\%.
@@ -741,14 +746,11 @@ reads.
 \subsection{Future of lossy compression in bioinformatics analyses}
 
 We have simply provided here the initial steps in analyzing the effect
-of lossy compression on quality values using a single,
-high-coverage bacterial data set. More work needs to be done using
-additional biological data sets, such as human and mouse, along with
-different sequencing technologies. A more direct comparison against
-related lossy compression tools, such as
-\textsc{SlimGene}~\citep{Kozanitis:2011kl} and
-\textsc{\textsc{q}ual\textsc{c}omp}~\citep{Ochoa:2013rt}, needs to be
-performed. Additionally, other types of sequencing data can be
+of lossy compression on quality sequences using two
+high-coverage bacterial, human, and mouse data sets.
+A more direct comparison against additional lossy compression tools, such as
+\textsc{SlimGene}~\citep{Kozanitis:2011kl}, needs to be
+performed. Furthermore, other types of sequencing data can be
 analyzed apart from the Illumina data examined here. For example, the
 PacBio sequencing instruments produce very long reads (with average
 read lengths on the order of 10 kbp), but with the trade-off of having
