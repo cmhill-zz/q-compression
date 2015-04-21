@@ -220,9 +220,6 @@ Once the model parameters are calculated, they are stored by the decoder to late
 \textsc{QualComp} takes as input a user-specified rate (bits per read) and then poses an optimization problem of how to allot these bits for a given position while minimizing the \textsc{mse}.
 The quality values can be clustered before hand to produce more accurate models.
 
-% they are stored for use by the decoder, and used to derive the number of bits used to encode each quality value, by minimizing the mean square error of a rate distortion problem. This optimization problem is parameterized by a user input, which is the total number of output bits the quality scores can consume, expressed as a rate r. The solution to the problem specifies, for position i in a read, the number of bits, 􏰗i, that should be used to encode the quality value in position i. For each quality value, if it is to be coded in 􏰗i bits, the Gaussian for that position is split into 2􏰗i regions of equal probability, and a bit pattern selected to indicate the region in which the quality value lies. The decoder reads in the Gaussian parameters and r, performs the optimization to recover the 􏰗i values and then emits a representative correspond- ing to the region specified by each code word.
-
-
 \subsubsection{Profiling}
 
 \begin{figure*}[!tb]%figure2
@@ -719,6 +716,15 @@ of quality values is skewed towards higher quality, we need to
 experiment with different cutoffs for the \emph{okay} value and
 determine if the additional storage is noticeable in subsequent
 analyses.
+
+\subsection{Extension of polynomial regression}
+
+The downside of modeling quality sequences using polynomial regression is that the model often requires a high number of degrees to achieve the same \textsc{mse} as the profile and \textsc{QualComp} methods.
+However, storing a high number of coefficients requires more storage than losslessly compressing the original data.
+In order to increase the compressibility of modeling, we can attempt to store the \emph{profiles} of certain polynomial functions.
+In other words, we can use a spline (a function that is piecewise-defined by polynomial functions) to represent a given quality sequence.
+Similar to our profile-encoding method, the user can specify how many polynomial functions they wish to store.
+Then a quality sequence can be divided evenly into a given number of segments, and each segment can be annotated with a polynomial function profile that closely matches its quality sequence.
 
 \subsection{Potential for operations on compressed data}
 
