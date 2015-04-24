@@ -358,9 +358,13 @@ $Q_i$ is the original quality value associated with sequence position
 $i$.
 
 We evaluate effects of information loss from quality value compression
-on quality control steps of read filtering and trimming, which were
+on quality control steps of trimming and read filtering, which were
 performed using Sickle~\citep{sickle}, and make comparison to
 uncompressed data.
+Sickle starts at the ends of the sequence and uses a sliding window ($0.1 \times$ the read length) to find locations where the window's average quality falls below a given threshold (20 by default).
+The sequence is then trimmed from this position to the respective end.
+%uses a variable sliding window approach where base qualities are averaged over a window ($0.1 \times$ the read length) and trims from the position where the window's average quality falls below a given threshold (20 by default).
+If the trimmed sequence's length is less than a certain threshold (20 by default), then the sequence is discarded.
 
 We evaluate effects of information loss from quality value compression
 on \emph{de novo} genome assembly performance using contiguity
@@ -441,8 +445,8 @@ encoding the quality data.
 
 \subsection{Effects on sequence read preprocessing}
 
-The majority of compression methods retain more base-pairs after
-preprocessing than the uncompressed sequences (Figure
+Preprocessing involves two steps: \emph{trimming} the poor quality regions of the sequences and \emph{discarding} sequences that are deemed to be poor quality overall.
+After trimming, the majority of compression methods retain more base-pairs than the uncompressed sequences (Figure
 \ref{fig:preprocessing}). In general, as a given compression model
 increases in complexity, i.e., as the number of profiles, polynomial
 degrees, or rate increases, the amount of base-pairs kept approaches
@@ -453,28 +457,28 @@ uncompressed sequences. The \textit{Escherichia coli} str. K-12 MG1655
 MiSeq data set has the smallest range.
 
 The 2-bin approach is the only compression method that results in a
-higher number of filtered base-pairs across all data sets. Sickle uses
+higher number of trimmed base-pairs across all data sets. Sickle uses
 a sliding window approach to smooth the read quality values before it
-trims the sequence based on a specific quality threshold. In the 2-bin
+trims. In the 2-bin
 approach, there is not an even distribution of values per bin.  In
 other words, \emph{bad} quality values may range from 0-33, whereas
 \emph{good} values may only range from 34-40. Thus, mid-range quality
 values that are above the threshold (20 by default) are set below the
 quality threshold when compressed, resulting in an increased number of
-filtered bases.
+trimmed bases.
 
 The 0-degree polynomial regression results in the highest proportion
 of bases kept. If the mean quality value of the read is above the
 filtering threshold, then no base-pairs are trimmed. Only reads that
-are comprised of mainly low quality values will be filtered.
+are comprised of mainly low quality values will be discarded.
 
-It is important to highlight that the even though a compression method
-may result in the same number of filtered base calls as the
-uncompressed sequences, it does not mean the \emph{same} base calls
-were filtered. The 1st-degree and 5th-degree polynomial regression of
-the \textit{Rhodobacter sphaeroides} fragment library filters nearly
+It is important to highlight that even though a compression method
+may result in the same number of trimmed bases as the
+uncompressed sequences, it does not mean the \emph{same} bases
+were trimmed. The 1st-degree and 5th-degree polynomial regression of
+the \textit{Rhodobacter sphaeroides} fragment library filter nearly
 as many bases as each other. However, if we examine the specific reads
-filtered, the 5th-degree polynomial regression discards approximately
+discarded, the 5th-degree polynomial regression discards approximately
 two thirds less reads than the 1st-degree polynomial regression that
 are kept by the uncompressed reads (4,640 and 12,066 reads,
 respectively) (Supplemental Table 2).
@@ -547,6 +551,61 @@ reference bases. This trend runs counter to the the decrease in
   value in magenta.}
   \label{fig:assembly_ranks}
 \end{figure}
+
+
+\begin{table*}[!tbhp]
+\centering
+\caption[]{Mapping results of decompressed \textsc{fastq} files
+  against \textit{Rhodobacter sphaeroides} reference genome using
+  Bowtie2. Numbers corresponds to the proportion of mapped reads with
+  respect to the uncompressed \textsc{fastq}. ``Shared'' denotes the
+  percentage of mapped reads by both the uncompressed and decompressed
+  data. ``Uncompressed only'' denotes the percentage of reads mapped
+  from the uncompressed data that are not mapped after
+  decompression. ``Compressed only'' denotes the percentage of reads
+  mapped from the decompressed data that were not mapped before
+  compression.}
+\begin{tabular}{lr|cc|cc|cc|cc|cc}
+ & & \multicolumn{2}{c|}{MaxQual} & \multicolumn{2}{c|}{MinQual} & \multicolumn{2}{c|}{2-bin} & \multicolumn{2}{c|}{Degree 0} & \multicolumn{2}{c}{Degree 1} \\
+& & mapped & unmapped & mapped & unmapped & mapped & unmapped & mapped & unmapped & mapped & unmapped \\ 
+\cline{2-12}
+& mapped & 746716 & 145897 & 892613 &   0 & 891864 & 749 & 851682 & 40931 & 883390 & 9223 \\ 
+{\em original} & unmapped &   0 & 132821 & 10821 & 122000 & 186 & 132635 &  67 & 132754 &  55 & 132766 \\ 
+\cline{2-12}
+%& sum & 746716 & 278718 & 903434 & 122000 & 892050 & 133384 & 851749 & 173685 & 883445 & 141989 \\ 
+& proportion & 0.728 & 0.272 & 0.881 & 0.119 & 0.870 & 0.130 & 0.831 & 0.169 & 0.862 & 0.138 \\ 
+\end{tabular}
+
+\bigskip
+
+\begin{tabular}{lr|cc|cc|cc|cc|cc}
+ & & \multicolumn{2}{c|}{Degree 3} & \multicolumn{2}{c|}{Degree 5} & \multicolumn{2}{c|}{Degree 7} & \multicolumn{2}{c|}{Profile (64)} & \multicolumn{2}{c}{Profile (128)} \\
+& & mapped & unmapped & mapped & unmapped & mapped & unmapped & mapped & unmapped & mapped & unmapped \\ 
+\cline{2-12}
+& mapped & 889537 & 3076 & 891019 & 1594 & 891479 & 1134 & 891753 & 860 & 891952 & 661 \\ 
+{\em original} & unmapped & 117 & 132704 & 155 & 132666 & 154 & 132667 & 144 & 132677 & 143 & 132678 \\ 
+\cline{2-12}
+%& sum & 889654 & 135780 & 891174 & 134260 & 891633 & 133801 & 891897 & 133537 & 892095 & 133339 \\ 
+& proportion & 0.868 & 0.132 & 0.869 & 0.131 & 0.870 & 0.130 & 0.870 & 0.130 & 0.870 & 0.130 \\ 
+\end{tabular}
+
+\bigskip
+
+\begin{tabular}{lr|cc|cc|cc|cc|cc}
+&  & \multicolumn{2}{c|}{Profile (256)} & \multicolumn{2}{c|}{\textsc{q}ual\textsc{c}omp (6)} & \multicolumn{2}{c|}{\textsc{q}ual\textsc{c}omp (10)} & \multicolumn{2}{c|}{\textsc{q}ual\textsc{c}omp (30)} & \multicolumn{2}{c}{\textsc{q}ual\textsc{c}omp (100)} \\
+& &  mapped & unmapped & mapped & unmapped & mapped & unmapped & mapped & unmapped & mapped & unmapped \\ 
+\cline{2-12}
+& mapped & 892051 & 562 & 891375 & 1238 & 891777 & 836 & 892233 & 380 & 892454 & 159 \\ 
+{\em original}  & unmapped & 119 & 132702 & 304 & 132517 & 265 & 132556 & 220 & 132601 & 172 & 132649 \\ 
+\cline{2-12}
+%& sum & 892170 & 133264 & 891679 & 133755 & 892042 & 133392 & 892453 & 132981 & 892626 & 132808 \\ 
+& proportion & 0.870 & 0.130 & 0.870 & 0.130 & 0.870 & 0.130 & 0.870 & 0.130 & 0.870 & 0.130 \\
+
+\end{tabular}
+
+\label{tab:aligner}
+\end{table*}
+
 
 \subsection{Effects on read mapping}
 
@@ -658,60 +717,6 @@ quality results in the lowest proportion of mapped reads 72.8\%.
 % & proportion & 0.875 & 0.125 & 0.870 & 0.130 & 0.870 & 0.130 & 0.871 & 0.129 & 0.867 & 0.133 \\ 
 % \end{tabular}
 % \end{table*}
-
-\begin{table*}[!tbhp]
-\centering
-\caption[]{Mapping results of decompressed \textsc{fastq} files
-  against \textit{Rhodobacter sphaeroides} reference genome using
-  Bowtie2. Numbers corresponds to the proportion of mapped reads with
-  respect to the uncompressed \textsc{fastq}. ``Shared'' denotes the
-  percentage of mapped reads by both the uncompressed and decompressed
-  data. ``Uncompressed only'' denotes the percentage of reads mapped
-  from the uncompressed data that are not mapped after
-  decompression. ``Compressed only'' denotes the percentage of reads
-  mapped from the decompressed data that were not mapped before
-  compression.}
-\begin{tabular}{lr|cc|cc|cc|cc|cc}
- & & \multicolumn{2}{c|}{MaxQual} & \multicolumn{2}{c|}{MinQual} & \multicolumn{2}{c|}{2-bin} & \multicolumn{2}{c|}{Degree 0} & \multicolumn{2}{c}{Degree 1} \\
-& & mapped & unmapped & mapped & unmapped & mapped & unmapped & mapped & unmapped & mapped & unmapped \\ 
-\cline{2-12}
-& mapped & 746716 & 145897 & 892613 &   0 & 891864 & 749 & 851682 & 40931 & 883390 & 9223 \\ 
-{\em original} & unmapped &   0 & 132821 & 10821 & 122000 & 186 & 132635 &  67 & 132754 &  55 & 132766 \\ 
-\cline{2-12}
-%& sum & 746716 & 278718 & 903434 & 122000 & 892050 & 133384 & 851749 & 173685 & 883445 & 141989 \\ 
-& proportion & 0.728 & 0.272 & 0.881 & 0.119 & 0.870 & 0.130 & 0.831 & 0.169 & 0.862 & 0.138 \\ 
-\end{tabular}
-
-\bigskip
-
-\begin{tabular}{lr|cc|cc|cc|cc|cc}
- & & \multicolumn{2}{c|}{Degree 3} & \multicolumn{2}{c|}{Degree 5} & \multicolumn{2}{c|}{Degree 7} & \multicolumn{2}{c|}{Profile (64)} & \multicolumn{2}{c}{Profile (128)} \\
-& & mapped & unmapped & mapped & unmapped & mapped & unmapped & mapped & unmapped & mapped & unmapped \\ 
-\cline{2-12}
-& mapped & 889537 & 3076 & 891019 & 1594 & 891479 & 1134 & 891753 & 860 & 891952 & 661 \\ 
-{\em original} & unmapped & 117 & 132704 & 155 & 132666 & 154 & 132667 & 144 & 132677 & 143 & 132678 \\ 
-\cline{2-12}
-%& sum & 889654 & 135780 & 891174 & 134260 & 891633 & 133801 & 891897 & 133537 & 892095 & 133339 \\ 
-& proportion & 0.868 & 0.132 & 0.869 & 0.131 & 0.870 & 0.130 & 0.870 & 0.130 & 0.870 & 0.130 \\ 
-\end{tabular}
-
-\bigskip
-
-\begin{tabular}{lr|cc|cc|cc|cc|cc}
-&  & \multicolumn{2}{c|}{Profile (256)} & \multicolumn{2}{c|}{\textsc{q}ual\textsc{c}omp (6)} & \multicolumn{2}{c|}{\textsc{q}ual\textsc{c}omp (10)} & \multicolumn{2}{c|}{\textsc{q}ual\textsc{c}omp (30)} & \multicolumn{2}{c}{\textsc{q}ual\textsc{c}omp (100)} \\
-& &  mapped & unmapped & mapped & unmapped & mapped & unmapped & mapped & unmapped & mapped & unmapped \\ 
-\cline{2-12}
-& mapped & 892051 & 562 & 891375 & 1238 & 891777 & 836 & 892233 & 380 & 892454 & 159 \\ 
-{\em original}  & unmapped & 119 & 132702 & 304 & 132517 & 265 & 132556 & 220 & 132601 & 172 & 132649 \\ 
-\cline{2-12}
-%& sum & 892170 & 133264 & 891679 & 133755 & 892042 & 133392 & 892453 & 132981 & 892626 & 132808 \\ 
-& proportion & 0.870 & 0.130 & 0.870 & 0.130 & 0.870 & 0.130 & 0.870 & 0.130 & 0.870 & 0.130 \\
-
-\end{tabular}
-
-\label{tab:aligner}
-\end{table*}
-
 
 \section{Discussion}
 
