@@ -24,7 +24,7 @@
   Center, and Department of Computer Science, University of
   T\"{u}bingen, Sand 14, 72076 T\"{u}bingen, Germany\\ $^{4}$Center
   for Bioinformatics and Computational Biology, University of
-  Maryland, College Park, 20742 USA}
+  Maryland, College Park, Maryland, 20742 USA}
 %$\dagger$authors contributed equally
 \history{Received on XXXXX; revised on XXXXX; accepted on XXXX}
 % Hack to display authors contribution.
@@ -184,12 +184,12 @@ number of base-call quality values times the cost of the encoding.
 
 \cite{Wan:2012kq} provide three similar lossy compression strategies
 based on binning the base error probability distribution: UniBinning,
-Truncating, and LogBinning.  UniBinning evenly splits the error
+Truncating, and LogBinning. UniBinning evenly splits the error
 probability distribution into a user-defined number of partitions.
 Truncating treats a user-defined number of highest quality values as a
-single bin.  LogBinning works similar to UniBinning, except with the
+single bin. LogBinning works similar to UniBinning, except with the
 \emph{log} of the error probability distribution, which effectively
-bins the \textsc{ascii} quality values evenly.  Our 2-bin encoding is
+bins the \textsc{ascii} quality values evenly. Our 2-bin encoding is
 a combination of LogBinning and Truncating in that we are placing the
 highest quality values (as defined above) of the log of the error
 probability distribution into a single bin.
@@ -360,11 +360,17 @@ $i$.
 We evaluate effects of information loss from quality value compression
 on quality control steps of trimming and read filtering, which were
 performed using Sickle~\citep{sickle}, and make comparison to
-uncompressed data.
-Sickle starts at the ends of the sequence and uses a sliding window ($0.1 \times$ the read length) to find locations where the window's average quality falls below a given threshold (20 by default).
-The sequence is then trimmed from this position to the respective end.
-%uses a variable sliding window approach where base qualities are averaged over a window ($0.1 \times$ the read length) and trims from the position where the window's average quality falls below a given threshold (20 by default).
-If the trimmed sequence's length is less than a certain threshold (20 by default), then the sequence is discarded.
+uncompressed data. Sickle starts at the ends of the sequence and uses
+a sliding window ($0.1 \times$ the read length) to find locations
+where the window's average quality falls below a given threshold (20
+by default). The sequence is then trimmed from this position to the
+respective end.
+%uses a variable sliding window approach where base qualities are
+%averaged over a window ($0.1 \times$ the read length) and trims from
+%the position where the window's average quality falls below a given
+%threshold (20 by default).
+If the trimmed sequence length is less than a certain threshold (20 by
+default), then the sequence is discarded.
 
 We evaluate effects of information loss from quality value compression
 on \emph{de novo} genome assembly performance using contiguity
@@ -413,7 +419,7 @@ bits/read has the lowest \textsc{mse}, but requires 10-15x more
 storage than the profile encoding methods for only a 2-3x reduction in
 \textsc{mse}. When \textsc{q}ual\textsc{c}omp's rate parameter is set
 to match the profile encoding methods, \textsc{q}ual\textsc{c}omp
-performs slightly worse in terms of \textsc{mse}.  In the
+performs slightly worse in terms of \textsc{mse}. In the
 \textit{Rhodobacter sphaeroides} 2.4.1 fragment library,
 \textsc{q}ual\textsc{c}omp with rate 10 bits/read (0.099 bits/bp) has
 a \textsc{mse} of 17.29. Using 256-profile encoding requires less
@@ -445,39 +451,41 @@ encoding the quality data.
 
 \subsection{Effects on sequence read preprocessing}
 
-Preprocessing involves two steps: \emph{trimming} the poor quality regions of the sequences and \emph{discarding} sequences that are deemed to be poor quality overall.
-After trimming, the majority of compression methods retain more base-pairs than the uncompressed sequences (Figure
-\ref{fig:preprocessing}). In general, as a given compression model
-increases in complexity, i.e., as the number of profiles, polynomial
-degrees, or rate increases, the amount of base-pairs kept approaches
-the number base-pairs kept using the uncompressed sequences. The
-compression methods on the \textit{Mus musculus} data set have the
-greatest proportion of retained base-pairs compared to the
-uncompressed sequences. The \textit{Escherichia coli} str. K-12 MG1655
-MiSeq data set has the smallest range.
+Preprocessing involves two steps: \emph{trimming} the poor quality
+regions of the sequences and \emph{discarding} sequences that are
+deemed to be poor quality overall. After trimming, the majority of
+compression methods retain more base-pairs than the uncompressed
+sequences (Figure \ref{fig:preprocessing}). In general, as a given
+compression model increases in complexity, i.e., as the number of
+profiles, polynomial degrees, or rate increases, the amount of
+base-pairs kept approaches the number base-pairs kept using the
+uncompressed sequences. The compression methods on the \textit{Mus
+  musculus} data set have the greatest proportion of retained
+base-pairs compared to the uncompressed sequences. The
+\textit{Escherichia coli} str. K-12 MG1655 MiSeq data set has the
+smallest range.
 
 The 2-bin approach is the only compression method that results in a
 higher number of trimmed base-pairs across all data sets. Sickle uses
 a sliding window approach to smooth the read quality values before it
-trims. In the 2-bin
-approach, there is not an even distribution of values per bin.  In
-other words, \emph{bad} quality values may range from 0-33, whereas
-\emph{good} values may only range from 34-40. Thus, mid-range quality
-values that are above the threshold (20 by default) are set below the
-quality threshold when compressed, resulting in an increased number of
-trimmed bases.
+trims. In the 2-bin approach, there is not an even distribution of
+values per bin. In other words, \emph{bad} quality values may range
+from 0-33, whereas \emph{good} values may only range from 34-40. Thus,
+mid-range quality values that are above the threshold (20 by default)
+are set below the quality threshold when compressed, resulting in an
+increased number of trimmed bases.
 
 The 0-degree polynomial regression results in the highest proportion
 of bases kept. If the mean quality value of the read is above the
 filtering threshold, then no base-pairs are trimmed. Only reads that
 are comprised of mainly low quality values will be discarded.
 
-It is important to highlight that even though a compression method
-may result in the same number of trimmed bases as the
-uncompressed sequences, it does not mean the \emph{same} bases
-were trimmed. The 1st-degree and 5th-degree polynomial regression of
-the \textit{Rhodobacter sphaeroides} fragment library filter nearly
-as many bases as each other. However, if we examine the specific reads
+It is important to highlight that even though a compression method may
+result in the same number of trimmed bases as the uncompressed
+sequences, it does not mean the \emph{same} bases were trimmed. The
+1st-degree and 5th-degree polynomial regression of the
+\textit{Rhodobacter sphaeroides} fragment library filter nearly as
+many bases as each other. However, if we examine the specific reads
 discarded, the 5th-degree polynomial regression discards approximately
 two thirds less reads than the 1st-degree polynomial regression that
 are kept by the uncompressed reads (4,640 and 12,066 reads,
@@ -525,7 +533,7 @@ terms of N50 and relocations are fairly distant, which lowers the
 overall ranking of the 5th-degree polynomial slightly below that for
 3rd-degree polynomial model. The 1st- and 0-degree polynomial
 regression methods perform poorly in all metrics except assembled
-bases.  One explanation is that the high error portions of reads are
+bases. One explanation is that the high error portions of reads are
 being marked as high quality, so \textsc{allpaths-lg} is unable to
 trim or error correct the sequences. Assembled sequences that overlap
 maybe unable to align across the errors at the end of the reads,
@@ -555,18 +563,13 @@ reference bases. This trend runs counter to the the decrease in
 
 \begin{table*}[!tbhp]
 \centering
-\caption[]{Mapping results of decompressed \textsc{fastq} files
-  against \textit{Rhodobacter sphaeroides} reference genome using
-  Bowtie2. Numbers corresponds to the proportion of mapped reads with
-  respect to the uncompressed \textsc{fastq}. ``Shared'' denotes the
-  percentage of mapped reads by both the uncompressed and decompressed
-  data. ``Uncompressed only'' denotes the percentage of reads mapped
-  from the uncompressed data that are not mapped after
-  decompression. ``Compressed only'' denotes the percentage of reads
-  mapped from the decompressed data that were not mapped before
-  compression.}
+\caption[]{Comparison of mapping for original reads and reads with
+  compressed/decompressed quality values. Reads and reference genome
+  are for \textit{Rhodobacter sphaeroides}, and mapping was performed
+  using Bowtie2.}
+\begin{small}
 \begin{tabular}{lr|cc|cc|cc|cc|cc}
- & & \multicolumn{2}{c|}{MaxQual} & \multicolumn{2}{c|}{MinQual} & \multicolumn{2}{c|}{2-bin} & \multicolumn{2}{c|}{Degree 0} & \multicolumn{2}{c}{Degree 1} \\
+ & & \multicolumn{2}{c|}{max-qual} & \multicolumn{2}{c|}{min-qual} & \multicolumn{2}{c|}{2-bin} & \multicolumn{2}{c|}{regression (0)} & \multicolumn{2}{c}{regression (1)} \\
 & & mapped & unmapped & mapped & unmapped & mapped & unmapped & mapped & unmapped & mapped & unmapped \\ 
 \cline{2-12}
 & mapped & 746716 & 145897 & 892613 &   0 & 891864 & 749 & 851682 & 40931 & 883390 & 9223 \\ 
@@ -579,7 +582,7 @@ reference bases. This trend runs counter to the the decrease in
 \bigskip
 
 \begin{tabular}{lr|cc|cc|cc|cc|cc}
- & & \multicolumn{2}{c|}{Degree 3} & \multicolumn{2}{c|}{Degree 5} & \multicolumn{2}{c|}{Degree 7} & \multicolumn{2}{c|}{Profile (64)} & \multicolumn{2}{c}{Profile (128)} \\
+ & & \multicolumn{2}{c|}{regression (3)} & \multicolumn{2}{c|}{regression (5)} & \multicolumn{2}{c|}{regression (7)} & \multicolumn{2}{c|}{profile (64)} & \multicolumn{2}{c}{profile (128)} \\
 & & mapped & unmapped & mapped & unmapped & mapped & unmapped & mapped & unmapped & mapped & unmapped \\ 
 \cline{2-12}
 & mapped & 889537 & 3076 & 891019 & 1594 & 891479 & 1134 & 891753 & 860 & 891952 & 661 \\ 
@@ -592,7 +595,7 @@ reference bases. This trend runs counter to the the decrease in
 \bigskip
 
 \begin{tabular}{lr|cc|cc|cc|cc|cc}
-&  & \multicolumn{2}{c|}{Profile (256)} & \multicolumn{2}{c|}{\textsc{q}ual\textsc{c}omp (6)} & \multicolumn{2}{c|}{\textsc{q}ual\textsc{c}omp (10)} & \multicolumn{2}{c|}{\textsc{q}ual\textsc{c}omp (30)} & \multicolumn{2}{c}{\textsc{q}ual\textsc{c}omp (100)} \\
+&  & \multicolumn{2}{c|}{profile (256)} & \multicolumn{2}{c|}{\textsc{q}ual\textsc{c}omp (6)} & \multicolumn{2}{c|}{\textsc{q}ual\textsc{c}omp (10)} & \multicolumn{2}{c|}{\textsc{q}ual\textsc{c}omp (30)} & \multicolumn{2}{c}{\textsc{q}ual\textsc{c}omp (100)} \\
 & &  mapped & unmapped & mapped & unmapped & mapped & unmapped & mapped & unmapped & mapped & unmapped \\ 
 \cline{2-12}
 & mapped & 892051 & 562 & 891375 & 1238 & 891777 & 836 & 892233 & 380 & 892454 & 159 \\ 
@@ -600,8 +603,8 @@ reference bases. This trend runs counter to the the decrease in
 \cline{2-12}
 %& sum & 892170 & 133264 & 891679 & 133755 & 892042 & 133392 & 892453 & 132981 & 892626 & 132808 \\ 
 & proportion & 0.870 & 0.130 & 0.870 & 0.130 & 0.870 & 0.130 & 0.870 & 0.130 & 0.870 & 0.130 \\
-
 \end{tabular}
+\end{small}
 
 \label{tab:aligner}
 \end{table*}
@@ -661,12 +664,12 @@ respectively). There is no such trend for reads that are mapped only
 by the regression model.
 
 It is important to highlight the result that the 2-bin method aligns a
-greater portion of reads than the various regression models.  If a
+greater portion of reads than the various regression models. If a
 poor quality base is flanked by high quality sequence, then the low
 degree polynomial regression models tend to smooth out the base
 quality, erroneously marking the low quality base as higher quality.
 During alignment, Bowtie2 penalizes mismatches at high quality bases
-more so than mismatches at lower quality bases.  Thus, the polynomial
+more so than mismatches at lower quality bases. Thus, the polynomial
 regression models incur a high penalty for these bases, resulting in
 less alignments, despite having a better \textsc{mse} than 2-bin in
 most cases.
@@ -765,13 +768,13 @@ The downside of modeling quality sequences using polynomial regression
 is that the model often requires a high number of degrees to achieve
 the same \textsc{mse} as the profile and \textsc{QualComp} methods.
 However, storing a high number of coefficients requires more storage
-than losslessly compressing the original data.  In order to increase
+than losslessly compressing the original data. In order to increase
 the compressibility of modeling, we can attempt to store the
-\emph{profiles} of certain polynomial functions.  In other words, we
+\emph{profiles} of certain polynomial functions. In other words, we
 can use a spline (a function that is piecewise-defined by polynomial
-functions) to represent a given quality sequence.  Similar to our
+functions) to represent a given quality sequence. Similar to our
 profile-encoding method, the user can specify how many polynomial
-functions they wish to store.  Then a quality sequence can be divided
+functions they wish to store. Then a quality sequence can be divided
 evenly into a given number of segments, and each segment can be
 annotated with a polynomial function profile that closely matches its
 quality sequence.
@@ -792,7 +795,7 @@ reads.
 
 We have simply provided here the initial steps in analyzing the effect
 of lossy compression on quality values using high-coverage bacterial,
-human, and mouse data sets.  A more direct comparison against
+human, and mouse data sets. A more direct comparison against
 additional lossy compression tools, such as
 \textsc{SlimGene}~\citep{Kozanitis:2011kl}, needs to be
 performed. Furthermore, other types of sequencing data can be analyzed
