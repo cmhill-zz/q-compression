@@ -95,8 +95,8 @@ p <- ggplot(dfr_tables, aes(x = x, y = y, label=names, col=dataset, shape=pch)) 
   scale_x_log10(breaks = x_breaks, labels = x_breaks, limits = c(.027,11)) +
   geom_point(size=5, data = original_tables, aes(x = x, y = y, pch=c(8,8,8,8), label=c("","","",""))) +
   geom_point(data = data.frame(x=c(8),y=c(0)), size=5, aes(x=x, y=y, shape=c(8), label=c("")), color="black") +
-  xlab("Quality bits per bp") + 
-  ylab("Mean Squared Error") +
+  xlab("bits/base-call") + 
+  ylab("mean squared error") +
   geom_point(size=2) + 
   geom_text(hjust=-.3, vjust=-0.3, size=2, show_guide = FALSE) + 
   theme_bw() + theme(legend.position="bottom", legend.key = element_blank(), legend.title=element_blank(),

@@ -33,8 +33,8 @@ for (table in tables) {
   counter <- counter + 1
 }
 
-rowLabels = c("2-bin", "Regression (0)", "Regression (1)", "Regression (3)", "Regression (5)",
-              "Regression (7)", "Profile (64)", "Profile (128)", "Profile (256)", "QualComp (6)", "QualComp (10)",
+rowLabels = c("2-bin", "regression (0)", "regression (1)", "regression (3)", "regression (5)",
+              "regression (7)", "profile (64)", "profile (128)", "profile (256)", "QualComp (6)", "QualComp (10)",
               "QualComp (30)", "QualComp (100)")
 
 library(grid)
