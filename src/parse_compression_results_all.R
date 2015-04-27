@@ -50,7 +50,7 @@ for (table in tables) {
   counter <- counter + 1
 }
 
-pdf("compression_results", width=10, height=5)
+pdf("compression_results.pdf", width=10, height=5)
 
 # Hack to print the asterisks on the axis.
 library(grid)

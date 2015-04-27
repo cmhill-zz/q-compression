@@ -40,7 +40,7 @@ rowLabels = c("2-bin", "regression (0)", "regression (1)", "regression (3)", "re
 library(grid)
 
 
-pdf("preprocessing_results.pdf", width=2, height=4)
+pdf("preprocessing_results.pdf", width=3.5, height=3.5)
 p <- ggplot(dfr_tables, aes(x=jitter(x,factor = 1), y=y, color = dataset)) + geom_point() + scale_y_discrete(labels=rowLabels) + 
   theme_bw() +
   xlab("Proportion of bases kept compared to original") +
