@@ -143,11 +143,10 @@ classes of lossy compression methods -- binning, modeling, and
 profiling -- and consider an exemplar of each
 class.~\cite{Canovas:2014fr} and~\cite{janin2013adaptive} evaluated
 the effects of lossy compression on identifying variants within a data
-set. We build on these prior works and access the effects of
-% quantifying compression efficiency, we also assess the effects of
-quality value information loss resulting from compression on
-additional subsequent genomic analyses including read preprocessing
-(filtering and trimming), genome assembly, and read mapping.
+set. We build on these prior works, and access the effects of quality
+value information loss resulting from compression on subsequent
+genomic analyses including read preprocessing (filtering and
+trimming), genome assembly, and read mapping.
 
 \begin{methods}
 \section{Methods}
@@ -220,34 +219,23 @@ with least-squares fitting, as one approach to compression read
 quality values by modeling.
 
 Despite the fact that polynomial functions have significantly lower
-number of parameters (i.e. one to six coefficients in our approach) than a read-length
-string of raw quality values, the necessity of using floating point
-numbers to store coefficients greatly limits the compression potential
-of the method. In order to get meaningful compression on
-single-precision four-byte floating point numbers, one would have to
-relax on the least-squares approximation constraint to obtain
-compressible values on the byte level which is outside the scope of
-this study.
+number of parameters (i.e. one to six coefficients in our approach)
+than a read-length string of raw quality values, the necessity of
+using floating point numbers to store coefficients greatly limits the
+compression potential of the method. In order to get meaningful
+compression on single-precision four-byte floating point numbers, one
+would have to relax on the least-squares approximation constraint to
+obtain compressible values on the byte level which is outside the
+scope of this study.
 
 The economic costs of memory use for model-based compression, in
 general terms, include no fixed costs, and marginal costs that are a
 function of the number of reads times the cost representing the model
 parameters.
 
-\textsc{QualComp} is a lossy compression tool that models quality
-values as a multivariate Gaussian distribution, computing the mean and
-covariance for each position in the read\citep{Ochoa:2013rt}. Once the
-model parameters are calculated, they are stored by the decoder to
-later reconstruct a \emph{representative} quality value.
-\textsc{QualComp} takes as input a user-specified rate (bits per read)
-and then poses an optimization problem of how to allot these bits for
-a given position within the read while minimizing the \textsc{mse}. The quality values
-can be clustered before hand to produce more accurate models.
-
 \subsubsection{Profiling}
 
 \begin{figure*}[!tb]%figure2
-%\centerline{\includegraphics[width=3.65in]{mse_frag.png}}
 \centerline{\includegraphics[width=7in]{compression_results.pdf}}
 \caption{The relationship of bits/base-call and mean squared error for
   quality value compression methods applied to four data sets:
@@ -345,6 +333,19 @@ obtained from the NCBI RefSeq database (NC\_000913.2).
 \url{http://trace.ddbj.nig.ac.jp/DRASearch/run?acc=SRR032209}, which
 consisted of 18,828,274 reads of length 36.
 
+\subsection{Comparison to other methods}
+
+For comparison to other developed methods we use \textsc{QualComp}, a
+lossy compression tool that models quality values as a multivariate
+Gaussian distribution, computing the mean and covariance for each
+position in the read\citep{Ochoa:2013rt}. Once the model parameters
+are calculated, they are stored by the decoder to later reconstruct a
+\emph{representative} quality value.  \textsc{QualComp} takes as input
+a user-specified rate (bits/read) and then poses an optimization
+problem of how to allot these bits for a given position within the
+read while minimizing the \textsc{mse}. The quality values can be
+clustered before hand to produce more accurate models.
+
 \subsection{Performance evaluation}
 
 As a measure of compression effectiveness we use bits/base-call, and
@@ -364,13 +365,8 @@ uncompressed data. Sickle starts at the ends of the sequence and uses
 a sliding window ($0.1 \times$ the read length) to find locations
 where the window's average quality falls below a given threshold (20
 by default). The sequence is then trimmed from this position to the
-respective end.
-%uses a variable sliding window approach where base qualities are
-%averaged over a window ($0.1 \times$ the read length) and trims from
-%the position where the window's average quality falls below a given
-%threshold (20 by default).
-If the trimmed sequence length is less than a certain threshold (20 by
-default), then the sequence is discarded.
+respective end. If the trimmed sequence length is less than a certain
+threshold (20 by default), then the sequence is discarded.
 
 We evaluate effects of information loss from quality value compression
 on \emph{de novo} genome assembly performance using contiguity
@@ -493,16 +489,11 @@ respectively) (Supplemental Table 2).
 
 \subsection{Effects on genome assembly}
 
-No assembly of the \textit{Rhodobacter sphaeroides} 2.4.1 data set
-outperforms all others in all metrics (Table
-\ref{fig:assembly_ranks}).
-%The assembly of the \textit{Rhodobacter sphaeroides} 2.4.1 data set
-%using the uncompressed reads outperforms all compression methods in
-%terms of \textsc{lap}, NG50, relocations, translations, and
-%inversions.
-Among the compression methods, the profile encoding performed best,
-polynomial regression modeling with degree $<=$ 7 performed worst, and
-other methods were intermediate (Fig.~\ref{fig:assembly_ranks}).
+No assembly of the \textit{Rhodobacter sphaeroides} 2.4.1 data set was
+best in all metrics (Table \ref{fig:assembly_ranks}). Among the
+compression methods, the profile encoding performed best, polynomial
+regression modeling performed worst, and other methods were
+intermediate (Fig.~\ref{fig:assembly_ranks}).
 
 The lossy compression methods largely preserve the contiguity found in
 the assembly produced using the reads with unmodified quality
@@ -550,7 +541,6 @@ reference bases. This trend runs counter to the the decrease in
 
 
 \begin{figure}[!tbp]
-%\centerline{\includegraphics[width=3.65in]{mse_frag.png}}
 \centerline{\includegraphics[width=3.65in]{rhodo_assembly_results.pdf}}
 \caption{Rankings of compression methods based on \textit{Rhodobacter
     sphaeroides} assembly attributes sorted by overall
@@ -741,13 +731,22 @@ quality sequences. Assemblers performing sequence alignment use
 percent similarity scores that are typically robust to standard
 sequencing errors.
 
-It is important to highlight that the downstream applications dictate which lossy compression methods are acceptable.
-As highlighted earlier, 2-bin encoding is able to retain information about low quality bases that occur within stretches of high quality bases, whereas the polynomial regression methods tend to smooth these qualities.
-In addition to aligning less reads that the 2-bin encoding, the polynomial regression methods may also be hindering downstream tools that use the alignment results.
-A \textsc{snp} detection pipeline will commonly use the quality values to record if a potential difference from the reference is the result of genetic variation or sequencing error.
-Erroneously marking a base as higher quality, may lead to the base being incorrectly labeled as a \textsc{snp}.
-2-bin encoding is acceptable for alignment; however, it performs quite poorly in terms of assembly.
-In the case of assembly, the 7th-degree polynomial regression method outperforms 2-bin encoding in nearly all metrics.
+It is important to highlight that the downstream applications dictate
+which lossy compression methods are acceptable. As highlighted
+earlier, 2-bin encoding is able to retain information about low
+quality bases that occur within stretches of high quality bases,
+whereas the polynomial regression methods tend to smooth these
+qualities.  In addition to aligning less reads that the 2-bin
+encoding, the polynomial regression methods may also be hindering
+downstream tools that use the alignment results. A \textsc{snp}
+detection pipeline will commonly use the quality values to record if a
+potential difference from the reference is the result of genetic
+variation or sequencing error.  Erroneously marking a base as higher
+quality, may lead to the base being incorrectly labeled as a
+\textsc{snp}.  2-bin encoding is acceptable for alignment; however, it
+performs quite poorly in terms of assembly. In the case of assembly,
+the 7th-degree polynomial regression method outperforms 2-bin encoding
+in nearly all metrics.
 
 \subsection{Extension of 2-bin encoding}
 
@@ -838,7 +837,9 @@ have additional built-in sensitivity to handle significant loss of
 information in the compressed quality values.
 
 \section{Availability}
-Implementations of the compression methods written in Python and R and pipeline to reproduce the results are available at \url{https://github.com/cmhill/q-compression}
+Implementations of the compression methods written in Python and R and
+pipeline to reproduce the results are available at
+\url{https://github.com/cmhill/q-compression}
 
 \section*{Acknowledgement}
 This research was initiated at the 2014 Bioinformatics Exchange for
