@@ -245,19 +245,18 @@ parameters.
 \label{fig:mse_vs_bpbp}
 \end{figure*}
 
-As large sets of quality strings show similar trends of quality over
-their length, it may be possible to identify such common patterns in
-the data and use them as reference profiles to approximate individual
-sequences of quality values. Here we use $k$-means clustering, a
-vector quantization method, which partitions a set of samples into $k$
-sets that minimize within-cluster sum of
-squares~\citep{macqueen1967some}. We sampled 10K reads at random and
+Sets of quality strings show similar trends of quality over their
+length, and it is possible to identify common patterns in the data and
+use them as reference profiles to approximate individual sequences of
+quality values. Here we use $k$-means clustering, a vector
+quantization method that partitions a set of samples into $k$ sets
+that minimize within-cluster sum of
+squares~\citep{macqueen1967some}. We sampled 10$K$ reads at random and
 computed cluster centers as read quality profiles using heuristic
 iterative refinement approach by quickly converging to a locally
-optimal minimum~\citep{hartigan1979algorithm}.  The obtained cluster
-were then used quality profile prototypes for the dataset.  All reads
-are evaluated with the nearest quality profile in Euclidean space
-being assigned to every read as their compressed representation.  The
+optimal minimum~\citep{hartigan1979algorithm}.  All reads are
+evaluated with the nearest quality profile in Euclidean space being
+assigned to every read as their compressed representation.  The
 compressed quality file therefore consists of an index enumerating the
 $k$ quality profiles, and a binary part containing the assigned
 quality profile index for each read.  Although this approach is not
@@ -363,11 +362,11 @@ settings and 32 threads.
 \subsection{Compression effectiveness versus information loss}
 
 We compare the \textsc{mse} versus bits/base-call of the
-\textit{Rhodobacter sphaeroides} 2.4.1, \textit{Homo sapiens}
-chromosome 14, \textit{Escherichia coli} str. K-12 MG1655, and
+\textit{Rhodobacter sphaeroides}, \textit{Homo sapiens},
+\textit{Escherichia coli}, and
 \textit{Mus musculus} data sets (Figure \ref{fig:mse_vs_bpbp}). We
 only include the fragment libraries for the \textit{Rhodobacter
-  sphaeroides} 2.4.1, and \textit{Homo sapiens} chromosome 14 data
+  sphaeroides}, and \textit{Homo sapiens} data
 sets, but the additional short-jump library results are available in
 the Supplemental Table 1. Storing the uncompressed quality values
 requires 1 byte per base-call because they are stored in
@@ -385,7 +384,7 @@ storage than the profile encoding methods for only a 2-3x reduction in
 \textsc{mse}. When \textsc{q}ual\textsc{c}omp's rate parameter is set
 to match the profile encoding methods, \textsc{q}ual\textsc{c}omp
 performs slightly worse in terms of \textsc{mse}. In the
-\textit{Rhodobacter sphaeroides} 2.4.1 fragment library,
+\textit{Rhodobacter sphaeroides} fragment library,
 \textsc{q}ual\textsc{c}omp with rate 10 bits/read (0.099 bits/bp) has
 a \textsc{mse} of 17.29. Using 256-profile encoding requires less
 storage (0.079 bits/bp) and has a lower \textsc{mse} (11.85).
@@ -457,7 +456,7 @@ respectively) (Supplemental Table 2).
 
 \subsection{Effects on genome assembly}
 
-No assembly of the \textit{Rhodobacter sphaeroides} 2.4.1 data set was
+No assembly of the \textit{Rhodobacter sphaeroides} data set was
 best in all metrics (Table \ref{fig:assembly_ranks}). Among the
 compression methods, the profile encoding performed best, polynomial
 regression modeling performed worst, and other methods were
@@ -618,7 +617,7 @@ reads that are originally mapped, but unmapped by the regression model
 respectively). There is no such trend for reads that are mapped only
 by the regression model.
 
-It is important to highlight the result that the 2-bin method aligns a
+Note that the 2-bin method aligns a
 greater portion of reads than the various regression models. If a
 poor quality base is flanked by high quality sequence, then the low
 degree polynomial regression models tend to smooth out the base
@@ -653,12 +652,12 @@ quality sequences. Assemblers performing sequence alignment use
 percent similarity scores that are typically robust to standard
 sequencing errors.
 
-It is important to highlight that the downstream applications dictate
-which lossy compression methods are acceptable. As highlighted
-earlier, 2-bin encoding is able to retain information about low
+It is important to note that the downstream applications dictate
+which lossy compression methods are acceptable. As noted
+above, 2-bin encoding is able to retain information about low
 quality bases that occur within stretches of high quality bases,
 whereas the polynomial regression methods tend to smooth these
-qualities.  In addition to aligning less reads that the 2-bin
+qualities. In addition to aligning less reads that the 2-bin
 encoding, the polynomial regression methods may also be hindering
 downstream tools that use the alignment results. A \textsc{snp}
 detection pipeline will commonly use the quality values to record if a
