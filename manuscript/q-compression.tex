@@ -25,9 +25,7 @@
   T\"{u}bingen, Sand 14, 72076 T\"{u}bingen, Germany\\ $^{4}$Center
   for Bioinformatics and Computational Biology, University of
   Maryland, College Park, Maryland, 20742 USA}
-%$\dagger$authors contributed equally
 \history{Received on XXXXX; revised on XXXXX; accepted on XXXX}
-% Hack to display authors contribution.
 \editor{Associate Editor: XXXXXXX}
 
 \maketitle
@@ -193,7 +191,7 @@ a combination of LogBinning and Truncating in that we are placing the
 highest quality values (as defined above) of the log of the error
 probability distribution into a single bin.
 
-\begin{figure}[!tpb]%figure2
+\begin{figure}[!tpb]
 \centerline{\includegraphics[width=3.35in]{profiles_128.png}}
 \caption{Quality profiles obtained by $k$-means clustering on the
   fragment library from \textit{Rhodobacter sphaeroides} 2.4.1 data
@@ -213,20 +211,16 @@ If quality values are modeled, compression is conceivably possible by
 replacing the original quality values by a representation of the
 model. For example, quality values can be conceptualized as bivariate
 data with the ordered nucleotides (1 to read length) representing the
-abscissa, and quality values representing the ordinate. In this
-research we model read quality values as polynomial functions obtained
-with least-squares fitting, as one approach to compression read
-quality values by modeling.
-
-Despite the fact that polynomial functions have significantly lower
-number of parameters (i.e. one to six coefficients in our approach)
-than a read-length string of raw quality values, the necessity of
-using floating point numbers to store coefficients greatly limits the
-compression potential of the method. In order to get meaningful
-compression on single-precision four-byte floating point numbers, one
-would have to relax on the least-squares approximation constraint to
-obtain compressible values on the byte level which is outside the
-scope of this study.
+abscissa, and quality values representing the ordinate. We model read
+quality values as polynomial functions obtained with least-squares
+fitting, as one approach to compression read quality values by
+modeling.  Although polynomial functions have significantly lower
+number of parameters than a read-length string of raw quality values
+(e.g., one to six coefficients in our approach), the use of floating
+point numbers to store coefficients greatly limits the compression
+potential of the method. The coefficients could be represented with
+fewer bits, perhaps with some loss of precision, but we have not
+considered alternative representations in this study.
 
 The economic costs of memory use for model-based compression, in
 general terms, include no fixed costs, and marginal costs that are a
@@ -235,7 +229,7 @@ parameters.
 
 \subsubsection{Profiling}
 
-\begin{figure*}[!tb]%figure2
+\begin{figure*}[!tb]
 \centerline{\includegraphics[width=7in]{compression_results.pdf}}
 \caption{The relationship of bits/base-call and mean squared error for
   quality value compression methods applied to four data sets:
@@ -252,42 +246,24 @@ parameters.
 \end{figure*}
 
 As large sets of quality strings show similar trends of quality over
-their length, it makes sense to identify such common patterns in the
-data and use them as reference profiles to approximate individual
-sequences of quality values. Such patterns can be readily determined
-by clustering data points (i.e. quality vectors) and using the
-resulting cluster centers as representative profiles.
-
-$k$-means clustering is a vector quantization method, partitioning a
-set of samples into $k$ sets that minimize within-cluster sum of
-squares~\citep{macqueen1967some}. Using a random subset of read
-quality values, a compression method can use the computed cluster
-centers as read quality profiles. As the problem is NP-hard, we use a
-heuristic iterative refinement approach by quickly converging to a
-locally optimal minimum provided by R~\citep{hartigan1979algorithm}.
-
-First, the method samples an adjustable number of reads randomly from
-the file to be used as a training set. Quality values are represented
-by vectors containing their \textsc{phred} scores corresponding to
-each position along the read. Subsequently, $k$-means clustering is
-performed on the training set until convergence. The obtained cluster
-centers will be the quality profile prototypes for the dataset.
-
-Once the $k$ quality profiles are determined, all reads are passed
-through the trained $k$-means predictor, with the nearest quality
-profile in Euclidean space being assigned to every read as their
-compressed representation.
-
-The compressed quality file therefore consists of an index enumerating
-the $k$ quality profiles, and a binary part containing the assigned
-quality profile index for each read.
-
-Although this approach is not able to capture randomly occurring
-outlier quality values, it ensures that the overall trends in quality
-value patterns are retained. Quality profiles capture different
-overall qualities and different drop-off positions and gradients. An
-example of 128 quality profiles are shown on Figure
-\ref{fig:profiles_128}.
+their length, it may be possible to identify such common patterns in
+the data and use them as reference profiles to approximate individual
+sequences of quality values. Here we use $k$-means clustering, a
+vector quantization method, which partitions a set of samples into $k$
+sets that minimize within-cluster sum of
+squares~\citep{macqueen1967some}. We sampled 10K reads at random and
+computed cluster centers as read quality profiles using heuristic
+iterative refinement approach by quickly converging to a locally
+optimal minimum~\citep{hartigan1979algorithm}.  The obtained cluster
+were then used quality profile prototypes for the dataset.  All reads
+are evaluated with the nearest quality profile in Euclidean space
+being assigned to every read as their compressed representation.  The
+compressed quality file therefore consists of an index enumerating the
+$k$ quality profiles, and a binary part containing the assigned
+quality profile index for each read.  Although this approach is not
+able to capture some read specific differences in quality values, it
+does approximates the overall patterns in quality values. An example
+of 128 quality profiles are shown on Figure \ref{fig:profiles_128}.
 
 The economic costs of memory use for profile-based compression, in
 general terms, include fixed costs associated with representing the
@@ -309,13 +285,6 @@ and short-jump library (insert size of 3,500 nt; 2,050,868 reads). The
 corresponding reference sequence was obtained from the NCBI RefSeq
 database (NC\_007488.1, NC\_007489.1, NC\_007490.1, NC\_007493.1,
 NC\_007494.1, NC\_009007.1, NC\_009008.1).
-
-% Will be moved to supplemental.
-%\textit{Stapylococcus aureus} USA300, which are generated from a
-%fragment library (insert size of 180 nt; 1,294,104 paired-end reads)
-%and short-jump library (insert size of 3,500 nt; 3,494,070 reads).
-%The corresponding reference sequence was obtained from the NCBI RefSeq
-%database (NC\_010063.1, NC\_010079.1, NC\_012417.1).
 
 \textit{Homo sapiens} chromosome 14 data, which are generated from a
 fragment library (insert size of 155 nt; 36,504,800 paired-end reads)
@@ -432,8 +401,7 @@ per sequence of quality values. The read length of the \textit{Mus
 regression is storing six more bytes than necessary for lossless
 encoding the quality data.
 
-\begin{figure}[!tbp]%figure2
-%\centerline{\includegraphics[width=3.65in]{mse_frag.png}}
+\begin{figure}[!tbp]
 \centerline{\includegraphics[width=3.65in]{preprocessing_results.pdf}}
 \caption{Preprocessing results of \textit{Rhodobacter sphaeroides}
   2.4.1, and \textit{Homo sapiens} chromosome 14 fragment libraries,
@@ -565,7 +533,6 @@ reference bases. This trend runs counter to the the decrease in
 & mapped & 746716 & 145897 & 892613 &   0 & 891864 & 749 & 851682 & 40931 & 883390 & 9223 \\ 
 {\em original} & unmapped &   0 & 132821 & 10821 & 122000 & 186 & 132635 &  67 & 132754 &  55 & 132766 \\ 
 \cline{2-12}
-%& sum & 746716 & 278718 & 903434 & 122000 & 892050 & 133384 & 851749 & 173685 & 883445 & 141989 \\ 
 & proportion & 0.728 & 0.272 & 0.881 & 0.119 & 0.870 & 0.130 & 0.831 & 0.169 & 0.862 & 0.138 \\ 
 \end{tabular}
 
@@ -578,7 +545,6 @@ reference bases. This trend runs counter to the the decrease in
 & mapped & 889537 & 3076 & 891019 & 1594 & 891479 & 1134 & 891753 & 860 & 891952 & 661 \\ 
 {\em original} & unmapped & 117 & 132704 & 155 & 132666 & 154 & 132667 & 144 & 132677 & 143 & 132678 \\ 
 \cline{2-12}
-%& sum & 889654 & 135780 & 891174 & 134260 & 891633 & 133801 & 891897 & 133537 & 892095 & 133339 \\ 
 & proportion & 0.868 & 0.132 & 0.869 & 0.131 & 0.870 & 0.130 & 0.870 & 0.130 & 0.870 & 0.130 \\ 
 \end{tabular}
 
@@ -591,7 +557,6 @@ reference bases. This trend runs counter to the the decrease in
 & mapped & 892051 & 562 & 891375 & 1238 & 891777 & 836 & 892233 & 380 & 892454 & 159 \\ 
 {\em original}  & unmapped & 119 & 132702 & 304 & 132517 & 265 & 132556 & 220 & 132601 & 172 & 132649 \\ 
 \cline{2-12}
-%& sum & 892170 & 133264 & 891679 & 133755 & 892042 & 133392 & 892453 & 132981 & 892626 & 132808 \\ 
 & proportion & 0.870 & 0.130 & 0.870 & 0.130 & 0.870 & 0.130 & 0.870 & 0.130 & 0.870 & 0.130 \\
 \end{tabular}
 \end{small}
@@ -667,49 +632,6 @@ most cases.
 Setting all bases as minimum quality results in the highest proportion
 of mapped reads 88.1\%. Conversely, setting all bases as maximum
 quality results in the lowest proportion of mapped reads 72.8\%.
-
-
-% \begin{table*}[!tbhp]
-% \centering
-% \caption[]{Quality filtering/trimming for the uncompressed and
-%   decompressed \textsc{fastq} files. Numbers correspond to the number
-%   of reads that are kept or discarded after applying compression with
-%   respect to the original, uncompressed values.}
-% \label{tab:quality_control}
-% \begin{tabular}{lr|cc|cc|cc|cc|cc}
-%  & & \multicolumn{2}{c|}{MaxQual} & \multicolumn{2}{c|}{MinQual} & \multicolumn{2}{c|}{2-bin} & \multicolumn{2}{c|}{Degree 0} & \multicolumn{2}{c}{Degree 1} \\
-%  & & kept & discarded & kept & discarded & kept & discarded & kept & discarded & kept & discarded \\ 
-%   \cline{2-12}
-% & kept & 883576 &   0 &   0 & 883576 & 871035 & 12541 & 728349 & 155227 & 871510 & 12066 \\ 
-% {\em original} & discarded & 141858 &   0 &   0 & 141858 & 1882 & 139976 & 1475 & 140383 & 9214 & 132644 \\ 
-% \cline{2-12}
-%  & proportion & 1.000 & 0.000 & 0.000 & 1.000 & 0.851 & 0.149 & 0.712 & 0.288 & 0.859 & 0.141 \\ 
-% \end{tabular}
-
-% \bigskip
-
-% \begin{tabular}{lr|cc|cc|cc|cc|cc}
-%  & & \multicolumn{2}{c|}{Degree 3} & \multicolumn{2}{c|}{Degree 5} & \multicolumn{2}{c|}{Degree 7} & \multicolumn{2}{c|}{Profile (64)} & \multicolumn{2}{c}{Profile (128)} \\
-%  & & kept & discarded & kept & discarded & kept & discarded & kept & discarded & kept & discarded \\ 
-% \cline{2-12}
-% & kept & 872006 & 11570 & 878936 & 4640 & 877802 & 5774 & 876149 & 7427 & 877513 & 6063 \\ 
-% {\em original}  &  discarded & 10369 & 131489 & 10004 & 131854 & 8821 & 133037 & 15795 & 126063 & 17453 & 124405 \\
-% \cline{2-12}
-% & proportion & 0.860 & 0.140 & 0.867 & 0.133 & 0.865 & 0.135 & 0.870 & 0.130 & 0.873 & 0.127 \\ 
-% \end{tabular}
-
-% \bigskip
-
-% \begin{tabular}{lr|cc|cc|cc|cc|cc}
-% &  & \multicolumn{2}{c|}{Profile (256)} & \multicolumn{2}{c|}{\textsc{q}ual\textsc{c}omp (6)} & \multicolumn{2}{c|}{\textsc{q}ual\textsc{c}omp (10)} & \multicolumn{2}{c|}{\textsc{q}ual\textsc{c}omp (30)} & \multicolumn{2}{c}{\textsc{q}ual\textsc{c}omp (100)} \\
-%  & &  kept & discarded & kept & discarded & kept & discarded & kept & discarded & kept & discarded \\ 
-% \cline{2-12}
-% & kept & 881215 & 2361 & 878702 & 4874 & 879682 & 3894 & 881948 & 1628 & 881939 & 1637 \\ 
-% {\em original}  & discarded & 15985 & 125873 & 13434 & 128424 & 12855 & 129003 & 10872 & 130986 & 7179 & 134679 \\ 
-% \cline{2-12}
-% & proportion & 0.875 & 0.125 & 0.870 & 0.130 & 0.870 & 0.130 & 0.871 & 0.129 & 0.867 & 0.133 \\ 
-% \end{tabular}
-% \end{table*}
 
 \section{Discussion}
 
@@ -797,28 +719,6 @@ operations such as filtering and trimming, and the operations
 transitively applied to the entire set of reads, thus saving
 substantial computation associated with evaluating the full set of
 reads.
-
-\subsection{Future of lossy compression in bioinformatics analyses}
-
-We have simply provided here the initial steps in analyzing the effect
-of lossy compression on quality values using high-coverage bacterial,
-human, and mouse data sets. A more direct comparison against
-additional lossy compression tools, such as
-\textsc{SlimGene}~\citep{Kozanitis:2011kl}, needs to be
-performed. Furthermore, other types of sequencing data can be analyzed
-apart from the Illumina data examined here. For example, the PacBio
-sequencing instruments produce very long reads (with average read
-lengths on the order of 10 kbp), but with the trade-off of having a
-high error-rate ($\sim$15\%). Unlike the class of quality values we
-have examined here, the distribution of erroneous bases is relatively
-uniform~\citep{Ferrarini:2013vf}. The assembly complexity of bacterial
-genomes can be greatly simplified, producing near complete genome
-assemblies, by utilizing a single run of these long
-reads~\citep{Koren:2013ye}. If long read sequencing technologies such
-as PacBio become more widely adopted, it would be of huge benefit to
-examine the potential of lossy compression algorithms on not only the
-quality values, but the biological sequencing data themselves.
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
