@@ -220,7 +220,7 @@ with least-squares fitting, as one approach to compression read
 quality values by modeling.
 
 Despite the fact that polynomial functions have significantly lower
-number of parameters (i.e. one to six coefficients) than a read-length
+number of parameters (i.e. one to six coefficients in our approach) than a read-length
 string of raw quality values, the necessity of using floating point
 numbers to store coefficients greatly limits the compression potential
 of the method. In order to get meaningful compression on
@@ -241,7 +241,7 @@ model parameters are calculated, they are stored by the decoder to
 later reconstruct a \emph{representative} quality value.
 \textsc{QualComp} takes as input a user-specified rate (bits per read)
 and then poses an optimization problem of how to allot these bits for
-a given position while minimizing the \textsc{mse}. The quality values
+a given position within the read while minimizing the \textsc{mse}. The quality values
 can be clustered before hand to produce more accurate models.
 
 \subsubsection{Profiling}
@@ -622,7 +622,7 @@ against a reference genome. The original uncompressed and decompressed
 \textsc{sam} file for each compressing approach were compared with the
 uncompressed \textsc{sam} file. The total, shared and unique
 proportional numbers of mapped reads are calculated with respect to
-the uncompressed \textsc{sam} matches as shown in table
+the uncompressed \textsc{sam} matches as shown in Table
 \ref{tab:aligner}. Additionally, to monitor the effect of quality
 values on mapping in general, Bowtie2 was adjusted so that the maximum
 and minimum mismatch penalty were equivalent to maximum and minimum
@@ -741,6 +741,14 @@ quality sequences. Assemblers performing sequence alignment use
 percent similarity scores that are typically robust to standard
 sequencing errors.
 
+It is important to highlight that the downstream applications dictate which lossy compression methods are acceptable.
+As highlighted earlier, 2-bin encoding is able to retain information about low quality bases that occur within stretches of high quality bases, whereas the polynomial regression methods tend to smooth these qualities.
+In addition to aligning less reads that the 2-bin encoding, the polynomial regression methods may also be hindering downstream tools that use the alignment results.
+A \textsc{snp} detection pipeline will commonly use the quality values to record if a potential difference from the reference is the result of genetic variation or sequencing error.
+Erroneously marking a base as higher quality, may lead to the base being incorrectly labeled as a \textsc{snp}.
+2-bin encoding is acceptable for alignment; however, it performs quite poorly in terms of assembly.
+In the case of assembly, the 7th-degree polynomial regression method outperforms 2-bin encoding in nearly all metrics.
+
 \subsection{Extension of 2-bin encoding}
 
 2-bin encoding has the nice property of being simple to compute and
@@ -804,7 +812,7 @@ sequencing instruments produce very long reads (with average read
 lengths on the order of 10 kbp), but with the trade-off of having a
 high error-rate ($\sim$15\%). Unlike the class of quality values we
 have examined here, the distribution of erroneous bases is relatively
-uniform~\cite{Ferrarini:2013vf}. The assembly complexity of bacterial
+uniform~\citep{Ferrarini:2013vf}. The assembly complexity of bacterial
 genomes can be greatly simplified, producing near complete genome
 assemblies, by utilizing a single run of these long
 reads~\citep{Koren:2013ye}. If long read sequencing technologies such
@@ -828,6 +836,9 @@ examinations on lossy compression primarily focused on information
 loss, we have shown that typically used bioinformatics software today
 have additional built-in sensitivity to handle significant loss of
 information in the compressed quality values.
+
+\section{Availability}
+Implementations of the compression methods written in Python and R and pipeline to reproduce the results are available at \url{https://github.com/cmhill/q-compression}
 
 \section*{Acknowledgement}
 This research was initiated at the 2014 Bioinformatics Exchange for
