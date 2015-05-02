@@ -229,22 +229,6 @@ parameters.
 
 \subsubsection{Profiling}
 
-\begin{figure*}[!tb]
-\centerline{\includegraphics[width=7in]{compression_results.pdf}}
-\caption{The relationship of bits/base-call and mean squared error for
-  quality value compression methods applied to four data sets:
-  \textit{Rhodobacter sphaeroides} 2.4.1; \textit{Homo sapiens}
-  chromosome 14; \textit{Escherichia coli} str. K-12 MG1655; and
-  \textit{Mus musculus}. Point labels correspond to different
-  compression methods: 2B, 2-bin encoding; P$n$, profiling with $n$
-  profiles; R$n$, modeling with polynomial regression of degree $n$;
-  Q$n$, \textsc{q}ual\textsc{c}omp with rate parameter of
-  $n$. Asterisks denote the corresponding lossless compression using
-  \textsc{bz}ip2, with the black asterisk corresponding to original
-  data.}
-\label{fig:mse_vs_bpbp}
-\end{figure*}
-
 Sets of quality strings show similar trends of quality over their
 length, and it is possible to identify common patterns in the data and
 use them as reference profiles to approximate individual sequences of
@@ -360,6 +344,22 @@ settings and 32 threads.
 
 \subsection{Compression effectiveness versus information loss}
 
+\begin{figure*}[!tb]
+\centerline{\includegraphics[width=7in]{compression_results.pdf}}
+\caption{The relationship of bits/base-call and mean squared error for
+  quality value compression methods applied to four data sets:
+  \textit{Rhodobacter sphaeroides} 2.4.1; \textit{Homo sapiens}
+  chromosome 14; \textit{Escherichia coli} str. K-12 MG1655; and
+  \textit{Mus musculus}. Point labels correspond to different
+  compression methods: 2B, 2-bin encoding; P$n$, profiling with $n$
+  profiles; R$n$, modeling with polynomial regression of degree $n$;
+  Q$n$, \textsc{q}ual\textsc{c}omp with rate parameter of
+  $n$. Asterisks denote the corresponding lossless compression using
+  \textsc{bz}ip2, with the black asterisk corresponding to original
+  data.}
+\label{fig:mse_vs_bpbp}
+\end{figure*}
+
 We compare the \textsc{mse} versus bits/base-call of the
 \textit{Rhodobacter sphaeroides}, \textit{Homo sapiens},
 \textit{Escherichia coli}, and \textit{Mus musculus} data sets (Figure
@@ -370,22 +370,23 @@ Supplemental Table 1. Storing the uncompressed quality values requires
 1 byte per base-call because they are stored in \textsc{ascii} format
 and is denoted by the dotted black asterisk in the figure. The
 lossless compression of each data set using \textsc{bz}ip2 ranges from
-2.19 - 3.10 bits/base-call and is denoted by the colored asterisks on
+2.19--3.10 bits/base-call and is denoted by the colored asterisks on
 the abscissa. The compression methods tend to cluster together across
 the different data sets. Across all data sets, the 0-degree polynomial
 regression, profile encodings, and \textsc{q}ual\textsc{c}omp have the
 lowest bits/base-call.
 
 \textsc{q}ual\textsc{c}omp with the rate parameter set to 100
-bits/read has the lowest \textsc{mse}, but requires 10-15x more
-storage than the profile encoding methods for only a 2-3x reduction in
-\textsc{mse}. When \textsc{q}ual\textsc{c}omp's rate parameter is set
-to match the profile encoding methods, \textsc{q}ual\textsc{c}omp
-performs slightly worse in terms of \textsc{mse}. In the
-\textit{Rhodobacter sphaeroides} fragment library,
-\textsc{q}ual\textsc{c}omp with rate 10 bits/read (0.099 bits/bp) has
-a \textsc{mse} of 17.29. Using 256-profile encoding requires less
-storage (0.079 bits/bp) and has a lower \textsc{mse} (11.85).
+bits/read has the lowest \textsc{mse}, but requires
+$\sim$10--15$\times$ more storage than the profile encoding methods
+for only a $\sim$2--3$\times$ reduction in \textsc{mse}. When
+\textsc{q}ual\textsc{c}omp's rate parameter is set to match the
+profile encoding methods, \textsc{q}ual\textsc{c}omp performs slightly
+worse in terms of \textsc{mse}. In the \textit{Rhodobacter
+  sphaeroides} fragment library, \textsc{q}ual\textsc{c}omp with rate
+10 bits/read (0.099 bits/bp) has a \textsc{mse} of 17.29. Using
+256-profile encoding requires less storage (0.079 bits/bp) and has a
+lower \textsc{mse} (11.85).
 
 As the degree of the polynomial increases, the bits/base-call increase
 and the \textsc{mse} decreases at an exponential rate. The 7th-degree
@@ -398,17 +399,13 @@ per sequence of quality values. The read length of the \textit{Mus
 regression is storing six more bytes than necessary for lossless
 encoding the quality data.
 
-\begin{figure}[!tbp]
-\centerline{\includegraphics[width=3.65in]{preprocessing_results.pdf}}
-\caption{Preprocessing results of \textit{Rhodobacter sphaeroides}
-  2.4.1, and \textit{Homo sapiens} chromosome 14 fragment libraries,
-  and \textit{Escherichia coli} str. K-12 MG1655, and \textit{Mus
-    musculus} data sets. Sequences were trimmed using Sickle. The
-  total amount of bases filtered by each compression method is
-  compared with the amount of bases filtered using the uncompressed
-  sequences.}
-  \label{fig:preprocessing}
-\end{figure}
+As an additional point of reference regarding compression
+effectiveness the recently published
+Read-Quality-Sparsifier~\citep{DBLP:conf/recomb/YuYB14} achieved best
+case compression of 0.254 bits/base-call, and a mean compression of
+1.841 bits/base-call; both values higher than all of the profile
+results and for some results of other methods presented here
+(Figure~\ref{fig:mse_vs_bpbp}).
 
 \subsection{Effects on sequence read preprocessing}
 
@@ -423,18 +420,17 @@ base-pairs kept approaches the number base-pairs kept using the
 uncompressed sequences. The compression methods on the \textit{Mus
   musculus} data set have the greatest proportion of retained
 base-pairs compared to the uncompressed sequences. The
-\textit{Escherichia coli} str. K-12 MG1655 MiSeq data set has the
-smallest range.
+\textit{Escherichia coli} MiSeq data set has the smallest range.
 
 The 2-bin approach is the only compression method that results in a
 higher number of trimmed base-pairs across all data sets. Sickle uses
 a sliding window approach to smooth the read quality values before it
 trims. In the 2-bin approach, there is not an even distribution of
 values per bin. In other words, \emph{bad} quality values may range
-from 0-33, whereas \emph{good} values may only range from 34-40. Thus,
-mid-range quality values that are above the threshold (20 by default)
-are set below the quality threshold when compressed, resulting in an
-increased number of trimmed bases.
+from 0--33, whereas \emph{good} values may only range from
+34--40. Thus, mid-range quality values that are above the threshold
+(20 by default) are set below the quality threshold when compressed,
+resulting in an increased number of trimmed bases.
 
 The 0-degree polynomial regression results in the highest proportion
 of bases kept. If the mean quality value of the read is above the
@@ -451,6 +447,18 @@ discarded, the 5th-degree polynomial regression discards approximately
 two thirds less reads than the 1st-degree polynomial regression that
 are kept by the uncompressed reads (4,640 and 12,066 reads,
 respectively) (Supplemental Table 2).
+
+\begin{figure}[!tbp]
+\centerline{\includegraphics[width=3.65in]{preprocessing_results.pdf}}
+\caption{Preprocessing results of \textit{Rhodobacter sphaeroides}
+  2.4.1, and \textit{Homo sapiens} chromosome 14 fragment libraries,
+  and \textit{Escherichia coli} str. K-12 MG1655, and \textit{Mus
+    musculus} data sets. Sequences were trimmed using Sickle. The
+  total amount of bases filtered by each compression method is
+  compared with the amount of bases filtered using the uncompressed
+  sequences.}
+  \label{fig:preprocessing}
+\end{figure}
 
 \subsection{Effects on genome assembly}
 
@@ -657,21 +665,19 @@ hindering downstream tools that use the alignment results. A
 to record if a potential difference from the reference is the result
 of genetic variation or sequencing error. Erroneously marking a base
 as higher quality, may lead to the base being incorrectly labeled as a
-\textsc{snp}.  2-bin encoding is acceptable for alignment; however, it
+\textsc{snp}. 2-bin encoding is acceptable for alignment; however, it
 performs quite poorly in terms of assembly, and 7th-degree polynomial
 regression modeling outperforms it in nearly all metrics.
 
 \subsection{Potential for operations on compressed data}
 
 Perhaps one of the greatest potential benefits of compressing quality
-values is the potential to perform quality control and possibly other
-operations directly on the compressed representations of the
-data. This is easiest to to consider for profile-based
-compression. The $k$ profiles can be evaluated for (pre-)processing
-operations such as filtering and trimming, and the operations
-transitively applied to the entire set of reads, thus saving
-substantial computation associated with evaluating the full set of
-reads.
+values is the ability to perform quality control and possibly other
+operations directly on the compressed representations of the data. For
+example, with profile-based compression the $k$ profiles can be
+evaluated for (pre-)processing operations such as filtering and
+trimming, and the operations transitively applied to the entire set of
+reads, thus saving substantial computation.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %
@@ -684,10 +690,11 @@ reads.
 
 In this paper we have examined lossy compression on sequence quality
 values and their effect on subsequent analyses. Although most previous
-examinations on lossy compression primarily focused on information
-loss, we have shown that typically used bioinformatics software today
-have additional built-in sensitivity to handle significant loss of
-information in the compressed quality values.
+examinations on lossy compression focused primarily on information
+loss and compression effectiveness, we show introduce several general
+approaches to quality value compression and show that common
+bioinformatic analyses are robust substantial loss of information in
+quality values.
 
 \section{Availability}
 Implementations of the compression methods written in Python and R and
