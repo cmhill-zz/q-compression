@@ -312,9 +312,9 @@ $i$.
 We evaluate effects of information loss from quality value compression
 on quality control steps of trimming and read filtering, which were
 performed using Sickle~\citep{sickle}, and make comparison to
-uncompressed data. Sickle starts at the ends of the sequence and uses
+uncompressed data. Sickle starts at the ends of the read and uses
 a sliding window ($0.1 \times$ the read length) to find locations
-where the window's average quality falls below a given threshold (20
+where the mean quality in the window falls below a given threshold (20
 by default). The sequence is then trimmed from this position to the
 respective end. If the trimmed sequence length is less than a certain
 threshold (20 by default), then the sequence is discarded.
@@ -363,13 +363,13 @@ settings and 32 threads.
 We compare the \textsc{mse} versus bits/base-call of the
 \textit{Rhodobacter sphaeroides}, \textit{Homo sapiens},
 \textit{Escherichia coli}, and \textit{Mus musculus} data sets (Figure
-\ref{fig:mse_vs_bpbp}). We only include the fragment libraries for the
+\ref{fig:mse_vs_bpbp}). Here we present the fragment libraries for the
 \textit{Rhodobacter sphaeroides}, and \textit{Homo sapiens} data sets,
-but the additional short-jump library results are available in the
-Supplemental Table 1. Storing the uncompressed quality values requires
-1 byte per base-call because they are stored in \textsc{ascii} format
-and is denoted by the dotted black asterisk in the figure. The
-lossless compression of each data set using \textsc{bz}ip2 ranges from
+but the short-jump library results are available in the Supplemental
+Table 1. Storing the uncompressed quality values requires 1
+byte/base-call because they are stored in \textsc{ascii} format and is
+denoted by the dotted black asterisk in the figure. The lossless
+compression of each data set using \textsc{bz}ip2 ranges from
 2.19--3.10 bits/base-call and is denoted by the colored asterisks on
 the abscissa. The compression methods tend to cluster together across
 the different data sets. Across all data sets, the 0-degree polynomial
@@ -379,14 +379,13 @@ lowest bits/base-call.
 \textsc{q}ual\textsc{c}omp with the rate parameter set to 100
 bits/read has the lowest \textsc{mse}, but requires
 $\sim$10--15$\times$ more storage than the profile encoding methods
-for only a $\sim$2--3$\times$ reduction in \textsc{mse}. When
-\textsc{q}ual\textsc{c}omp's rate parameter is set to match the
-profile encoding methods, \textsc{q}ual\textsc{c}omp performs slightly
-worse in terms of \textsc{mse}. In the \textit{Rhodobacter
-  sphaeroides} fragment library, \textsc{q}ual\textsc{c}omp with rate
-10 bits/read (0.099 bits/bp) has a \textsc{mse} of 17.29. Using
-256-profile encoding requires less storage (0.079 bits/bp) and has a
-lower \textsc{mse} (11.85).
+for only a $\sim$2--3$\times$ reduction in \textsc{mse}. When rate
+parameter of \textsc{q}ual\textsc{c}omp is set to match the profile
+encoding methods, \textsc{q}ual\textsc{c}omp performs slightly worse
+in terms of \textsc{mse}. For the \textit{Rhodobacter sphaeroides}
+fragment library, \textsc{q}ual\textsc{c}omp with rate 10 bits/read
+(0.099 bits/bp) has a \textsc{mse} of 17.29, whereas 256-profile
+encoding only requires 0.079 bits/bp and has a \textsc{mse} of 11.85.
 
 As the degree of the polynomial increases, the bits/base-call increase
 and the \textsc{mse} decreases at an exponential rate. The 7th-degree
