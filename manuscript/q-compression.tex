@@ -10,20 +10,18 @@
 \firstpage{1}
 
 \title[lossy-compression]{Lossy compression of DNA sequencing quality
-  data} \author[El Hadidi \textit{et~al.}]{Mohamed El
-  Hadidi\,$^{1}$\footnote{authors contributed equally}, Christopher
-  M. Hill\,$^{2}$\footnotemark[1], Andr\'{a}s
-  Szolek\,$^{3}$\footnotemark[1], and Michael
-  P. Cummings\,$^4$\footnote{to whom correspondence should be
-    addressed}} \address{$^{1}$Department of Algorithms in
-  Bioinformatics, Center for Bioinformatics, University of
-  T\"{u}bingen, Sand 14, 72076 T\"{u}bingen, Germany
-  \\ $^{2}$Department of Computer Science, University of Maryland,
-  College Park, Maryland, 20742 USA\\ $^{3}$Department of Applied
+  data} \author[Hill \textit{et~al.}]{Christopher
+  M. Hill\,$^{1}$, Andr\'{a}s Szolek\,$^{2}$, Mohamed El
+  Hadidi\,$^{3}$, and Michael P. Cummings\,$^4$\footnote{to whom correspondence should be
+    addressed}} \address{$^{1}$Department of Computer Science, University of Maryland,
+  College Park, Maryland, 20742 USA\\ $^{2}$Department of Applied
   Bioinformatics, Center for Bioinformatics, Quantitative Biology
   Center, and Department of Computer Science, University of
-  T\"{u}bingen, Sand 14, 72076 T\"{u}bingen, Germany\\ $^{4}$Center
-  for Bioinformatics and Computational Biology, University of
+  T\"{u}bingen, Sand 14, 72076 T\"{u}bingen, Germany\\ 
+  $^{3}$Department of Algorithms in
+  Bioinformatics, Center for Bioinformatics, University of
+  T\"{u}bingen, Sand 14, 72076 T\"{u}bingen, Germany
+  \\ $^{4}$ Center for Bioinformatics and Computational Biology, University of
   Maryland, College Park, Maryland, 20742 USA}
 \history{Received on XXXXX; revised on XXXXX; accepted on XXXX}
 \editor{Associate Editor: XXXXXXX}
@@ -204,6 +202,8 @@ probability distribution into a single bin.
   sequencing process affecting thousands of reads at a
   time.}\label{fig:profiles_128}
 \end{figure}
+
+While we focus only on two bins in this work, a greater number of bins can be used in practice. For example, an additional third bin (\emph{okay}) can be used for base qualities near the border between bins in the 2-bin encoding.  Examining the trade-off of additional bins and their resulting compressibility and affect on downstream analyses is outside the scope of this work.
 
 \subsubsection{Modeling}
 
