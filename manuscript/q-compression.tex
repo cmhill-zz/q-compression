@@ -203,7 +203,7 @@ probability distribution into a single bin.
   time.}\label{fig:profiles_128}
 \end{figure}
 
-While we focus only on two bins in this work, a greater number of bins can be used in practice. For example, an additional third bin (\emph{okay}) can be used for base qualities near the border between bins in the 2-bin encoding.  Examining the trade-off of additional bins and their resulting compressibility and affect on downstream analyses is outside the scope of this work.
+While we focus only on two bins in this work, a greater number of bins can be used in practice. For example, an additional third bin (\emph{okay}) can be used for base qualities near the border between bins in the 2-bin encoding. Examining the trade-off of additional bins and their resulting compressibility and affect on downstream analyses is outside the scope of this work.
 
 \subsubsection{Modeling}
 
@@ -254,6 +254,13 @@ profiles, which is a function of the number of profiles times the cost
 of encoding them, and these fixed costs are amortized over the entire
 set of reads to which they apply. Additionally there are marginal
 costs that are a function of the number of reads encoded.
+
+Profiles can be obtained from techniques other than $k$-means clustering.
+%While we focus on profiles obtained from $k$-means clustering, other profiling techniques can be used in practice.
+We can store the profiles of polynomial functions to increase the compressibility of polynomial regression modeling.
+%For example, in order to increase the compressibility of polynomial regression modeling, we can store the profiles of polynomial functions.
+In other words, we can use a spline (a function that is piecewise-defined by polynomial functions) to represent a given quality sequence.
+Exploring other potential applications of profile-based compression is outside the scope of this work.
 
 \subsection{Data sets}
 
