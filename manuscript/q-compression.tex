@@ -43,9 +43,9 @@ data compression focus on compressing nucleotide information without
 any loss of information.  Quality data, however, have different
 properties than nucleotide data, and methods compressing nucleotide
 sequences efficiently do not perform as well on quality
-sequences. Furthermore, while lossless representation is necessary for
-nucleotide sequences, it is not an essential requirement for quality
-values.
+sequences. Furthermore, although lossless representation is necessary
+for nucleotide sequences, it is not an essential requirement for
+quality values.
 
 Existing methods for compressing quality sequences mostly focus on
 minimizing the loss of information with less emphasis on the effects
@@ -206,9 +206,10 @@ distribution into a single bin.
   time.}\label{fig:profiles_128}
 \end{figure}
 
-While we focus only on two bins in this work, a greater number of bins
-can be used in practice. For example, an additional third bin (good,
-bad, and intermediate) can be used for base qualities near the border
+Although we focus only on two bins in this work, a greater number of
+bins can be used in practice, albeit with some higher cost in memory.
+For example, an additional third bin, thus giving bins of good, bad,
+and intermediate, could be used for base qualities near the border
 between bins in the 2-bin encoding. Examining the trade-off of
 additional bins and their resulting compressibility and effect on
 downstream analyses are not considered here.
@@ -509,7 +510,7 @@ uncompressed reads score worse than the top overall assembly
 (256-profile encoding) in terms of assembled bases, missing reference
 bases, N50, \textsc{snp}s, indels $>$5bp, and relocations. The
 assembly using the original uncompressed reads has an error rate of
-$\sim$8.75 errors/100 kb of assembled sequence, while the 256-profile
+$\sim$8.75 errors/100 kb of assembled sequence, and the 256-profile
 encoding has an error rate of $\sim$8.02 errors/100 kbp (Supplemental
 Table 3).
 
