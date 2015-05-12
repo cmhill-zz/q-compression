@@ -297,12 +297,13 @@ from the \textsc{ncbi} RefSeq database (NC\_000014.8).
 \textit{Escherichia coli} str. K-12 MG1655 MiSeq data was downloaded
 from \url{http://www.illumina.com/systems/miseq/scientific_data.html},
 which are generated from a fragment library (insert size of 180 nt;
-1,145,8940 paired-end reads). The corresponding reference sequence was
-obtained from the \textsc{ncbi} RefSeq database (NC\_000913.2).
+1,145,8940 paired-end reads; read length 300 nt). The corresponding
+reference sequence was obtained from the \textsc{ncbi} RefSeq database
+(NC\_000913.2).
 
 \textit{Mus musculus} data was downloaded from
 \url{http://trace.ddbj.nig.ac.jp/DRASearch/run?acc=SRR032209}, which
-consisted of 18,828,274 reads of length 36.
+consisted of 18,828,274 reads of length 36 nt.
 
 \subsection{Comparison to other methods}
 
@@ -366,8 +367,9 @@ settings and 32 threads.
 \begin{figure*}[!tb]
 \centerline{\includegraphics[width=7in]{compression_results.pdf}}
 \caption{The relationship of bits/base-call and mean squared error for
-  quality value compression methods applied to four data sets:
-  \textit{Rhodobacter sphaeroides} 2.4.1; \textit{Homo sapiens}
+  quality value compression methods and subsequently further
+  compressed using a general algorithm via \textsc{bz}ip2 to four data
+  sets: \textit{Rhodobacter sphaeroides} 2.4.1; \textit{Homo sapiens}
   chromosome 14; \textit{Escherichia coli} str. K-12 MG1655; and
   \textit{Mus musculus}. Point labels correspond to different
   compression methods: 2B, 2-bin encoding; P$n$, profiling with $n$
@@ -383,20 +385,19 @@ We compare the quality-value \textsc{mse} versus bits/base-call of the
 \textit{Rhodobacter sphaeroides}, \textit{Homo sapiens},
 \textit{Escherichia coli}, and \textit{Mus musculus} data sets for
 different compressed representations, which include both fixed and
-marginal costs (Figure \ref{fig:mse_vs_bpbp}). Here we present the
-fragment libraries for the \textit{Rhodobacter sphaeroides}, and
-\textit{Homo sapiens} data sets; the short-jump library results are
-available in Supplemental Table 1. Storing the uncompressed quality
-values requires 1 byte/base-call because they are stored in
-\textsc{ascii} format, which is denoted by the dotted black asterisk
-in the figure. The lossless compression of each data set using
-\textsc{bz}ip2 ranges from 2.19--3.10 bits/base-call and is denoted by
-the colored asterisks on the abscissa; these values provide a
-reference point using a widely available compression program. Values
-from the same class of compression method tend to cluster together
-across the different data sets, with the 0-degree polynomial
-regression, profile encodings, and \textsc{q}ual\textsc{c}omp have the
-lowest bits/base-call.
+marginal costs, and subsequently further compressed using a general
+algorithm via \textsc{bz}ip2 (Figure \ref{fig:mse_vs_bpbp}). Here we
+present the fragment libraries for the \textit{Rhodobacter
+  sphaeroides}, and \textit{Homo sapiens} data sets; the short-jump
+library results are available in Supplemental Table 1. Storing the
+uncompressed quality values requires 1 byte/base-call because they are
+stored in \textsc{ascii} format, and the lossless compression of each
+data set using \textsc{bz}ip2 ranges from 2.19--3.10 bits/base-call;
+these values provide a reference point using a widely available
+compression program. Values from the same class of compression method
+tend to cluster together across the different data sets, with the
+0-degree polynomial regression, profile encodings, and
+\textsc{q}ual\textsc{c}omp have the lowest bits/base-call.
 
 \textsc{q}ual\textsc{c}omp with the rate parameter set to 100
 bits/read has the lowest \textsc{mse}, but requires
