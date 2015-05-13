@@ -193,7 +193,7 @@ values (as defined above) of the log of the error probability
 distribution into a single bin.
 
 \begin{figure}[!tpb]
-\centerline{\includegraphics[width=3.35in]{profiles_128.png}}
+\centerline{\includegraphics[width=3.35in]{profiles_128.eps}}
 \caption{Quality profiles obtained by $k$-means clustering on the
   fragment library from \textit{Rhodobacter sphaeroides} 2.4.1 data
   set using $k$ = 128, with each row corresponding to a quality
@@ -375,7 +375,7 @@ settings and 32 threads.
 \subsection{Compression effectiveness versus information loss}
 
 \begin{figure*}[!tb]
-\centerline{\includegraphics[width=7in]{compression_results.pdf}}
+\centerline{\includegraphics[width=7in]{compression_results.eps}}
 \caption{The relationship of bits/base-call and mean squared error for
   quality value compression methods applied to four data sets:
   \textit{Rhodobacter sphaeroides} 2.4.1; \textit{Homo sapiens}
@@ -425,7 +425,7 @@ polynomial regression has the highest bits/base-call in the
 original \textsc{ascii} quality values. A 7th-degree polynomial
 requires storing eight floating point values, resulting in 32 bytes
 per read. The read length of the \textit{Mus musculus} data set is
-only 26, so the 7th-degree polynomial regression is storing six more
+only 36 nt, so the 7th-degree polynomial regression is storing six more
 bytes than necessary for lossless encoding of the quality data.
 
 As an additional point of reference regarding compression
@@ -480,7 +480,7 @@ two-thirds less reads than the 1st-degree model (4,640 and 12,066
 reads, respectively) (Supplemental Table 2).
 
 \begin{figure}[!tbp]
-\centerline{\includegraphics[width=3.65in]{preprocessing_results.pdf}}
+\centerline{\includegraphics[width=3.65in]{preprocessing_results.eps}}
 \caption{Preprocessing results of \textit{Rhodobacter sphaeroides}
   2.4.1, and \textit{Homo sapiens} chromosome 14 fragment libraries,
   and \textit{Escherichia coli} str. K-12 MG1655, and \textit{Mus
@@ -544,7 +544,7 @@ reference bases. This trend runs counter to the decrease in
 \textsc{mse} of the different rates.
 
 \begin{figure}[!tbp]
-\centerline{\includegraphics[width=3.65in]{rhodo_assembly_results.pdf}}
+\centerline{\includegraphics[width=3.65in]{rhodo_assembly_results.eps}}
 \caption{Rankings of compression methods based on \textit{Rhodobacter
     sphaeroides} assembly attributes sorted by overall
   rank. Assemblies were constructed using \textsc{allpaths-lg}.
