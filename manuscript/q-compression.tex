@@ -154,7 +154,7 @@ trimming), genome assembly, and read mapping.
 \subsubsection{Binning}
 
 Quality values can be binned, and the minimum number of bins that
-allows for a any distinction among quality values is two; i.e., two
+allows for any distinction among quality values is two; i.e., two
 categories of quality: ``good'' and ``bad''. We implement 2-bin
 encoding by setting a quality value threshold empirically determined
 by the distribution of quality values across reads. Base-calls are
@@ -322,8 +322,8 @@ read to minimize the average error. The quality values can be
 clustered beforehand to produce more accurate models.
 
 The economic costs of memory use for compression with
-\textsc{QualComp}, in in our interpretation, appear to have no fixed
-costs, and the marginal costs that are the product of the number of
+\textsc{QualComp}, in our interpretation, appear to have optional fixed
+costs for storing the cluster representatives, and the marginal costs that are the product of the number of
 reads times the cost of representing the model parameters.
 
 \subsection{Performance evaluation}
@@ -433,7 +433,7 @@ encoding of the quality data.
 As an additional point of reference regarding compression
 effectiveness, the recently published
 Read-Quality-Sparsifier~\citep{DBLP:conf/recomb/YuYB14} achieved
-best-case compression of 0.254 bits/base-call, and a mean compression
+best-case compression of 0.254 bits/base-call on \textit{Homo sapiens} chromosome 21 data (read lengths ranging from 50-110 nt), and a mean compression
 of 1.841 bits/base-call; both values are higher than all of the
 profile results and for some results of other methods presented here
 (Figure~\ref{fig:mse_vs_bpbp}).
@@ -449,9 +449,9 @@ compression method increases in complexity --- i.e., as the number of
 profiles, polynomial degrees, or rate increases --- the amount of
 base-calls retained more closely approximates the number of base-calls
 retained using the uncompressed sequences. The compression methods on
-the \textit{Mus musculus} data set had the greatest proportion of
+the \textit{Mus musculus} data set has the greatest proportion of
 retained base-calls compared to the uncompressed sequences. The
-\textit{Escherichia coli} MiSeq data set had the smallest range.
+\textit{Escherichia coli} MiSeq data set has the smallest range.
 
 The 2-bin approach is the only compression method that results in a
 higher number of trimmed base-calls compared to the original
