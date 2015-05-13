@@ -40,14 +40,14 @@ As the cost of sequencing continues to decrease, the rate of sequence
 data production is increasing, placing greater demands on storing and
 transferring these vast amount of data. Most methods of sequencing
 data compression focus on compressing nucleotide information without
-any loss of information.  Quality data, however, have different
+any loss of information. Quality data, however, have different
 properties than nucleotide data, and methods compressing nucleotide
 sequences efficiently do not perform as well on quality
-sequences. Furthermore, although lossless representation is necessary
-for nucleotide sequences, it is not an essential requirement for
-quality values.
+values. Furthermore, although lossless representation is necessary for
+nucleotide sequences, it is not an essential requirement for quality
+values.
 
-Existing methods for compressing quality sequences mostly focus on
+Existing methods for compressing quality values mostly focus on
 minimizing the loss of information with less emphasis on the effects
 on subsequent analyses. In this paper, we evaluate several different
 compression methods for quality values that compromise accuracy for
@@ -56,11 +56,11 @@ bioinformatic analyses using sequence read data.
 
 \section{Results:}
 Lossy compression of quality information can greatly decrease storage
-and memory requirements with little discernible effect on subsequent
+and memory requirements with little negative effect on subsequent
 analysis results. The three compression strategies in this study were
 able to produce results similar to those obtained with uncompressed
-quality sequences when performing quality control, genome assembly,
-and alignment of short reads to a reference sequence.
+quality values when performing quality control, genome assembly, and
+alignment of short reads to a reference sequence.
 
 \section{Contact:} \href{mike@umiacs.umd.edu}{mike@umiacs.umd.edu}
 \end{abstract}
@@ -208,11 +208,11 @@ distribution into a single bin.
 
 Although we focus only on two bins in this work, a greater number of
 bins can be used in practice, albeit with a higher cost in memory
-requirement.  For example, an additional bin, thus giving bins
-of good, bad, and intermediate, could be used for base qualities near
-the border between bins in the 2-bin encoding. Additional bins beyond
-two, and their resulting compressibility and effect on downstream
-analyses, are not considered here.
+requirement.  For example, an additional bin, thus giving bins of
+good, bad, and intermediate, could be used for base qualities near the
+border between bins in the 2-bin encoding. Additional bins beyond two,
+and their resulting compressibility and effect on downstream analyses,
+are not considered here.
 
 \subsubsection{Modeling}
 
@@ -273,9 +273,8 @@ Profiles can be obtained from techniques other than $k$-means
 clustering. For example, we could store the profiles of polynomial
 functions to increase the compressibility of polynomial regression
 modeling. In other words, we could use a spline (a function that is
-piecewise-defined by polynomial functions) to represent a given
-quality sequence. However, we have not explored this or other
-approaches here.
+piecewise-defined by polynomial functions) to represent quality
+values. However, we have not explored this or other approaches here.
 
 \subsection{Data sets}
 
@@ -322,9 +321,10 @@ read to minimize the average error. The quality values can be
 clustered beforehand to produce more accurate models.
 
 The economic costs of memory use for compression with
-\textsc{QualComp}, in our interpretation, appear to have optional fixed
-costs for storing the cluster representatives, and the marginal costs that are the product of the number of
-reads times the cost of representing the model parameters.
+\textsc{QualComp}, in our interpretation, appear to have fixed costs
+for storing the cluster representatives, and the marginal costs that
+are the product of the number of reads times the cost of representing
+the model parameters.
 
 \subsection{Performance evaluation}
 
@@ -336,9 +336,8 @@ of quality values (in bits) divided by the number of quality values
 represented. As a measure of information loss we use mean squared
 error (\textsc{mse}) as a loss function, and define it as
 $\frac{1}{n}\sum_{i=1}^{n}{(Q_i'-Q_i)^2}$, where $n$ is the number of
-sequences, $Q_i'$ is the compressed/decompressed quality value, and
-$Q_i$ is the original quality value associated with sequence position
-$i$.
+quality values, $Q_i'$ is the compressed/decompressed quality value,
+and $Q_i$ is the original quality value associated with position $i$.
 
 We evaluate effects of information loss from quality value compression
 on quality control steps of trimming and read filtering, which were
@@ -425,32 +424,32 @@ polynomial regression has the highest bits/base-call in the
 \textit{Mus musculus} data set, and requires more storage than the
 original \textsc{ascii} quality values. A 7th-degree polynomial
 requires storing eight floating point values, resulting in 32 bytes
-per sequence of quality values. The read length of the \textit{Mus
-  musculus} data set is only 26, so the 7th-degree polynomial
-regression is storing six more bytes than necessary for lossless
-encoding of the quality data.
+per read. The read length of the \textit{Mus musculus} data set is
+only 26, so the 7th-degree polynomial regression is storing six more
+bytes than necessary for lossless encoding of the quality data.
 
 As an additional point of reference regarding compression
 effectiveness, the recently published
 Read-Quality-Sparsifier~\citep{DBLP:conf/recomb/YuYB14} achieved
-best-case compression of 0.254 bits/base-call on \textit{Homo sapiens} chromosome 21 data (read lengths ranging from 50-110 nt), and a mean compression
-of 1.841 bits/base-call; both values are higher than all of the
-profile results and for some results of other methods presented here
-(Figure~\ref{fig:mse_vs_bpbp}).
+best-case compression of 0.254 bits/base-call on \textit{Homo sapiens}
+chromosome 21 data (read lengths ranging from 50-110 nt), and a mean
+compression of 1.841 bits/base-call; both values are higher than all
+of the profile results and for some results of other methods presented
+here (Figure~\ref{fig:mse_vs_bpbp}).
 
 \subsection{Effects on sequence read preprocessing}
 
 Preprocessing involves two steps: \emph{discarding} reads that are
 deemed to be poor-quality overall, and \emph{trimming} the
 poor-quality regions of the reads. After trimming, the majority of
-compression methods retain more base-calls than the uncompressed
-sequences (Figure \ref{fig:preprocessing}). In general, as a given
+compression methods retain more base-calls than the original quality
+values (Figure \ref{fig:preprocessing}). In general, as a given
 compression method increases in complexity --- i.e., as the number of
 profiles, polynomial degrees, or rate increases --- the amount of
 base-calls retained more closely approximates the number of base-calls
-retained using the uncompressed sequences. The compression methods on
+retained using the original quality values. The compression methods on
 the \textit{Mus musculus} data set has the greatest proportion of
-retained base-calls compared to the uncompressed sequences. The
+retained base-calls compared to the original quality values. The
 \textit{Escherichia coli} MiSeq data set has the smallest range.
 
 The 2-bin approach is the only compression method that results in a
@@ -471,9 +470,9 @@ are comprised of mostly low quality values will be discarded.
 
 It is important to highlight that even though a compression method may
 result in the same number of trimmed base-calls as the uncompressed
-sequences, it does not mean the \emph{same} base-calls were retained.
-For example, pre-processing of the 1st-degree and 5th-degree
-polynomial regression model compressed reads of the
+quality values, it does not mean the \emph{same} base-calls were
+retained.  For example, pre-processing of the 1st-degree and
+5th-degree polynomial regression model compressed reads of the
 \textit{Rhodobacter sphaeroides} fragment library retain approximately
 the same number of base-calls. However, if we examine the specific
 reads discarded, the 5th-degree model discards approximately
@@ -485,10 +484,9 @@ reads, respectively) (Supplemental Table 2).
 \caption{Preprocessing results of \textit{Rhodobacter sphaeroides}
   2.4.1, and \textit{Homo sapiens} chromosome 14 fragment libraries,
   and \textit{Escherichia coli} str. K-12 MG1655, and \textit{Mus
-    musculus} data sets. Sequences were trimmed using Sickle. The
-  total amount of bases filtered by each compression method is
-  compared with the amount of bases filtered using the uncompressed
-  sequences.}
+    musculus} data sets. Reads were trimmed using Sickle. The total
+  number of bases filtered by each compression method is compared with
+  the number of bases filtered using the uncompressed quality values.}
   \label{fig:preprocessing}
 \end{figure}
 
@@ -656,18 +654,20 @@ respectively). There is no such trend for reads that are mapped only
 by the regression model.
 
 Note that the 2-bin method aligns a greater portion of reads than the
-various regression models. If a poor-quality base is flanked by
-high-quality sequence, then the low-degree polynomial regression
-models tend to smooth out the base quality, erroneously marking the
-low-quality base as higher quality.  During alignment, Bowtie2
-penalizes mismatches at high-quality bases more so than mismatches at
-lower-quality bases. Thus, the polynomial regression models incur a
-high penalty for these bases, resulting in fewer alignments, despite
-having a better \textsc{mse} than 2-bin in most cases.
+various regression models. If a poor-quality base-call is flanked by
+high-quality base-calls, then the low-degree polynomial regression
+models tend to smooth out the quality valus, erroneously marking the
+low-quality base-calls as higher quality.  During alignment, Bowtie2
+penalizes mismatches at high-quality base-calls more so than
+mismatches at lower-quality base-calls. Thus, the polynomial
+regression models incur a high penalty for these base-calls, resulting
+in fewer alignments, despite having a better \textsc{mse} than 2-bin
+in most cases.
 
-Setting all bases as minimum quality results in the highest proportion
-of mapped reads (0.881). Conversely, setting all bases as maximum
-quality results in the lowest proportion of mapped reads (0.728).
+Setting all base-calls as minimum quality results in the highest
+proportion of mapped reads (0.881). Conversely, setting all base-calls
+as maximum quality results in the lowest proportion of mapped reads
+(0.728).
 
 \section{Discussion}
 
@@ -683,17 +683,17 @@ some of the compression methods with relatively high information lossy
 applications. Many bioinformatics tools proved to be robust to
 moderate information loss. Passing the decompressed quality values
 through quality control software shows that most methods filter nearly
-as many bases as using original quality sequences. Assembly programs
+as many bases as using original quality values. Assembly programs
 performing sequence alignment use percent similarity scores that are
 typically robust to standard sequencing errors.
 
 Downstream applications dictate which lossy compression methods are
 acceptable. As noted above, 2-bin encoding is able to retain
-information about low-quality bases that occur within stretches of
-high-quality bases, whereas the polynomial regression methods tend to
-smooth these qualities. In addition to aligning fewer reads than the
-2-bin encoding, the polynomial regression methods may also be
-hindering downstream tools that use the alignment results. A
+information about low-quality base-calls that occur within stretches
+of high-quality base-calls, whereas the polynomial regression methods
+tend to smooth these quality values. In addition to aligning fewer
+reads than the 2-bin encoding, the polynomial regression methods may
+also be hindering downstream tools that use the alignment results. A
 \textsc{snp} detection pipeline will commonly use the quality values
 to record if a potential difference from the reference is the result
 of genetic variation or sequencing error. Erroneously marking a base
@@ -723,7 +723,7 @@ reads, thus saving substantial computation.
 \section{Conclusion}
 
 We have examined several simple and general approaches for lossy
-compression of sequence quality values and their effect on subsequent
+compression of read quality values and their effect on subsequent
 analyses. Although most previous examinations of lossy compression
 focused primarily on information loss and compression effectiveness,
 we show that common bioinformatic analyses are robust to substantial
