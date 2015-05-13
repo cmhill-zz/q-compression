@@ -89,7 +89,7 @@ gglabcol <-
 
 ### End Hack
 
-p <- ggplot(dfr_tables, aes(x = x, y = y, label=names, col=dataset, shape=pch)) + 
+p <- ggplot(dfr_tables, aes(x = x, y = y, label=names, col=dataset, shape=pch, bty="n")) + 
   scale_shape_identity() +
   scale_y_log10(breaks = y_breaks, labels = y_breaks, limits = c(5,190)) +
   scale_x_log10(breaks = x_breaks, labels = x_breaks, limits = c(.027,11)) +
