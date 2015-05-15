@@ -227,11 +227,11 @@ quality values as polynomial functions obtained with least-squares
 fitting, as one approach to the compression of read quality values by
 modeling. Although polynomial functions have significantly fewer
 parameters than a read-length string of raw quality values (e.g., one
-to eight coefficients in our approach), the use of double-precision floating-point
-numbers to store coefficients greatly limits the compression potential
-of the models. The coefficients could be represented with fewer bits,
-perhaps with some loss of precision, but we have not considered
-alternative representations in this study.
+to eight coefficients in our approach), the use of double-precision
+floating-point numbers to store coefficients greatly limits the
+compression potential of the models. The coefficients could be
+represented with fewer bits, perhaps with some loss of precision, but
+we have not considered alternative representations in this study.
 
 The economic costs of memory use for model-based compression, in
 general terms, include no fixed costs, and marginal costs that are the
@@ -679,22 +679,21 @@ as maximum quality results in the lowest proportion of mapped reads
 We have examined several simple and general approaches for lossy
 compression of read quality values, and their effect on bioinformatic
 analyses. Our results demonstrate that some compression methods can
-result in transformed quality values that are quite useful, and in
-some cases advantageous, compared to original uncompressed values.
+result in quality values that are quite useful, and in some cases
+advantageous, compared to original uncompressed values.
 
 Downstream applications dictate the relative performance lossy
-compression methods.  Many bioinformatics tools proved to be robust to
-moderate information loss in base-call quality. The use of compression
-transformed quality values in quality control demonstrate that several
-compression methods result in approximately the same total number
-base-calls passing through the combined filtering and trimming
-processes as when using original quality values, though the absolute
-and relative number of reads filtered and base-calls trimmed may
-differ. Genome assembly appears robust to standard sequencing errors,
-and compression transformed quality values, particularly those
-associated with profiling-based compression, result in assemblies
-better than those based on original uncompressed quality values by
-most measures.
+compression methods.  Some bioinformatics tools proved to be robust to
+moderate information loss in base-call quality. The use of quality
+values modified via several compression/decompression processes result
+in approximately the same total number base-calls passing through the
+combined filtering and trimming processes as when using original
+quality values, though the absolute and relative number of reads
+filtered and base-calls trimmed may differ. Genome assembly appears
+robust to standard sequencing errors, and compression transformed
+quality values, particularly those associated with profiling-based
+compression, result in assemblies better than those based on original
+uncompressed quality values by most measures.
 
 Among the potential benefits of compressing quality values is the
 ability to perform quality control and possibly other operations
@@ -716,10 +715,10 @@ sacrosanct; they are representations of estimates for measurement
 (detection) error determined by various mechanisms including signal
 processing characteristics and algorithms. The true worth of quality
 values lies in the utility they provide in bioinformatic analyses. In
-some cases, as demonstrated here, this value is enhanced through 
-quality value transformation associated with compression. Thus
-appropriate compression of quality values can both reduce associated
-memory cost and improve analysis results.
+some cases, as demonstrated here, this value is enhanced through
+transformation associated with compression. Thus appropriate
+compression of quality values can both reduce associated memory cost
+and improve analysis results.
 
 \section{Availability}
 Implementations of the compression methods written in Python and
