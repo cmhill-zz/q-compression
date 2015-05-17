@@ -262,8 +262,9 @@ does approximate the overall patterns in quality values. An example of
 The economic costs of memory use for profile-based compression, in
 general terms, include fixed costs associated with representing the
 profiles, which is the product of the number of profiles times the
-cost of encoding them, and these fixed costs are amortized over the
-entire set of reads to which they apply. Additionally there are
+cost of encoding them. These fixed costs are amortized over the entire
+set of reads to which they apply, and thus on a read basis vary as a
+reciprocal function of the number of reads. Additionally there are
 marginal costs that are the product of the number of reads encoded
 times the cost of the encoding. Profiling like modeling, but not
 binning, has the advantageous property that marginal costs are the
@@ -329,11 +330,25 @@ for storing the cluster representatives, and the marginal costs that
 are the product of the number of reads times the cost of representing
 the model parameters.
 
+\subsection{Subsequent (secondary) compression}
+
+We secondarily compress all otherwise compressed data sets using the
+Burrows-Wheeler algorithm~\citep{bwt} via \textsc{bz}ip2, and it is
+the results of these subsequent compressions that we report. Although
+other algorithms~\cite[e.g.,][]{HUFFMAN:1952nr,Ziv77auniversal,
+  DBLP:journals/tit/ZivL78} might be particularly effective for
+subsequent compression for some compressed data representations
+examined, we not explored such possibilities here, and instead
+restrict ourselves to \textsc{bz}ip2 because it is commonly used and
+readily available. Similarly, it may very well be possible to obtain
+increased secondary compression by reordering (e.g., sorting)
+compressed representations (e.g., sets of bin designations, model, or
+profiles), but these operations have also not been explored here.
+
 \subsection{Performance evaluation}
 
 As a measure of compression effectiveness, which reflects the sum of
-fixed and marginal costs after subsequent compression using the
-Burrows-Wheeler algorithm~\citep{bwt} via \textsc{bz}ip2, we use
+fixed and marginal costs, we use
 bits/base-call, defined as the size of the compressed representation
 of quality values (in bits) divided by the number of quality values
 represented. As a measure of information loss we use mean squared
