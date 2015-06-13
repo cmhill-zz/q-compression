@@ -18,8 +18,10 @@ import sys
 import tempfile
 import time
 import resource
+import locale
 #import file
 
+locale.setlocale(locale.LC_ALL, "C")
 
 FNULL = open('/dev/null', 'w')
 base_path = os.path.dirname(sys.argv[0])[:-len('src/')]
@@ -109,7 +111,7 @@ def compress(options):
     options.compressed_dirs.append('minqual')
 
     for reads_filename in options.reads_filenames:
-        
+
         # Copy the original sequences over.
         out_cmd("", std_err_file.name, ["cp", reads_filename, options.output_dir + '/original/' + os.path.basename(reads_filename)])
         shutil.copyfile(reads_filename, options.output_dir + '/original/' + os.path.basename(reads_filename))
@@ -180,7 +182,7 @@ def compress(options):
         for rate in options.rates.split(','):
             #continue
             ensure_dir(options.output_dir + '/qualcomp_r' + rate + '/')
-            
+
             if 'qualcomp_r' + rate not in options.compressed_dirs:
                 options.compressed_dirs.append('qualcomp_r' + rate)
 
@@ -234,7 +236,6 @@ def compress(options):
             out_cmd(bin_file.name, std_err_file.name, call_arr)
             call(call_arr, stdout=bin_file, stderr=std_err_file)
 
-
     # After we compress/decompress everything, write out the quality values to a separate file and then run bzip on them.
     for compression_method in options.compressed_dirs:
         for reads_filename in options.reads_filenames:
@@ -247,7 +248,7 @@ def compress(options):
             # Even though we do it in python, output the awk command in case someone runs it independently.
             cmd = 'awk \'{if (NR % 4 == 0) print $0}\' ' + options.output_dir + '/' + compression_method + '/' + os.path.basename(reads_filename)
             out_cmd(decompressed_file + '.quals', std_err_file.name, 'awk \'{if (NR % 4 == 0) print $0}\''.split())
-            
+
             # Bzip2 the quality values.
             cmd = "bzip2 -k " + options.output_dir + '/' + compression_method + '/' + os.path.basename(reads_filename) + '.quals'
             out_cmd("", std_err_file.name, cmd.split())
@@ -334,7 +335,7 @@ def quality_preprocessing(options):
 
             open(stats_file.name + '.bases', 'w').write(str(bases) + '\n')
 
-            headers.sort()
+            headers.sort(cmp=locale.strcoll)
             open(options.output_dir + '/preprocessing/' + compression_method + '/' + os.path.basename(reads_filename) + '.headers', 'w').write('\n'.join(headers) + '\n')
 
 
@@ -498,7 +499,7 @@ def process_compression_stats(options):
 
             filename = options.output_dir + '/' + compression_method + '/' + os.path.basename(reads_filename)
 
-            results = compression_method + '\t' 
+            results = compression_method + '\t'
 
             results += str(bases) + '\t'
 
@@ -678,10 +679,10 @@ def process_alignment_stats(options):
 
     # options.output_dir + '/' + compression_method + '/' + os.path.basename(reads_filename) + '.aligned'
     for reads_filename in options.reads_filenames:
-        sequence_count = num_lines(reads_filename)
+        sequence_count = num_lines(reads_filename) / 4
 
         results_file = open(options.output_dir + "/results/" + os.path.basename(reads_filename) + '.alignment', 'w')
-        results_file.write("compression\tmapped\tshared\tuniq_orig\tuniq_comp\n")
+        results_file.write("compression\tmapped\tshared\tuniq_orig\tuniq_comp\tunmapped_shared\n")
         for compression_method in options.compressed_dirs:
 
             results = compression_method + '\t'
@@ -712,7 +713,7 @@ def process_alignment_stats(options):
             results += unique_to_compress + '\t'
 
             # Get the number of sequences filtered by both methods.
-            #results += str(sequence_count - int(unique_to_orig) - int(unique_to_compress) - int(common_count)) + '\t'
+            results += str(sequence_count - int(unique_to_orig) - int(unique_to_compress) - int(common_count))
 
             # Get the bases kept in the file.
             #results += str(grab_value_from_file(options.output_dir + '/align/' + compression_method + '/' + os.path.basename(reads_filename) + '.stats.bases'))
@@ -735,14 +736,14 @@ def run_comm_and_return_line_count(options, suppress, file1, file2):
 
     call_arr = cmd.split()
     out_cmd(tmp_file.name, "", call_arr)
-    call(call_arr, stdout=tmp_file, stderr=std_err_file) 
+    call(call_arr, stdout=tmp_file, stderr=std_err_file)
 
-   
+
     cmd = "wc -l " + tmp_file.name
     tmp_wc_file = tempfile.NamedTemporaryFile('w', dir=options.output_dir)
     call_arr = cmd.split()
     out_cmd(tmp_wc_file.name, "", call_arr)
-    call(call_arr, stdout=tmp_wc_file, stderr=std_err_file) 
+    call(call_arr, stdout=tmp_wc_file, stderr=std_err_file)
 
     count = grab_value_from_file(tmp_wc_file.name)
 
@@ -797,7 +798,7 @@ def num_lines(filename):
 
 """
 I/O Helpers
-"""    
+"""
 
 
 def get_options():
@@ -843,13 +844,13 @@ def get_options():
 
 
 def main():
-   
+
     (options, args) = get_options()
 
     shell_file = options.output_dir + "/commands.sh"
 
     ensure_dir(shell_file)
- 
+
     global shell_file_fp
     shell_file_fp = open(shell_file, 'w')
     setup_shell_file()
@@ -893,5 +894,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
