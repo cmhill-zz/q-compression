@@ -1,0 +1,1087 @@
+%% BioMed_Central_Tex_Template_v1.06
+%%                                      %
+%  bmc_article.tex            ver: 1.06 %
+%                                       %
+
+%%IMPORTANT: do not delete the first line of this template
+%%It must be present to enable the BMC Submission system to
+%%recognise this template!!
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                     %%
+%%  LaTeX template for BioMed Central  %%
+%%     journal article submissions     %%
+%%                                     %%
+%%          <8 June 2012>              %%
+%%                                     %%
+%%                                     %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                                                 %%
+%% For instructions on how to fill out this Tex template           %%
+%% document please refer to Readme.html and the instructions for   %%
+%% authors page on the biomed central website                      %%
+%% http://www.biomedcentral.com/info/authors/                      %%
+%%                                                                 %%
+%% Please do not use \input{...} to include other tex files.       %%
+%% Submit your LaTeX manuscript as one .tex document.              %%
+%%                                                                 %%
+%% All additional figures and files should be attached             %%
+%% separately and not embedded in the \TeX\ document itself.       %%
+%%                                                                 %%
+%% BioMed Central currently use the MikTex distribution of         %%
+%% TeX for Windows) of TeX and LaTeX.  This is available from      %%
+%% http://www.miktex.org                                           %%
+%%                                                                 %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%% additional documentclass options:
+%  [doublespacing]
+%  [linenumbers]   - put the line numbers on margins
+
+%%% loading packages, author definitions
+
+%\documentclass[twocolumn]{bmcart}% uncomment this for twocolumn layout and comment line below
+\documentclass{bmcart}
+
+%%% Load packages
+%\usepackage{amsthm,amsmath}
+%\RequirePackage{natbib}
+%\RequirePackage[authoryear]{natbib}% uncomment this for author-year bibliography
+%\RequirePackage{hyperref}
+\usepackage[utf8]{inputenc} %unicode support
+%\usepackage[applemac]{inputenc} %applemac support if unicode package fails
+%\usepackage[latin1]{inputenc} %UNIX support if unicode package fails
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                             %%
+%%  If you wish to display your graphics for   %%
+%%  your own use using includegraphic or       %%
+%%  includegraphics, then comment out the      %%
+%%  following two lines of code.               %%
+%%  NB: These line *must* be included when     %%
+%%  submitting to BMC.                         %%
+%%  All figure files must be submitted as      %%
+%%  separate graphics through the BMC          %%
+%%  submission process, not included in the    %%
+%%  submitted article.                         %%
+%%                                             %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\def\includegraphic{}
+\def\includegraphics{}
+
+
+
+%%% Put your definitions there:
+\startlocaldefs
+\endlocaldefs
+
+\usepackage{hyperref}
+
+%%% Begin ...
+\begin{document}
+
+%%% Start of article front matter
+\begin{frontmatter}
+
+\begin{fmbox}
+\dochead{Research}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                          %%
+%% Enter the title of your article here     %%
+%%                                          %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\title{Lossy compression of DNA sequencing quality
+  data}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                          %%
+%% Enter the authors here                   %%
+%%                                          %%
+%% Specify information, if available,       %%
+%% in the form:                             %%
+%%   <key>={<id1>,<id2>}                    %%
+%%   <key>=                                 %%
+%% Comment or delete the keys which are     %%
+%% not used. Repeat \author command as much %%
+%% as required.                             %%
+%%                                          %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\author[
+   addressref={aff1,aff2},                   % id's of addresses, e.g. {aff1,aff2}
+   noteref={n1},                        % id's of article notes, if any
+   email={jane.e.doe@cambridge.co.uk}   % email address
+]{\inits{CMH}\fnm{Christopher M} \snm{Hill}}
+\author[
+   addressref={aff3,aff5},
+   email={john.RS.Smith@cambridge.co.uk}
+]{\inits{AS}\fnm{Andr\'{a}s} \snm{Szolek}}
+\author[
+   addressref={aff4,aff5},
+   email={john.RS.Smith@cambridge.co.uk}
+]{\inits{MEH}\fnm{Mohamed} \snm{El Hadidi}}
+\author[
+   addressref={aff2},
+   corref={aff2},                       % id of corresponding address, if any
+   email={mike@umiac.umd.edu}
+]{\inits{MPC}\fnm{Michael P} \snm{Cummings}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                          %%
+%% Enter the authors' addresses here        %%
+%%                                          %%
+%% Repeat \address commands as much as      %%
+%% required.                                %%
+%%                                          %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\address[id=aff1]{%                           % unique id
+  \orgname{Department of Computer Science, University of Maryland}, % university, etc
+  \city{College Park, Maryland},                              % city
+  \postcode{20742}                                % post or zip code
+  \cny{USA}                                    % country
+}
+\address[id=aff2]{%                           % unique id
+  \orgname{Center for Bioinformatics and Computational Biology, University of Maryland}, % university, etc
+  \city{College Park, Maryland},                              % city
+  \postcode{20742}                                % post or zip code
+  \cny{USA}                                    % country
+}
+\address[id=aff3]{%
+  \orgname{Department of Applied Bioinformatics, Center for
+  Bioinformatics, Quantitative Biology Center, University of T\"{u}bingen},
+  \street{Sand 14},
+  \postcode{72076}
+  \city{T\"{u}bingen},
+  \cny{Germany}
+}
+\address[id=aff4]{%
+  \orgname{Department of Algorithms in Bioinformatics, Center for
+  Bioinformatics, Quantitative Biology Center, University of T\"{u}bingen},
+  \street{Sand 14},
+  \postcode{72076}
+  \city{T\"{u}bingen},
+  \cny{Germany}
+}
+\address[id=aff5]{%
+  \orgname{Department of Computer Science, University of T\"{u}bingen},
+  \street{Sand 14},
+  \postcode{72076}
+  \city{T\"{u}bingen},
+  \cny{Germany}
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                          %%
+%% Enter short notes here                   %%
+%%                                          %%
+%% Short notes will be after addresses      %%
+%% on first page.                           %%
+%%                                          %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{artnotes}
+%\note{Sample of title note}     % note to the article
+\note[id=n1]{Current address: \ldots} % note, connected to author
+\end{artnotes}
+
+\end{fmbox}% comment this for two column layout
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                          %%
+%% The Abstract begins here                 %%
+%%                                          %%
+%% Please refer to the Instructions for     %%
+%% authors on http://www.biomedcentral.com  %%
+%% and include the section headings         %%
+%% accordingly for your article type.       %%
+%%                                          %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{abstractbox}
+
+\begin{abstract} % abstract
+\parttitle{First part title} %if any
+Text for this section.
+
+\parttitle{Second part title} %if any
+Text for this section.
+\end{abstract}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                          %%
+%% The keywords begin here                  %%
+%%                                          %%
+%% Put each keyword in separate \kwd{}.     %%
+%%                                          %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{keyword}
+\kwd{sample}
+\kwd{article}
+\kwd{author}
+\end{keyword}
+
+% MSC classifications codes, if any
+%\begin{keyword}[class=AMS]
+%\kwd[Primary ]{}
+%\kwd{}
+%\kwd[; secondary ]{}
+%\end{keyword}
+
+\end{abstractbox}
+%
+%\end{fmbox}% uncomment this for twcolumn layout
+
+\end{frontmatter}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                          %%
+%% The Main Body begins here                %%
+%%                                          %%
+%% Please refer to the instructions for     %%
+%% authors on:                              %%
+%% http://www.biomedcentral.com/info/authors%%
+%% and include the section headings         %%
+%% accordingly for your article type.       %%
+%%                                          %%
+%% See the Results and Discussion section   %%
+%% for details on how to create sub-sections%%
+%%                                          %%
+%% use \cite{...} to cite references        %%
+%%  \cite{koon} and                         %%
+%%  \cite{oreg,khar,zvai,xjon,schn,pond}    %%
+%%  \nocite{smith,marg,hunn,advi,koha,mouse}%%
+%%                                          %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%% start of article main body
+% <put your article body there>
+
+%%%%%%%%%%%%%%%%
+%% Background %%
+%%
+\section*{Background}
+Read data from high-throughput sequencing constitutes the largest
+category of data in genomics research because of great redundancy,
+inclusion of quality values, and read-level naming and
+metadata. Because of this abundance, effective compression of read
+data has the potential to substantially improve data storage and
+transfer efficiency.
+
+Quality values comprise a standard component of \textsc{fastq}
+files~\cite{Cock:2010ve}, a very common format for sequence read
+data. At the level of the sequence read, the probability of error for
+each base-call is typically represented by a \textsc{phred} quality
+value, which is defined as $Q =
+-10\,log_{10}P$~\cite{Ewing:1998ly}. Depending on the sequencing
+technology, these quality values can range from 0 to 93, and are
+represented with the \textsc{ascii} characters 33 to 126 (with some
+offset). There is a single quality value per base-call for Illumina
+sequence reads.
+
+Quality values can be used throughout bioinformatics pipelines. Among
+the most fundamental uses of sequence quality values is as part of the
+quality assessment and quality control (\textsc{qa/qc}) processes
+prior to subsequent analysis steps. Quality control based on quality
+values generally includes two operations: \textit{i}.~filtering, which
+removes reads that on the whole do not meet arbitrary quality
+standards, thus reducing the total number of reads; and
+\textit{ii}.~trimming of low-quality base-calls from reads, which
+reduces the length of reads trimmed. Quality values can be used by
+genome assembly software to produce better
+assemblies~\cite{Bryant:2009uq,Gnerre:2011kx}. Short-read
+alignment programs, such as Bowtie2~\cite{Langmead:2012rw}, use
+quality values to weight mismatches between read and reference
+sequences. Software for detecting single nucleotide polymorphisms
+(\textsc{snp}s) can use quality values~\cite{McKenna:2010bh},
+and identified \textsc{snp}s with high-quality calls are deemed more
+reliable than those with low-quality calls, particularly in
+low-coverage regions.
+
+Previous literature on sequence data compression has largely focused
+on lossless compression of base calls~\cite{Deorowicz:2013hq,
+Giancarlo:2009fk,Giancarlo:2014rw,
+  Nalbantoglu:2010uq,Zhu:2013qr}, although some recent work has
+addressed compression of quality
+values~\cite{Canovas:2014fr,Hach:2012ys,
+  janin2013adaptive,Kozanitis:2011kl,Ochoa:2013rt,Tembe:2010ys,
+  Wan:2012kq,DBLP:conf/recomb/YuYB14,zhou2014compression}. Among the
+several challenges for compression of read data is dealing with
+different error profiles resulting from differences in underlying
+chemistries, signal detection and processing mechanisms, inherent
+biases, and other idiosyncratic properties of distinct high-throughput
+sequencing technologies.
+
+Although we recognize the need for lossless compression for some
+purposes and contexts (e.g., archiving, provenance), our perspective
+is largely pragmatic with a focus on the use of quality values in
+bioinformatic analyses. From this perspective, some loss of
+information is deemed acceptable if the inferences from analyses are
+relatively unaffected. Sequence reads generated by instruments such as
+an Illumina HiSeq, the focus of this research due to its preponderance
+in genomics, are characterized by having relatively few insertion and
+deletion errors, but substitution (miscall) errors are much more
+frequent and have context-specific patterns. These errors are
+non-uniformly distributed over the read length (e.g., error rates
+increase up to $\sim$16$\times$ at the 3$^{\prime}$ end, and 32.8 --
+67.9\% of reads have low-quality tails at the 3$^{\prime}$
+end~\cite{Minoche:2011km}). Recognizing these properties of Illumina
+sequence reads motivates our exploration of three general classes of
+lossy compression methods -- binning, modeling, and profiling -- and
+our consideration of an exemplar of each class.~\cite{Canovas:2014fr}
+and~\cite{janin2013adaptive} evaluated the effects of lossy
+compression on identifying variants within a data set. Here we
+describe our research investigating lossy compression of sequence read
+quality values, specifically those associated with Illumina
+instruments, with the objective to provide some perspective on several
+strategies rather than to develop robust high-quality software for
+use. We assess the effects of quality value information loss resulting
+from compression on \textsc{dna} sequence data analyses, including
+read preprocessing (filtering and trimming), genome assembly, and read
+mapping.
+
+\section*{Methods}
+
+\subsection*{Compression strategies}
+
+\subsubsection*{Binning}
+
+Quality values can be binned, and the minimum number of bins that
+allows for any distinction among quality values is two; i.e., two
+categories of quality: ``good'' and ``bad''. We implement 2-bin
+encoding by setting a quality value threshold empirically determined
+by the distribution of quality values across reads. Base-calls are
+marked ``bad'' if their quality value falls below the first quartile
+minus 1.5 $\times$ the interquartile range (\textsc{iqr}), which is the
+difference between the first and third quartile; 1.5 $\times$ \textsc{iqr} is
+the value used by Tukey's box plot~\cite{mcgill1978variations}. The
+main benefit of this approach is that it is completely data-dependent,
+and no assumptions regarding the distribution of the quality values
+need to be made. We adopt the quality value assignments of the read
+preprocessing tool Sickle~\cite{sickle}, which correspond to the 40
+for ``good'' and 10 for ``bad''.
+ 
+With 2-bin encoding, binary encoding is possible, allowing us to use a
+single bit to represent the quality of a base instead of the standard
+8 bits used to store quality values in \textsc{ascii}. An additional
+possible benefit of 2-bin encoding is for increased adjacency of
+identical values and repeating patterns, properties that may increase
+effectiveness of subsequent compression using established
+algorithms~\cite{HUFFMAN:1952nr,Ziv77auniversal,
+  DBLP:journals/tit/ZivL78}, although this potential benefit is not
+evaluated in this study.
+
+The economic costs of memory use for binning, in general terms,
+include no fixed costs, and marginal costs that are the product of the
+number of base-call quality values times the cost of the encoding.
+
+\cite{Wan:2012kq} provide three similar lossy compression strategies
+based on binning the base error probability distribution: UniBinning,
+Truncating, and LogBinning. UniBinning evenly splits the error
+probability distribution into a user-defined number of partitions.
+Truncating treats a user-defined number of highest quality values as a
+single bin. LogBinning works similarly to UniBinning, except it uses
+the \emph{log} of the error probability distribution, which
+effectively bins the \textsc{ascii} quality values evenly. The 2-bin
+encoding examined here can be viewed as something like a combination
+of LogBinning and Truncating in that we place the highest quality
+values (as defined above) from the distribution of log error
+probability values into a single bin.
+
+Although we focus only on two bins in this work, a greater number of
+bins can be used in practice, albeit with a higher cost in memory
+usage. For example, an additional bin, thus giving bins of good, bad,
+and intermediate, could be used for quality values near the border
+between bins in the 2-bin encoding. Additional bins beyond two, and
+their resulting compressibility and effect on downstream analyses, are
+not considered here.
+
+\subsubsection*{Modeling}
+
+If quality values are modeled, compression is conceivably possible by
+replacing the original quality values by a representation of the
+model. For example, quality values can be conceptualized as bivariate
+data with the ordered nucleotides (1 to read length) representing the
+abscissa, and quality values representing the ordinate. We model read
+quality values as polynomial functions obtained with least-squares
+fitting, as one approach to the compression of read quality values by
+modeling. Although polynomial functions have significantly fewer
+parameters than a read-length string of raw quality values (e.g., one
+to eight coefficients in our approach), the use of double-precision
+floating-point numbers to store coefficients greatly limits the
+compression potential of the models. The coefficients could be
+represented with fewer bits, perhaps with some loss of precision, but
+we have not considered alternative representations in this study.
+
+The economic costs of memory use for model-based compression, in
+general terms, include no fixed costs, and marginal costs that are the
+product of the number of reads times the cost of representing the
+model parameters.
+
+\subsubsection*{Profiling}
+
+Sets of strings representing quality values show similar trends of
+over their length, and it is possible to identify common patterns in
+the data and use them as reference profiles to approximate individual
+sequences of quality values. Here we use $k$-means clustering, a
+vector quantization method that partitions a set of samples into $k$
+sets that minimize within-cluster sum of
+squares~\cite{macqueen1967some}. We sampled 1 $\times$ 10$^{4}$ reads
+at random and computed cluster centers as read quality profiles using
+a heuristic iterative refinement approach that quickly converges to a
+locally optimal minimum~\cite{hartigan1979algorithm}. All reads are
+evaluated and the nearest quality profile in Euclidean space being
+assigned to every read as their compressed representation.  The
+compressed quality file therefore consists of an index enumerating the
+$k$ quality profiles, and a binary part containing the assigned
+quality profile index for each read.  Although this approach is not
+able to capture some read-specific differences in quality values, it
+does approximate the overall patterns in quality values. An example of
+128 quality profiles is shown in Figure \ref{fig:profiles_128}.
+
+The economic costs of memory use for profile-based compression, in
+general terms, include fixed costs associated with representing the
+profiles, which is the product of the number of profiles times the
+cost of encoding them. These fixed costs are amortized over the entire
+set of reads to which they apply, and thus on a read basis vary as a
+reciprocal function of the number of reads. Additionally there are
+marginal costs that are the product of the number of reads encoded
+times the cost of the encoding. Profiling like modeling, but not
+binning, has the advantageous property that marginal costs are the
+reciprocal of the read length. Thus the costs of memory use for
+profile-based compression decrease proportionally with increases in
+either or both the number of reads and read length.
+
+Profiles can be obtained from techniques other than $k$-means
+clustering. For example, we could store the profiles of polynomial
+functions to increase the compressibility of polynomial regression
+modeling. In other words, we could use a spline (a function that is
+piecewise-defined by polynomial functions) to represent quality
+values. However, we have not explored this or other approaches here.
+
+\subsection*{Data sets}
+
+We used several Illumina sequence read data sets taken from data from
+the \textsc{gage} (Genome Assembly Gold-Standard
+Evaluations)~\cite{Salzberg:2012rc}, except as noted. These data sets
+are as follows.
+
+\textit{Rhodobacter sphaeroides} 2.4.1, which are generated from a
+fragment library (insert size of 180 bp; 2,050,868 paired-end reads;
+read length 101 nt) and short-jump library (insert size of 3,500 bp;
+2,050,868 reads; read length 101 nt). The corresponding reference
+sequence was obtained from the \textsc{ncbi} RefSeq database
+(NC\_007488.1, NC\_007489.1, NC\_007490.1, NC\_007493.1, NC\_007494.1,
+NC\_009007.1, NC\_009008.1).
+
+\textit{Homo sapiens} chromosome 14 data, which are generated from a
+fragment library (insert size of 155 bp; 36,504,800 paired-end reads)
+and short-jump library (insert sizes ranging from 2283-2803 bp;
+22,669,408 reads; read length 101 nt). The corresponding reference
+sequence was obtained from the \textsc{ncbi} RefSeq database
+(NC\_000014.8).
+
+\textit{Escherichia coli} str. K-12 MG1655 MiSeq data was downloaded
+from \url{http://www.illumina.com/systems/miseq/scientific_data.html},
+which are generated from a fragment library (insert size of 180 bp;
+1,145,8940 paired-end reads; read length 151 nt). The corresponding
+reference sequence was obtained from the \textsc{ncbi} RefSeq database
+(NC\_000913.2).
+
+\textit{Mus musculus} data was downloaded from
+\url{http://trace.ddbj.nig.ac.jp/DRASearch/run?acc=SRR032209}
+(18,828,274 reads; length 36 nt).
+
+\subsection*{Comparison to other methods}
+
+For comparison to other developed methods we use \textsc{QualComp}, a
+lossy compression tool~\cite{Ochoa:2013rt}. The program models
+quality values as a multivariate Gaussian distribution, computing the
+mean and covariance for each position in the read, and these values
+are stored by the decoder to later reconstruct a \emph{representative}
+quality value. \textsc{QualComp} takes as input a user-specified rate
+(bits/read), and these bits are apportioned among positions within the
+read to minimize the average error. The quality values can be
+clustered beforehand to produce more accurate models.
+
+The economic costs of memory use for compression with
+\textsc{QualComp}, in our interpretation, appear to have fixed costs
+for storing the cluster representatives, and the marginal costs that
+are the product of the number of reads times the cost of representing
+the model parameters.
+
+\subsection*{Subsequent (secondary) compression}
+
+We secondarily compress all otherwise compressed data sets using the
+Burrows-Wheeler algorithm~\cite{bwt} via \textsc{bz}ip2, and it is
+the results of these subsequent compressions that we report. Although
+other algorithms~\cite{HUFFMAN:1952nr,Ziv77auniversal,
+  DBLP:journals/tit/ZivL78} might be particularly effective for
+subsequent compression for some compressed data representations
+examined, we not explored such possibilities here, and instead
+restrict ourselves to \textsc{bz}ip2 because it is commonly used and
+readily available. Similarly, it may very well be possible to obtain
+increased secondary compression by reordering (e.g., sorting)
+compressed representations (e.g., sets of bin designations, model, or
+profiles), but these operations have also not been explored here.
+
+\subsection*{Performance evaluation}
+
+As a measure of compression effectiveness, which reflects the sum of
+fixed and marginal costs, we use
+bits/base-call, defined as the size of the compressed representation
+of quality values (in bits) divided by the number of quality values
+represented. As a measure of information loss we use mean squared
+error (\textsc{mse}) as a loss function, and define it as
+$\frac{1}{n}\sum_{i=1}^{n}{(Q_i'-Q_i)^2}$, where $n$ is the number of
+quality values, $Q_i'$ is the compressed/decompressed quality value,
+and $Q_i$ is the original quality value associated with position $i$.
+
+We evaluate effects of information loss from quality value compression
+on quality control steps of trimming and read filtering, which were
+performed using Sickle~\cite{sickle}, and make comparison to original
+uncompressed data. Sickle starts at the ends of the read and uses a
+sliding window (0.1 $\times$ the read length) to find locations where
+the mean quality in the window falls below a given threshold (20 by
+default). The sequence is then trimmed from this position to the read
+end. If the trimmed sequence length is less than a certain threshold
+(20 by default), then the sequence is discarded.
+
+We evaluate effects of information loss from quality value compression
+on \emph{de novo} genome assembly performance using contiguity
+statistics, log average read probability
+(\textsc{lap})~\cite{Ghodsi:2013hb}, and a collection of
+reference-based metrics. The contiguity statistics include N50, which
+is defined as the median contig size (the length of largest contig $c$
+such that the total size of the contigs larger than $c$ exceeds half
+of the assembly size) and corrected N50, which is the recalculated N50
+size after the contigs are broken apart at locations of errors. The
+\textsc{lap} score can be viewed as a log-likelihood score, where a
+larger value is better. We use a script provided by \textsc{gage}
+reference-based evaluation to count single nucleotide polymorphisms
+(\textsc{snp}s), relocations, translations, and inversions. The
+reference-based metrics are normalized by the length of the assembly
+to facilitate comparison. For the genome assembly we used software
+that makes use of quality values in the assembly process:
+\textsc{allpaths-lg}~\cite{Gnerre:2011kx} version r50191 with default
+settings and 32 threads.
+
+\section*{Results}
+
+\subsection*{Compression effectiveness versus information loss}
+
+We compare the quality-value \textsc{mse} versus bits/base-call of the
+\textit{Rhodobacter sphaeroides}, \textit{Homo sapiens},
+\textit{Escherichia coli}, and \textit{Mus musculus} data sets for
+quality values resulting from the compression methods examined (Figure
+\ref{fig:mse_vs_bpbp}). Here we present the fragment libraries for the
+\textit{Rhodobacter sphaeroides}, and \textit{Homo sapiens} data sets;
+the corresponding short-jump library results are available in
+Supplemental Table 1. Storing the original uncompressed quality values
+requires 1 byte/base-call because they are stored in \textsc{ascii}
+format, and the lossless compression of each original data set using
+\textsc{bz}ip2 ranges from 2.19--3.10 bits/base-call; these values
+provide a reference point using a widely available general compression
+program. Values from the same class of compression method tend to
+cluster together across the different data sets, with the 0-degree
+polynomial regression, profile encodings, and
+\textsc{q}ual\textsc{c}omp yielding the lowest bits/base-call values.
+
+\textsc{q}ual\textsc{c}omp with the rate parameter set to 100
+bits/read has the lowest \textsc{mse}, but requires
+$\sim$10--15$\times$ more memory than the profile encoding methods for
+only a $\sim$2--3$\times$ reduction in error. When the rate parameter
+of \textsc{q}ual\textsc{c}omp is set to match the profile encoding
+methods, \textsc{q}ual\textsc{c}omp performs slightly worse in terms
+of \textsc{mse}. For the \textit{Rhodobacter sphaeroides} fragment
+library, \textsc{q}ual\textsc{c}omp with rate set to 10 bits/read
+(0.099 bits/base-call) has a \textsc{mse} of 17.29, whereas
+256-profile encoding only requires 0.079 bits/base-call and has a
+\textsc{mse} of 11.85.
+
+As the degree of the polynomial increases, the bits/base-call increase
+and the \textsc{mse} decreases at an exponential rate. The 7th-degree
+polynomial regression results in the largest bits/base-call, as it
+requires 64 bytes per read before subsequent compression with
+\textsc{bz}ip2. For the \textit{Mus musculus} data set, which has read
+lengths of only 36 nt, the memory required for storage, even after
+subsequent compression with \textsc{bz}ip2 exceeds that for the
+original \textsc{ascii} quality values.
+
+As an additional point of reference regarding compression
+effectiveness, the recently published
+Read-Quality-Sparsifier~\cite{DBLP:conf/recomb/YuYB14} achieved
+best-case compression of 0.254 bits/base-call on \textit{Homo sapiens}
+chromosome 21 data (read lengths ranging from 50--110 nt), and a mean
+compression of 1.841 bits/base-call; both values are larger than all
+of the profile results and for some results of other methods presented
+here (Figure~\ref{fig:mse_vs_bpbp}).
+
+\subsection*{Effects on sequence read preprocessing}
+
+Preprocessing involves two steps: \emph{discarding} reads that are
+deemed to be poor-quality overall, and \emph{trimming} the
+poor-quality regions of the reads. After trimming, the majority of
+compression methods resulted in retaining more base-calls than the
+original quality values (Figure \ref{fig:preprocessing}). In general,
+as a given compression method increases in complexity --- i.e., as the
+number of profiles, polynomial degrees, or rate increases --- the
+amount of base-calls retained more closely approximates the number of
+base-calls retained using the original quality values. The compression
+methods on the \textit{Mus musculus} data set has the greatest
+proportion of retained base-calls compared to the original quality
+values. The \textit{Escherichia coli} MiSeq data set has the smallest
+range.
+
+The 2-bin approach is the only compression method that results in a
+larger number of trimmed base-calls compared to the original
+uncompressed reads across all data sets. Sickle uses a sliding window
+approach to smooth the read quality values before it trims. In the
+2-bin approach, there is an uneven distribution of values per bin. In
+other words, \emph{bad} quality values may range from 0--33, whereas
+\emph{good} values may only range from 34--40. Thus, mid-range quality
+values that are above the threshold (20 by default) are set below the
+quality threshold when compressed, resulting in an increased number of
+trimmed bases.
+
+The 0-degree polynomial regression results in the highest proportion
+of base-calls kept. If the mean quality value of the read is above the
+filtering threshold, then no base-calls are trimmed. Only reads that
+are comprised of mostly low quality values will be discarded.
+
+It is important to highlight that even though a compression method may
+result in the same number of trimmed base-calls as the uncompressed
+quality values, it does not mean the \emph{same} base-calls were
+retained.  For example, pre-processing of the 1st-degree and
+5th-degree polynomial regression model compressed reads of the
+\textit{Rhodobacter sphaeroides} fragment library retain approximately
+the same number of base-calls. However, if we examine the specific
+reads discarded, the 5th-degree model discards approximately
+two-thirds less reads than the 1st-degree model (4,640 and 12,066
+reads, respectively; Supplemental Table 2), which means there are
+differences in the base-calls trimmed.
+
+\subsection*{Effects on genome assembly}
+
+No compression method resulted in the uniformly best assembly of the
+\textit{Rhodobacter sphaeroides} data set in all metrics, although
+several methods resulted in better assemblies than the original
+uncompressed data (Table \ref{fig:assembly_ranks}). Among the
+compression methods, the profile encoding performed best, polynomial
+regression modeling performed worst, and other methods were
+intermediate (Fig.~\ref{fig:assembly_ranks}).
+
+The lossy compression methods largely preserve the contiguity found in
+the assembly produced using the reads with the original quality
+values. All compression methods other than 0-degree polynomial
+regression produce an N50 ranging from 3.17--3.22 Mbp (see
+Supplemental Table 3). Despite the similar contiguity statistics, the
+different compression methods vary markedly in the number of
+\textsc{snp}s. The 2-bin and profile methods exhibited the fewest
+\textsc{snp}s compared to the reference genome, thus outperforming the
+assembly using the original quality values in this characteristic. A
+more in-depth evaluation is needed to determine whether these
+compression methods are missing actual \textsc{snp}s.
+
+It is important to highlight that using the original uncompressed
+quality values does not produce the best assembly in terms of any of
+the metrics. The assembly based on the original uncompressed quality
+values score worse than the top overall assembly (256-profile
+encoding) for number of assembled bases, missing reference bases, N50,
+\textsc{snp}s, indels $>$5bp, and relocations. The assembly using the
+original uncompressed quality values has an error rate of $\sim$8.75
+errors/100 kb of assembled sequence, and the 256-profile encoding has
+an error rate of $\sim$8.02 errors/100 kbp (Supplemental Table 3).
+
+In general, the greater the polynomial degree, the better the overall
+assembly; however, the 5th-degree polynomial regression performs
+slightly worse than the 3rd-degree polynomial. The respective ranks in
+terms of N50 and relocations are fairly distant, which lowers the
+overall ranking of the 5th-degree polynomial slightly below that for
+the 3rd-degree polynomial model. The 1st- and 0-degree polynomial
+regression methods perform poorly in all metrics except assembled
+bases. One explanation for this observation is that the high-error
+portions of reads are being marked as high quality, so
+\textsc{allpaths-lg} is unable to trim or error-correct the
+reads. Assembled sequences that overlap may be unable to align across
+the errors at the end of the reads, artificially inflating the
+assembly size.
+
+Among the different \textsc{q}ual\textsc{c}omp rate parameters, the 10
+bits/read rate ranked highest overall, outperforming the other rate
+parameters in terms of corrected N50, fewest missing reference bases,
+\textsc{snp}s, and indels $>$5bp. With the exception of the 6
+bits/read rate, the assemblies decrease in rank with the increase in
+the rate parameter for corrected N50, and fewest missing reference
+bases. This trend runs counter to the decrease in \textsc{mse} of the
+different rates.
+
+\subsection*{Effects on read mapping}
+
+Some short read alignment tools, such as Bowtie2 (version 2.2.3),
+which was used here, utilize quality value information when evaluating
+potential alignments. The reads from with original uncompressed and
+compressed/decompressed quality vlaues were mapped with Bowtie2 to the
+\textit{Rhodobacter sphaeroides} reference genome. The total, shared,
+and unique proportion of mapped reads are calculated with respect to
+the results for the the original uncompressed quality values as shown
+in Table \ref{tab:aligner}. Additionally, to assess the effect of
+quality values on mapping in general, Bowtie2 was adjusted so that the
+maximum and minimum mismatch penalty were equivalent to maximum and
+minimum quality scores (with parameters: --mp 6,6 and --mp 2,2
+respectively).
+
+We evaluate the compression methods using two approaches. In the first
+approach, we order the compression methods based on how similar the
+alignment results are using the original uncompressed quality values
+--- i.e., the number of reads aligned using the original uncompressed
+quality values and quality values resulting from compression, plus the
+number of reads unaligned using the original uncompressed quality
+values and quality values resulting from compression minus the amount
+of reads uniquely aligned using the original uncompressed quality
+values and quality values resulting from compression. In the second
+approach, we order the compression methods by total proportion of
+aligned reads.
+
+The best compression method in terms of similarity with the
+uncompressed reads is \textsc{q}ual\textsc{c}omp with rate 100
+bits/read, followed by \textsc{q}ual\textsc{c}omp with rate 30
+bits/read, 256-profile encoding, 128-profile encoding, 2-bin encoding,
+64-profile encoding, \textsc{q}ual\textsc{c}omp with rate 10
+bits/read, 7th-degree polynomial regression,
+\textsc{q}ual\textsc{c}omp with rate 6 bits/read, and finally,
+5th-degree through 0-degree polynomial regression.
+
+Ranking the compression methods by overall proportion of reads aligned
+produces an identical ordering as above. Aside from 0-degree
+polynomial regression (0.831), all other compression methods have a
+read alignment rate between 0.87 and 0.861. The proportion of reads
+aligned for the uncompressed reads is 0.87.
+
+Most of the compression methods did not vary greatly in terms of the
+number of reads that were mapped \emph{only} using quality values
+resulting from compression; however, there is a sizable difference in
+the amount of reads that are originally mapped, but unmapped by the
+compressed methods.  \textsc{q}ual\textsc{c}omp with rate 100
+bits/read results in the fewest missing original read alignments
+(159). Increasing the regression model polynomial degree results in a
+decreasing amount of reads that are originally mapped, but unmapped by
+the regression model (40,931 and 1,134 reads for 0-degree and
+7th-degree, respectively). There is no such trend for reads that are
+mapped only by the regression model.
+
+Note that the 2-bin method aligns a greater portion of reads than the
+various regression models. If a poor-quality base-call is flanked by
+high-quality base-calls, then the low-degree polynomial regression
+models tend to smooth out the quality valus, erroneously marking the
+low-quality base-calls as higher quality.  During alignment, Bowtie2
+penalizes mismatches at high-quality base-calls more so than
+mismatches at lower-quality base-calls. Thus, the polynomial
+regression models incur a high penalty for these base-calls, resulting
+in fewer alignments, despite having a better \textsc{mse} than 2-bin
+in most cases.
+
+Setting all base-calls as minimum quality results in the highest
+proportion of mapped reads (0.881). Conversely, setting all base-calls
+as maximum quality results in the lowest proportion of mapped reads
+(0.728).
+
+\section*{Conclusions}
+
+We have examined several simple and general approaches for lossy
+compression of read quality values, and their effect on bioinformatic
+analyses. Our results demonstrate that some compression methods can
+result in quality values that are quite useful, and in some cases
+advantageous, compared to original uncompressed values.
+
+Downstream applications dictate the relative performance lossy
+compression methods.  Some bioinformatics tools proved to be robust to
+moderate information loss in base-call quality. The use of quality
+values modified via several compression/decompression processes result
+in approximately the same total number base-calls passing through the
+combined filtering and trimming processes as when using original
+quality values, though the absolute and relative number of reads
+filtered and base-calls trimmed may differ. Genome assembly appears
+robust to standard sequencing errors, and compression transformed
+quality values, particularly those associated with profiling-based
+compression, result in assemblies better than those based on original
+uncompressed quality values by most measures.
+
+Among the potential benefits of compressing quality values is the
+ability to perform quality control and possibly other operations
+directly on the compressed representations of the data. For example,
+with profile-based compression, each of the $k$ profiles can be
+evaluated for (pre-)processing operations such as filtering and
+trimming, and the operations transitively applied to the entire set of
+reads, thus saving substantial computation.
+
+Quality values for base-calls in \textsc{dna} sequencing are not
+sacrosanct; they are representations of estimates for measurement
+(detection) error determined by various mechanisms including signal
+processing characteristics and algorithms. The true worth of quality
+values lies in the utility they provide in bioinformatic analyses. In
+some cases, as demonstrated here, this value is enhanced through
+transformation associated with compression. Thus appropriate
+compression of quality values can both reduce associated memory cost
+and improve analysis results.
+
+
+\section*{Section title}
+Text for this section \ldots
+\subsection*{Sub-heading for section}
+Text for this sub-heading \ldots
+\subsubsection*{Sub-sub heading for section}
+Text for this sub-sub-heading \ldots
+\paragraph*{Sub-sub-sub heading for section}
+Text for this sub-sub-sub-heading \ldots
+In this section we examine the growth rate of the mean of $Z_0$, $Z_1$ and $Z_2$. In
+addition, we examine a common modeling assumption and note the
+importance of considering the tails of the extinction time $T_x$ in
+studies of escape dynamics.
+We will first consider the expected resistant population at $vT_x$ for
+some $v>0$, (and temporarily assume $\alpha=0$)
+%
+\[
+ E \bigl[Z_1(vT_x) \bigr]= E
+\biggl[\mu T_x\int_0^{v\wedge
+1}Z_0(uT_x)
+\exp \bigl(\lambda_1T_x(v-u) \bigr)\,du \biggr].
+\]
+%
+If we assume that sensitive cells follow a deterministic decay
+$Z_0(t)=xe^{\lambda_0 t}$ and approximate their extinction time as
+$T_x\approx-\frac{1}{\lambda_0}\log x$, then we can heuristically
+estimate the expected value as
+%
+\begin{eqnarray}\label{eqexpmuts}
+E\bigl[Z_1(vT_x)\bigr] &=& \frac{\mu}{r}\log x
+\int_0^{v\wedge1}x^{1-u}x^{({\lambda_1}/{r})(v-u)}\,du
+\nonumber\\
+&=& \frac{\mu}{r}x^{1-{\lambda_1}/{\lambda_0}v}\log x\int_0^{v\wedge
+1}x^{-u(1+{\lambda_1}/{r})}\,du
+\nonumber\\
+&=& \frac{\mu}{\lambda_1-\lambda_0}x^{1+{\lambda_1}/{r}v} \biggl(1-\exp \biggl[-(v\wedge1) \biggl(1+
+\frac{\lambda_1}{r}\biggr)\log x \biggr] \biggr).
+\end{eqnarray}
+%
+Thus we observe that this expected value is finite for all $v>0$ (also see \cite{koon,khar,zvai,xjon,marg}).
+%\nocite{oreg,schn,pond,smith,marg,hunn,advi,koha,mouse}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                          %%
+%% Backmatter begins here                   %%
+%%                                          %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{backmatter}
+
+\section*{Competing interests}
+  The authors declare that they have no competing interests.
+
+\section*{Author's contributions}
+    Text for this section \ldots
+
+\section*{Acknowledgements}
+  Text for this section \ldots
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                  The Bibliography                       %%
+%%                                                         %%
+%%  Bmc_mathpys.bst  will be used to                       %%
+%%  create a .BBL file for submission.                     %%
+%%  After submission of the .TEX file,                     %%
+%%  you will be prompted to submit your .BBL file.         %%
+%%                                                         %%
+%%                                                         %%
+%%  Note that the displayed Bibliography will not          %%
+%%  necessarily be rendered by Latex exactly as specified  %%
+%%  in the online Instructions for Authors.                %%
+%%                                                         %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% if your bibliography is in bibtex format, use those commands:
+\bibliographystyle{bmc-mathphys} % Style BST file (bmc-mathphys, vancouver, spbasic).
+\bibliography{compression}      % Bibliography file (usually '*.bib' )
+% for author-year bibliography (bmc-mathphys or spbasic)
+% a) write to bib file (bmc-mathphys only)
+% @settings{label, options="nameyear"}
+% b) uncomment next line
+%\nocite{label}
+
+% or include bibliography directly:
+% \begin{thebibliography}
+% \bibitem{b1}
+% \end{thebibliography}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                               %%
+%% Figures                       %%
+%%                               %%
+%% NB: this is for captions and  %%
+%% Titles. All graphics must be  %%
+%% submitted separately and NOT  %%
+%% included in the Tex document  %%
+%%                               %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%
+%% Do not use \listoffigures as most will included as separate files
+
+\section*{Figures}
+\begin{figure}[h!]
+\centerline{\includegraphics[width=3.35in]{profiles128.eps}}
+\caption{\csentence{Quality profiles obtained by $k$-means clustering.} 
+  Example for the
+  fragment library from \textit{Rhodobacter sphaeroides} 2.4.1 data
+  set using $k$ = 128. Each row corresponding to a quality
+  profile. Dark to light colors represent low to high quality
+  values. It is readily visible that the two most distinctive features
+  of quality profiles is their drop-off position and average overall
+  quality. Occasional low values occur early in some profiles, likely
+  reflecting intermittent problems in the sequencing process affecting
+  many reads at a time.}
+  \label{fig:profiles_128}
+\end{figure}
+
+\begin{figure*}[h!]
+\centerline{\includegraphics[width=7in]{compression.results.eps}}
+\caption{\csentence{The relationship of bits/base-call and mean squared error for
+  quality value compression methods applied to four data sets.}
+  The data sets are \textit{Rhodobacter sphaeroides} 2.4.1; \textit{Homo sapiens}
+  chromosome 14; \textit{Escherichia coli} str. K-12 MG1655; and
+  \textit{Mus musculus}. Point labels correspond to different
+  compression methods: 2B, 2-bin encoding; P$n$, profiling with $n$
+  profiles; R$n$, modeling with polynomial regression of degree $n$;
+  Q$n$, \textsc{q}ual\textsc{c}omp with rate parameter of $n$. Arrows
+  denote the corresponding lossless compression using \textsc{bz}ip2,
+  with the black arrow corresponding to original data.}
+\label{fig:mse_vs_bpbp}
+\end{figure*}
+
+\begin{figure}[h!]
+\centerline{\includegraphics[width=3.65in]{preprocessing.results.eps}}
+\caption{Preprocessing results of \textit{Rhodobacter sphaeroides}
+  2.4.1, and \textit{Homo sapiens} chromosome 14 fragment libraries,
+  and \textit{Escherichia coli} str. K-12 MG1655, and \textit{Mus
+    musculus} data sets. Reads were trimmed using Sickle. The total
+  number of bases filtered by each compression method is compared with
+  the number of bases filtered using the uncompressed quality values.}
+  \label{fig:preprocessing}
+\end{figure}
+
+\begin{figure}[h!]
+\centerline{\includegraphics[width=3.65in]{rhodo.assembly.results.eps}}
+\caption{\csentence{Rankings of compression methods based on assembly attributes}
+ The read data are for \textit{Rhodobacter
+    sphaeroides} 2.4.1, and the results sorted by overall
+  rank. Assemblies were constructed using \textsc{allpaths-lg}.
+  Rankings above the median value are in cyan, those below the median
+  value in magenta.}
+  \label{fig:assembly_ranks}
+\end{figure}
+
+
+  \begin{figure}[h!]
+  \caption{\csentence{Sample figure title.}
+      A short description of the figure content
+      should go here.}
+      \end{figure}
+
+\begin{figure}[h!]
+  \caption{\csentence{Sample figure title.}
+      Figure legend text.}
+      \end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                               %%
+%% Tables                        %%
+%%                               %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% Use of \listoftables is discouraged.
+%%
+\section*{Tables}
+
+\begin{table*}[!tbhp]
+\centering
+\caption[]{Comparison of mapping for original reads and reads with
+  compressed/decompressed quality values. Reads and reference genome
+  are for \textit{Rhodobacter sphaeroides}, and mapping was performed
+  using Bowtie2.}
+\begin{small}
+\begin{tabular}{lr|cc|cc|cc|cc|cc}
+ & & \multicolumn{2}{c|}{max-qual} & \multicolumn{2}{c|}{min-qual} & \multicolumn{2}{c|}{2-bin} & \multicolumn{2}{c|}{regression (0)} & \multicolumn{2}{c}{regression (1)} \\
+& & mapped & unmapped & mapped & unmapped & mapped & unmapped & mapped & unmapped & mapped & unmapped \\ 
+\cline{2-12}
+& mapped & 746716 & 145897 & 892613 &   0 & 891864 & 749 & 851682 & 40931 & 883390 & 9223 \\ 
+{\em original} & unmapped &   0 & 132821 & 10821 & 122000 & 186 & 132635 &  67 & 132754 &  55 & 132766 \\ 
+\cline{2-12}
+& proportion & 0.728 & 0.272 & 0.881 & 0.119 & 0.870 & 0.130 & 0.831 & 0.169 & 0.862 & 0.138 \\ 
+\end{tabular}
+
+\bigskip
+
+\begin{tabular}{lr|cc|cc|cc|cc|cc}
+ & & \multicolumn{2}{c|}{regression (3)} & \multicolumn{2}{c|}{regression (5)} & \multicolumn{2}{c|}{regression (7)} & \multicolumn{2}{c|}{profile (64)} & \multicolumn{2}{c}{profile (128)} \\
+& & mapped & unmapped & mapped & unmapped & mapped & unmapped & mapped & unmapped & mapped & unmapped \\ 
+\cline{2-12}
+& mapped & 889537 & 3076 & 891019 & 1594 & 891479 & 1134 & 891753 & 860 & 891952 & 661 \\ 
+{\em original} & unmapped & 117 & 132704 & 155 & 132666 & 154 & 132667 & 144 & 132677 & 143 & 132678 \\ 
+\cline{2-12}
+& proportion & 0.868 & 0.132 & 0.869 & 0.131 & 0.870 & 0.130 & 0.870 & 0.130 & 0.870 & 0.130 \\ 
+\end{tabular}
+
+\bigskip
+
+\begin{tabular}{lr|cc|cc|cc|cc|cc}
+&  & \multicolumn{2}{c|}{profile (256)} & \multicolumn{2}{c|}{\textsc{q}ual\textsc{c}omp (6)} & \multicolumn{2}{c|}{\textsc{q}ual\textsc{c}omp (10)} & \multicolumn{2}{c|}{\textsc{q}ual\textsc{c}omp (30)} & \multicolumn{2}{c}{\textsc{q}ual\textsc{c}omp (100)} \\
+& &  mapped & unmapped & mapped & unmapped & mapped & unmapped & mapped & unmapped & mapped & unmapped \\ 
+\cline{2-12}
+& mapped & 892051 & 562 & 891375 & 1238 & 891777 & 836 & 892233 & 380 & 892454 & 159 \\ 
+{\em original}  & unmapped & 119 & 132702 & 304 & 132517 & 265 & 132556 & 220 & 132601 & 172 & 132649 \\ 
+\cline{2-12}
+& proportion & 0.870 & 0.130 & 0.870 & 0.130 & 0.870 & 0.130 & 0.870 & 0.130 & 0.870 & 0.130 \\
+\end{tabular}
+\end{small}
+
+\label{tab:aligner}
+\end{table*}
+
+
+\begin{table}[h!]
+\caption{Sample table title. This is where the description of the table should go.}
+      \begin{tabular}{cccc}
+        \hline
+           & B1  &B2   & B3\\ \hline
+        A1 & 0.1 & 0.2 & 0.3\\
+        A2 & ... & ..  & .\\
+        A3 & ..  & .   & .\\ \hline
+      \end{tabular}
+\end{table}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                               %%
+%% Additional Files              %%
+%%                               %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section*{Additional Files}
+  \subsection*{Additional file 1 --- Sample additional file title}
+    Additional file descriptions text (including details of how to
+    view the file, if it is in a non-standard format or the file extension).  This might
+    refer to a multi-page table or a figure.
+
+  \subsection*{Additional file 2 --- Sample additional file title}
+    Additional file descriptions text.
+
+
+\end{backmatter}
+\end{document}
