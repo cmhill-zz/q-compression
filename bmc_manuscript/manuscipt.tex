@@ -122,11 +122,11 @@
 ]{\inits{CMH}\fnm{Christopher M} \snm{Hill}}
 \author[
    addressref={aff3,aff5},
-   email={john.RS.Smith@cambridge.co.uk}
+   email={szolek@informatik.uni-tuebingen.de}
 ]{\inits{AS}\fnm{Andr\'{a}s} \snm{Szolek}}
 \author[
    addressref={aff4,aff5},
-   email={john.RS.Smith@cambridge.co.uk}
+   email={mohamed.el-hadidi@uni-tuebingen.de}
 ]{\inits{MEH}\fnm{Mohamed} \snm{El Hadidi}}
 \author[
    addressref={aff2},
@@ -298,20 +298,18 @@ standards, thus reducing the total number of reads; and
 \textit{ii}.~trimming of low-quality base-calls from reads, which
 reduces the length of reads trimmed. Quality values can be used by
 genome assembly software to produce better
-assemblies~\cite{Bryant:2009uq,Gnerre:2011kx}. Short-read
-alignment programs, such as Bowtie2~\cite{Langmead:2012rw}, use
-quality values to weight mismatches between read and reference
-sequences. Software for detecting single nucleotide polymorphisms
-(\textsc{snp}s) can use quality values~\cite{McKenna:2010bh},
-and identified \textsc{snp}s with high-quality calls are deemed more
-reliable than those with low-quality calls, particularly in
-low-coverage regions.
+assemblies~\cite{Bryant:2009uq,Gnerre:2011kx}. Short-read alignment
+programs, such as Bowtie2~\cite{Langmead:2012rw}, use quality values
+to weight mismatches between read and reference sequences. Software
+for detecting single nucleotide polymorphisms (\textsc{snp}s) can use
+quality values~\cite{McKenna:2010bh}, and identified \textsc{snp}s
+with high-quality calls are deemed more reliable than those with
+low-quality calls, particularly in low-coverage regions.
 
 Previous literature on sequence data compression has largely focused
 on lossless compression of base calls~\cite{Deorowicz:2013hq,
-Giancarlo:2009fk,Giancarlo:2014rw,
-  Nalbantoglu:2010uq,Zhu:2013qr}, although some recent work has
-addressed compression of quality
+  Giancarlo:2009fk,Giancarlo:2014rw, Nalbantoglu:2010uq,Zhu:2013qr},
+although some recent work has addressed compression of quality
 values~\cite{Canovas:2014fr,Hach:2012ys,
   janin2013adaptive,Kozanitis:2011kl,Ochoa:2013rt,Tembe:2010ys,
   Wan:2012kq,DBLP:conf/recomb/YuYB14,zhou2014compression}. Among the
@@ -361,14 +359,15 @@ categories of quality: ``good'' and ``bad''. We implement 2-bin
 encoding by setting a quality value threshold empirically determined
 by the distribution of quality values across reads. Base-calls are
 marked ``bad'' if their quality value falls below the first quartile
-minus 1.5 $\times$ the interquartile range (\textsc{iqr}), which is the
-difference between the first and third quartile; 1.5 $\times$ \textsc{iqr} is
-the value used by Tukey's box plot~\cite{mcgill1978variations}. The
-main benefit of this approach is that it is completely data-dependent,
-and no assumptions regarding the distribution of the quality values
-need to be made. We adopt the quality value assignments of the read
-preprocessing tool Sickle~\cite{sickle}, which correspond to the 40
-for ``good'' and 10 for ``bad''.
+minus 1.5 $\times$ the interquartile range (\textsc{iqr}), which is
+the difference between the first and third quartile; 1.5 $\times$
+\textsc{iqr} is the value used by Tukey's box
+plot~\cite{mcgill1978variations}. The main benefit of this approach is
+that it is completely data-dependent, and no assumptions regarding the
+distribution of the quality values need to be made. We adopt the
+quality value assignments of the read preprocessing tool
+Sickle~\cite{sickle}, which correspond to the 40 for ``good'' and 10
+for ``bad''.
  
 With 2-bin encoding, binary encoding is possible, allowing us to use a
 single bit to represent the quality of a base instead of the standard
@@ -380,9 +379,9 @@ algorithms~\cite{HUFFMAN:1952nr,Ziv77auniversal,
   DBLP:journals/tit/ZivL78}, although this potential benefit is not
 evaluated in this study.
 
-The economic costs of memory use for binning, in general terms,
-include no fixed costs, and marginal costs that are the product of the
-number of base-call quality values times the cost of the encoding.
+The economic costs of file size for binning, in general terms, include
+no fixed costs, and marginal costs that are the product of the number
+of base-call quality values times the cost of the encoding.
 
 \cite{Wan:2012kq} provide three similar lossy compression strategies
 based on binning the base error probability distribution: UniBinning,
@@ -398,12 +397,12 @@ values (as defined above) from the distribution of log error
 probability values into a single bin.
 
 Although we focus only on two bins in this work, a greater number of
-bins can be used in practice, albeit with a higher cost in memory
-usage. For example, an additional bin, thus giving bins of good, bad,
-and intermediate, could be used for quality values near the border
-between bins in the 2-bin encoding. Additional bins beyond two, and
-their resulting compressibility and effect on downstream analyses, are
-not considered here.
+bins can be used in practice, albeit with a higher cost in file size.
+For example, an additional bin, thus giving bins of good, bad, and
+intermediate, could be used for quality values near the border between
+bins in the 2-bin encoding. Additional bins beyond two, and their
+resulting compressibility and effect on downstream analyses, are not
+considered here.
 
 \subsubsection*{Modeling}
 
@@ -422,16 +421,16 @@ compression potential of the models. The coefficients could be
 represented with fewer bits, perhaps with some loss of precision, but
 we have not considered alternative representations in this study.
 
-The economic costs of memory use for model-based compression, in
+The economic costs of file size for model-based compression, in
 general terms, include no fixed costs, and marginal costs that are the
 product of the number of reads times the cost of representing the
 model parameters.
 
 \subsubsection*{Profiling}
 
-Sets of strings representing quality values show similar trends of
-over their length, and it is possible to identify common patterns in
-the data and use them as reference profiles to approximate individual
+Sets of strings representing quality values show similar trends over
+their length, and it is possible to identify common patterns in the
+data and use them as reference profiles to approximate individual
 sequences of quality values. Here we use $k$-means clustering, a
 vector quantization method that partitions a set of samples into $k$
 sets that minimize within-cluster sum of
@@ -448,7 +447,7 @@ able to capture some read-specific differences in quality values, it
 does approximate the overall patterns in quality values. An example of
 128 quality profiles is shown in Figure \ref{fig:profiles_128}.
 
-The economic costs of memory use for profile-based compression, in
+The economic costs of file size for profile-based compression, in
 general terms, include fixed costs associated with representing the
 profiles, which is the product of the number of profiles times the
 cost of encoding them. These fixed costs are amortized over the entire
@@ -457,7 +456,7 @@ reciprocal function of the number of reads. Additionally there are
 marginal costs that are the product of the number of reads encoded
 times the cost of the encoding. Profiling like modeling, but not
 binning, has the advantageous property that marginal costs are the
-reciprocal of the read length. Thus the costs of memory use for
+reciprocal of the read length. Thus the costs of file size for
 profile-based compression decrease proportionally with increases in
 either or both the number of reads and read length.
 
@@ -504,16 +503,16 @@ reference sequence was obtained from the \textsc{ncbi} RefSeq database
 \subsection*{Comparison to other methods}
 
 For comparison to other developed methods we use \textsc{QualComp}, a
-lossy compression tool~\cite{Ochoa:2013rt}. The program models
-quality values as a multivariate Gaussian distribution, computing the
-mean and covariance for each position in the read, and these values
-are stored by the decoder to later reconstruct a \emph{representative}
-quality value. \textsc{QualComp} takes as input a user-specified rate
+lossy compression tool~\cite{Ochoa:2013rt}. The program models quality
+values as a multivariate Gaussian distribution, computing the mean and
+covariance for each position in the read, and these values are stored
+by the decoder to later reconstruct a \emph{representative} quality
+value. \textsc{QualComp} takes as input a user-specified rate
 (bits/read), and these bits are apportioned among positions within the
 read to minimize the average error. The quality values can be
 clustered beforehand to produce more accurate models.
 
-The economic costs of memory use for compression with
+The economic costs of file size for compression with
 \textsc{QualComp}, in our interpretation, appear to have fixed costs
 for storing the cluster representatives, and the marginal costs that
 are the product of the number of reads times the cost of representing
@@ -522,8 +521,8 @@ the model parameters.
 \subsection*{Subsequent (secondary) compression}
 
 We secondarily compress all otherwise compressed data sets using the
-Burrows-Wheeler algorithm~\cite{bwt} via \textsc{bz}ip2, and it is
-the results of these subsequent compressions that we report. Although
+Burrows-Wheeler algorithm~\cite{bwt} via \textsc{bz}ip2, and it is the
+results of these subsequent compressions that we report. Although
 other algorithms~\cite{HUFFMAN:1952nr,Ziv77auniversal,
   DBLP:journals/tit/ZivL78} might be particularly effective for
 subsequent compression for some compressed data representations
@@ -537,14 +536,14 @@ profiles), but these operations have also not been explored here.
 \subsection*{Performance evaluation}
 
 As a measure of compression effectiveness, which reflects the sum of
-fixed and marginal costs, we use
-bits/base-call, defined as the size of the compressed representation
-of quality values (in bits) divided by the number of quality values
-represented. As a measure of information loss we use mean squared
-error (\textsc{mse}) as a loss function, and define it as
-$\frac{1}{n}\sum_{i=1}^{n}{(Q_i'-Q_i)^2}$, where $n$ is the number of
-quality values, $Q_i'$ is the compressed/decompressed quality value,
-and $Q_i$ is the original quality value associated with position $i$.
+fixed and marginal costs, we use bits/base-call, defined as the size
+of the compressed representation of quality values (in bits) divided
+by the number of quality values represented. As a measure of
+information loss we use mean squared error (\textsc{mse}) as a loss
+function, and define it as $\frac{1}{n}\sum_{i=1}^{n}{(Q_i'-Q_i)^2}$,
+where $n$ is the number of quality values, $Q_i'$ is the
+compressed/decompressed quality value, and $Q_i$ is the original
+quality value associated with position $i$.
 
 We evaluate effects of information loss from quality value compression
 on quality control steps of trimming and read filtering, which were
@@ -575,7 +574,7 @@ that makes use of quality values in the assembly process:
 \textsc{allpaths-lg}~\cite{Gnerre:2011kx} version r50191 with default
 settings and 32 threads.
 
-\section*{Results}
+\section*{Results and discussion}
 
 \subsection*{Compression effectiveness versus information loss}
 
@@ -598,22 +597,22 @@ polynomial regression, profile encodings, and
 
 \textsc{q}ual\textsc{c}omp with the rate parameter set to 100
 bits/read has the lowest \textsc{mse}, but requires
-$\sim$10--15$\times$ more memory than the profile encoding methods for
-only a $\sim$2--3$\times$ reduction in error. When the rate parameter
-of \textsc{q}ual\textsc{c}omp is set to match the profile encoding
-methods, \textsc{q}ual\textsc{c}omp performs slightly worse in terms
-of \textsc{mse}. For the \textit{Rhodobacter sphaeroides} fragment
-library, \textsc{q}ual\textsc{c}omp with rate set to 10 bits/read
-(0.099 bits/base-call) has a \textsc{mse} of 17.29, whereas
-256-profile encoding only requires 0.079 bits/base-call and has a
-\textsc{mse} of 11.85.
+$\sim$10--15$\times$ larger file size than the profile encoding
+methods for only a $\sim$2--3$\times$ reduction in error. When the
+rate parameter of \textsc{q}ual\textsc{c}omp is set to match the
+profile encoding methods, \textsc{q}ual\textsc{c}omp performs slightly
+worse in terms of \textsc{mse}. For the \textit{Rhodobacter
+  sphaeroides} fragment library, \textsc{q}ual\textsc{c}omp with rate
+set to 10 bits/read (0.099 bits/base-call) has a \textsc{mse} of
+17.29, whereas 256-profile encoding only requires 0.079 bits/base-call
+and has a \textsc{mse} of 11.85.
 
 As the degree of the polynomial increases, the bits/base-call increase
 and the \textsc{mse} decreases at an exponential rate. The 7th-degree
 polynomial regression results in the largest bits/base-call, as it
 requires 64 bytes per read before subsequent compression with
 \textsc{bz}ip2. For the \textit{Mus musculus} data set, which has read
-lengths of only 36 nt, the memory required for storage, even after
+lengths of only 36 nt, the file size, even after
 subsequent compression with \textsc{bz}ip2 exceeds that for the
 original \textsc{ascii} quality values.
 
@@ -728,29 +727,28 @@ different rates.
 \subsection*{Effects on read mapping}
 
 Some short read alignment tools, such as Bowtie2 (version 2.2.3),
-which was used here, utilize quality value information when evaluating
-potential alignments. The reads from with original uncompressed and
-compressed/decompressed quality vlaues were mapped with Bowtie2 to the
-\textit{Rhodobacter sphaeroides} reference genome. The total, shared,
-and unique proportion of mapped reads are calculated with respect to
-the results for the the original uncompressed quality values as shown
-in Table \ref{tab:aligner}. Additionally, to assess the effect of
-quality values on mapping in general, Bowtie2 was adjusted so that the
-maximum and minimum mismatch penalty were equivalent to maximum and
-minimum quality scores (with parameters: --mp 6,6 and --mp 2,2
-respectively).
+which was used here, utilize quality value information whenover
+evaluating potential alignments. The reads from with original
+uncompressed and compressed/decompressed quality values were mapped
+with Bowtie2 to the \textit{Rhodobacter sphaeroides} reference
+genome. The total, shared, and unique proportion of mapped reads are
+calculated with respect to the results for the original uncompressed
+quality values as shown in Table \ref{tab:aligner}. Additionally, to
+assess the effect of quality values on mapping in general, Bowtie2 was
+adjusted so that the maximum and minimum mismatch penalty were
+equivalent to maximum and minimum quality scores (with parameters:
+--mp 6,6 and --mp 2,2 respectively).
 
-We evaluate the compression methods using two approaches. In the first
-approach, we order the compression methods based on how similar the
-alignment results are using the original uncompressed quality values
---- i.e., the number of reads aligned using the original uncompressed
-quality values and quality values resulting from compression, plus the
-number of reads unaligned using the original uncompressed quality
-values and quality values resulting from compression minus the amount
-of reads uniquely aligned using the original uncompressed quality
-values and quality values resulting from compression. In the second
-approach, we order the compression methods by total proportion of
-aligned reads.
+We evaluate the compression methods to reflect that comparisons among
+mapping identical reads with different quality values may vary in two
+mutually exclusive ways: reads map to the reference, and reads do not
+map to a reference. Thus comparing mapping using original quality
+values and reads using quality values modified via lossy compression,
+we have a $2 \times 2$ contingency table consisting of reads that map
+for both original and compressed, reads that map for original and do
+not map for compressed, reads that do not map for original and map for
+compressed, and reads that do not map for both original and
+compressed.
 
 The best compression method in terms of similarity with the
 uncompressed reads is \textsc{q}ual\textsc{c}omp with rate 100
@@ -831,50 +829,9 @@ processing characteristics and algorithms. The true worth of quality
 values lies in the utility they provide in bioinformatic analyses. In
 some cases, as demonstrated here, this value is enhanced through
 transformation associated with compression. Thus appropriate
-compression of quality values can both reduce associated memory cost
+compression of quality values can both reduce associated file size cost
 and improve analysis results.
 
-
-\section*{Section title}
-Text for this section \ldots
-\subsection*{Sub-heading for section}
-Text for this sub-heading \ldots
-\subsubsection*{Sub-sub heading for section}
-Text for this sub-sub-heading \ldots
-\paragraph*{Sub-sub-sub heading for section}
-Text for this sub-sub-sub-heading \ldots
-In this section we examine the growth rate of the mean of $Z_0$, $Z_1$ and $Z_2$. In
-addition, we examine a common modeling assumption and note the
-importance of considering the tails of the extinction time $T_x$ in
-studies of escape dynamics.
-We will first consider the expected resistant population at $vT_x$ for
-some $v>0$, (and temporarily assume $\alpha=0$)
-%
-\[
- E \bigl[Z_1(vT_x) \bigr]= E
-\biggl[\mu T_x\int_0^{v\wedge
-1}Z_0(uT_x)
-\exp \bigl(\lambda_1T_x(v-u) \bigr)\,du \biggr].
-\]
-%
-If we assume that sensitive cells follow a deterministic decay
-$Z_0(t)=xe^{\lambda_0 t}$ and approximate their extinction time as
-$T_x\approx-\frac{1}{\lambda_0}\log x$, then we can heuristically
-estimate the expected value as
-%
-\begin{eqnarray}\label{eqexpmuts}
-E\bigl[Z_1(vT_x)\bigr] &=& \frac{\mu}{r}\log x
-\int_0^{v\wedge1}x^{1-u}x^{({\lambda_1}/{r})(v-u)}\,du
-\nonumber\\
-&=& \frac{\mu}{r}x^{1-{\lambda_1}/{\lambda_0}v}\log x\int_0^{v\wedge
-1}x^{-u(1+{\lambda_1}/{r})}\,du
-\nonumber\\
-&=& \frac{\mu}{\lambda_1-\lambda_0}x^{1+{\lambda_1}/{r}v} \biggl(1-\exp \biggl[-(v\wedge1) \biggl(1+
-\frac{\lambda_1}{r}\biggr)\log x \biggr] \biggr).
-\end{eqnarray}
-%
-Thus we observe that this expected value is finite for all $v>0$ (also see \cite{koon,khar,zvai,xjon,marg}).
-%\nocite{oreg,schn,pond,smith,marg,hunn,advi,koha,mouse}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                                          %%
@@ -891,7 +848,15 @@ Thus we observe that this expected value is finite for all $v>0$ (also see \cite
     Text for this section \ldots
 
 \section*{Acknowledgements}
-  Text for this section \ldots
+This project was initiated at the 2014 Bioinformatics Exchange for
+Students and Teachers (\textsc{best}) Summer School, which was funded
+by the offices of the Dean of The Graduate School, University of
+Maryland, and the Rektor of the University of T\"{u}bingen. Additional
+funding included an International Graduate Research Fellowship from
+The Graduate School, University of Maryland, to CMH, a Global
+Partnerships-Faculty Travel Grant from the Office of International
+Affairs to MPC, and funding from the University of T\"{u}bingen.
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                  The Bibliography                       %%
 %%                                                         %%
@@ -937,40 +902,42 @@ Thus we observe that this expected value is finite for all $v>0$ (also see \cite
 
 \section*{Figures}
 \begin{figure}[h!]
-\centerline{\includegraphics[width=3.35in]{profiles128.eps}}
-\caption{\csentence{Quality profiles obtained by $k$-means clustering.} 
-  Example for the
-  fragment library from \textit{Rhodobacter sphaeroides} 2.4.1 data
-  set using $k$ = 128. Each row corresponding to a quality
-  profile. Dark to light colors represent low to high quality
-  values. It is readily visible that the two most distinctive features
-  of quality profiles is their drop-off position and average overall
-  quality. Occasional low values occur early in some profiles, likely
-  reflecting intermittent problems in the sequencing process affecting
-  many reads at a time.}
+% profiles128.eps 
+\caption{\csentence{Quality profiles obtained by $k$-means
+    clustering.} Example for the fragment library from
+  \textit{Rhodobacter sphaeroides} 2.4.1 data set using $k$ =
+  128. Each row corresponding to a quality profile. Dark to light
+  colors represent low to high quality values. It is readily visible
+  that the two most distinctive features of quality profiles is their
+  drop-off position and average overall quality. Occasional low values
+  occur early in some profiles, likely reflecting intermittent
+  problems in the sequencing process affecting many reads at a time.}
   \label{fig:profiles_128}
 \end{figure}
 
 \begin{figure*}[h!]
-\centerline{\includegraphics[width=7in]{compression.results.eps}}
-\caption{\csentence{The relationship of bits/base-call and mean squared error for
-  quality value compression methods applied to four data sets.}
-  The data sets are \textit{Rhodobacter sphaeroides} 2.4.1; \textit{Homo sapiens}
-  chromosome 14; \textit{Escherichia coli} str. K-12 MG1655; and
-  \textit{Mus musculus}. Point labels correspond to different
-  compression methods: 2B, 2-bin encoding; P$n$, profiling with $n$
-  profiles; R$n$, modeling with polynomial regression of degree $n$;
-  Q$n$, \textsc{q}ual\textsc{c}omp with rate parameter of $n$. Arrows
-  denote the corresponding lossless compression using \textsc{bz}ip2,
-  with the black arrow corresponding to original data.}
+% compression.results.eps
+\caption{\csentence{The relationship of bits/base-call and mean
+    squared error for quality value compression methods applied to
+    four data sets.} The data sets are \textit{Rhodobacter
+    sphaeroides} 2.4.1; \textit{Homo sapiens} chromosome 14;
+  \textit{Escherichia coli} str. K-12 MG1655; and \textit{Mus
+    musculus}. Point labels correspond to different compression
+  methods: 2B, 2-bin encoding; P$n$, profiling with $n$ profiles;
+  R$n$, modeling with polynomial regression of degree $n$; Q$n$,
+  \textsc{q}ual\textsc{c}omp with rate parameter of $n$. Arrows denote
+  the corresponding lossless compression using \textsc{bz}ip2, with
+  the black arrow corresponding to original data.}
 \label{fig:mse_vs_bpbp}
 \end{figure*}
 
 \begin{figure}[h!]
-\centerline{\includegraphics[width=3.65in]{preprocessing.results.eps}}
-\caption{Preprocessing results of \textit{Rhodobacter sphaeroides}
-  2.4.1, and \textit{Homo sapiens} chromosome 14 fragment libraries,
-  and \textit{Escherichia coli} str. K-12 MG1655, and \textit{Mus
+% preprocessing.results.eps
+\caption{\csentence{Read preprocessing results using compressed
+    quality values compared original uncompressed quality values.}
+  The reads are for the \textit{Rhodobacter sphaeroides} 2.4.1, and
+  \textit{Homo sapiens} chromosome 14 fragment libraries, and
+  \textit{Escherichia coli} str. K-12 MG1655, and \textit{Mus
     musculus} data sets. Reads were trimmed using Sickle. The total
   number of bases filtered by each compression method is compared with
   the number of bases filtered using the uncompressed quality values.}
@@ -978,9 +945,9 @@ Thus we observe that this expected value is finite for all $v>0$ (also see \cite
 \end{figure}
 
 \begin{figure}[h!]
-\centerline{\includegraphics[width=3.65in]{rhodo.assembly.results.eps}}
-\caption{\csentence{Rankings of compression methods based on assembly attributes}
- The read data are for \textit{Rhodobacter
+% rhodo.assembly.results.eps
+\caption{\csentence{Rankings of compression methods based on assembly
+    attributes.} The read data are for \textit{Rhodobacter
     sphaeroides} 2.4.1, and the results sorted by overall
   rank. Assemblies were constructed using \textsc{allpaths-lg}.
   Rankings above the median value are in cyan, those below the median
@@ -988,17 +955,6 @@ Thus we observe that this expected value is finite for all $v>0$ (also see \cite
   \label{fig:assembly_ranks}
 \end{figure}
 
-
-  \begin{figure}[h!]
-  \caption{\csentence{Sample figure title.}
-      A short description of the figure content
-      should go here.}
-      \end{figure}
-
-\begin{figure}[h!]
-  \caption{\csentence{Sample figure title.}
-      Figure legend text.}
-      \end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                               %%
@@ -1011,12 +967,11 @@ Thus we observe that this expected value is finite for all $v>0$ (also see \cite
 \section*{Tables}
 
 \begin{table*}[!tbhp]
-\centering
-\caption[]{Comparison of mapping for original reads and reads with
+\caption{Comparison of mapping for original reads and reads with
   compressed/decompressed quality values. Reads and reference genome
   are for \textit{Rhodobacter sphaeroides}, and mapping was performed
   using Bowtie2.}
-\begin{small}
+\begin{tiny}
 \begin{tabular}{lr|cc|cc|cc|cc|cc}
  & & \multicolumn{2}{c|}{max-qual} & \multicolumn{2}{c|}{min-qual} & \multicolumn{2}{c|}{2-bin} & \multicolumn{2}{c|}{regression (0)} & \multicolumn{2}{c}{regression (1)} \\
 & & mapped & unmapped & mapped & unmapped & mapped & unmapped & mapped & unmapped & mapped & unmapped \\ 
@@ -1050,22 +1005,11 @@ Thus we observe that this expected value is finite for all $v>0$ (also see \cite
 \cline{2-12}
 & proportion & 0.870 & 0.130 & 0.870 & 0.130 & 0.870 & 0.130 & 0.870 & 0.130 & 0.870 & 0.130 \\
 \end{tabular}
-\end{small}
+\end{tiny}
 
 \label{tab:aligner}
 \end{table*}
 
-
-\begin{table}[h!]
-\caption{Sample table title. This is where the description of the table should go.}
-      \begin{tabular}{cccc}
-        \hline
-           & B1  &B2   & B3\\ \hline
-        A1 & 0.1 & 0.2 & 0.3\\
-        A2 & ... & ..  & .\\
-        A3 & ..  & .   & .\\ \hline
-      \end{tabular}
-\end{table}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                               %%
