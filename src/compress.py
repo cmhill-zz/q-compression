@@ -103,6 +103,8 @@ def compress(options):
     QUALCOMP_COMPRESS_CMD = "./runCompress.sh -i [READ] -c [CLUSTERS] -r [RATE]"
     QUALCOMP_DECOMPRESS_CMD = "./runDecompress.sh -p [DIR] -c [CLUSTERS] -r [RATE]"
 
+    RQS_COMPRESS_CMD = "./src/run_rqs.sh [READ] [OUTPUT]"
+
     # Store which compression directories we created.
     options.compressed_dirs = []
     options.compressed_dirs.append('original')
@@ -142,99 +144,134 @@ def compress(options):
         #continue
 
         # Polynomial regression.
-        for degree in options.poly_degrees.split(','):
-            ensure_dir(options.output_dir + '/degree_' + degree + '/')
+        if options.poly_degrees:
+            for degree in options.poly_degrees.split(','):
+                ensure_dir(options.output_dir + '/degree_' + degree + '/')
 
-            if 'degree_' + degree not in options.compressed_dirs:
-                options.compressed_dirs.append('degree_' + degree)
+                if 'degree_' + degree not in options.compressed_dirs:
+                    options.compressed_dirs.append('degree_' + degree)
 
-            #continue
+                #continue
 
-            call_arr = POLY_REGRESSION_CMD.replace('[READ]', reads_filename)\
-                    .replace('[OUTPUT]', options.output_dir + '/degree_' + degree + '/' + os.path.basename(reads_filename))\
-                    .replace('[DEGREE]', degree)\
-                    .replace('[COMPRESSED_FILE]', options.output_dir + '/degree_' + degree +'/' + os.path.basename(reads_filename) + '.comp')\
-                    .replace('[NUM_THREADS]', options.threads).split()
+                call_arr = POLY_REGRESSION_CMD.replace('[READ]', reads_filename)\
+                        .replace('[OUTPUT]', options.output_dir + '/degree_' + degree + '/' + os.path.basename(reads_filename))\
+                        .replace('[DEGREE]', degree)\
+                        .replace('[COMPRESSED_FILE]', options.output_dir + '/degree_' + degree +'/' + os.path.basename(reads_filename) + '.comp')\
+                        .replace('[NUM_THREADS]', options.threads).split()
 
-            out_cmd("", std_err_file.name, call_arr)
-            call(call_arr, stderr=std_err_file)
+                out_cmd("", std_err_file.name, call_arr)
+                call(call_arr, stderr=std_err_file)
 
         # Profile compression using k-means.
-        for profiles in options.profile_sizes.split(','):
-            ensure_dir(options.output_dir + '/profile_' + profiles + '/')
+        if options.profile_sizes:
+            for profiles in options.profile_sizes.split(','):
+                ensure_dir(options.output_dir + '/profile_' + profiles + '/')
 
-            if 'profile_' + profiles not in options.compressed_dirs:
-                options.compressed_dirs.append('profile_' + profiles)
+                if 'profile_' + profiles not in options.compressed_dirs:
+                    options.compressed_dirs.append('profile_' + profiles)
 
-            #continue
+                #continue
 
-            call_arr = PROFILE_COMPRESSION_CMD.replace('[READ]', reads_filename)\
-                    .replace('[OUTPUT]', options.output_dir + '/profile_' + profiles + '/' + os.path.basename(reads_filename))\
-                    .replace('[NUM_PROFILES]', profiles)\
-                    .replace('[TRAINING_SIZE]', options.training_size)\
-                    .replace('[COMPRESSED_FILE]', options.output_dir + '/profile_' + profiles +'/' + os.path.basename(reads_filename) + '.comp')\
-                    .replace('[NUM_THREADS]', options.threads).split()
+                call_arr = PROFILE_COMPRESSION_CMD.replace('[READ]', reads_filename)\
+                        .replace('[OUTPUT]', options.output_dir + '/profile_' + profiles + '/' + os.path.basename(reads_filename))\
+                        .replace('[NUM_PROFILES]', profiles)\
+                        .replace('[TRAINING_SIZE]', options.training_size)\
+                        .replace('[COMPRESSED_FILE]', options.output_dir + '/profile_' + profiles +'/' + os.path.basename(reads_filename) + '.comp')\
+                        .replace('[NUM_THREADS]', options.threads).split()
 
-            out_cmd("", std_err_file.name, call_arr)
-            call(call_arr, stderr=std_err_file)
+                out_cmd("", std_err_file.name, call_arr)
+                call(call_arr, stderr=std_err_file)
 
         # Compress using QualComp.
-        for rate in options.rates.split(','):
-            #continue
-            ensure_dir(options.output_dir + '/qualcomp_r' + rate + '/')
+        if options.rates:
+            for rate in options.rates.split(','):
+                #continue
+                ensure_dir(options.output_dir + '/qualcomp_r' + rate + '/')
 
-            if 'qualcomp_r' + rate not in options.compressed_dirs:
-                options.compressed_dirs.append('qualcomp_r' + rate)
+                if 'qualcomp_r' + rate not in options.compressed_dirs:
+                    options.compressed_dirs.append('qualcomp_r' + rate)
 
-            #continue
+                #continue
 
-            """
-            QUALCOMP_COMPRESS_CMD = "$QUALCOMP/runCompressMod.sh -i [READ] -c [CLUSTERS] -r [RATE]"
-            QUALCOMP_DECOMPRESS_CMD = "$QUALCOMP/runDecompress.sh -p [DIR] -c [CLUSTERS] -r [RATE]"
-            """
+                """
+                QUALCOMP_COMPRESS_CMD = "$QUALCOMP/runCompressMod.sh -i [READ] -c [CLUSTERS] -r [RATE]"
+                QUALCOMP_DECOMPRESS_CMD = "$QUALCOMP/runDecompress.sh -p [DIR] -c [CLUSTERS] -r [RATE]"
+                """
 
-            reads_abs_path = os.path.abspath(reads_filename)
-            prev_dir = os.getcwd()
-            os.chdir(os.environ["QUALCOMP"])
+                reads_abs_path = os.path.abspath(reads_filename)
+                prev_dir = os.getcwd()
+                os.chdir(os.environ["QUALCOMP"])
 
-            call_arr = QUALCOMP_COMPRESS_CMD.replace('[READ]', reads_abs_path)\
-                    .replace('[CLUSTERS]', options.clusters)\
-                    .replace('[RATE]', rate).split()
+                call_arr = QUALCOMP_COMPRESS_CMD.replace('[READ]', reads_abs_path)\
+                        .replace('[CLUSTERS]', options.clusters)\
+                        .replace('[RATE]', rate).split()
 
-            out_cmd(std_err_file.name, std_err_file.name, call_arr)
-            call(call_arr, stdout=std_err_file, stderr=std_err_file)
+                out_cmd(std_err_file.name, std_err_file.name, call_arr)
+                call(call_arr, stdout=std_err_file, stderr=std_err_file)
 
-            # Also decompress using QualComp special function.
-            qualcomp_prefix = reads_abs_path.split('.')[0]
-            call_arr = QUALCOMP_DECOMPRESS_CMD.replace('[DIR]', qualcomp_prefix)\
-                    .replace('[CLUSTERS]', options.clusters)\
-                    .replace('[RATE]', rate).split()
+                # Also decompress using QualComp special function.
+                qualcomp_prefix = reads_abs_path.split('.')[0]
+                call_arr = QUALCOMP_DECOMPRESS_CMD.replace('[DIR]', qualcomp_prefix)\
+                        .replace('[CLUSTERS]', options.clusters)\
+                        .replace('[RATE]', rate).split()
 
-            out_cmd(std_err_file.name, std_err_file.name, call_arr)
-            call(call_arr, stdout=std_err_file, stderr=std_err_file)
+                out_cmd(std_err_file.name, std_err_file.name, call_arr)
+                call(call_arr, stdout=std_err_file, stderr=std_err_file)
 
-            os.chdir(prev_dir)
+                os.chdir(prev_dir)
 
-            # QualComp writes the files into the original directory,
-            # so move the fastq files into the QualComp directory.
-            mv_cmd = "mv " + qualcomp_prefix + "_" + options.clusters + "_" + rate + ".fastq " + options.output_dir + '/qualcomp_r' + rate + '/' + os.path.basename(reads_filename)
-            call_arr = mv_cmd.split()
-            out_cmd("", std_err_file.name, call_arr)
-            call(call_arr, stderr=std_err_file)
+                # QualComp writes the files into the original directory,
+                # so move the fastq files into the QualComp directory.
+                mv_cmd = "mv " + qualcomp_prefix + "_" + options.clusters + "_" + rate + ".fastq " + options.output_dir + '/qualcomp_r' + rate + '/' + os.path.basename(reads_filename)
+                call_arr = mv_cmd.split()
+                out_cmd("", std_err_file.name, call_arr)
+                call(call_arr, stderr=std_err_file)
 
-            filename_list = glob.glob(qualcomp_prefix + "_" + options.clusters + "_*")
-            mv_cmd = "mv " + ' '.join(filename_list) + ' ' + options.output_dir + '/qualcomp_r' + rate + '/'
-            call_arr = mv_cmd.split()
-            out_cmd("", std_err_file.name, call_arr)
-            call(call_arr, stderr=std_err_file)
+                filename_list = glob.glob(qualcomp_prefix + "_" + options.clusters + "_*")
+                mv_cmd = "mv " + ' '.join(filename_list) + ' ' + options.output_dir + '/qualcomp_r' + rate + '/'
+                call_arr = mv_cmd.split()
+                out_cmd("", std_err_file.name, call_arr)
+                call(call_arr, stderr=std_err_file)
 
-            # Concatenate all the binary files to create a single 'compressed' file.
-            filename_list = glob.glob(options.output_dir + '/qualcomp_r' + rate + '/' + os.path.basename(reads_filename).split(".")[0] +  "*bin")
-            cat_cmd = "cat " + ' '.join(filename_list)
-            call_arr = cat_cmd.split()
-            bin_file = open(options.output_dir + '/qualcomp_r' + rate + '/' + os.path.basename(reads_filename) + '.comp', 'w')
-            out_cmd(bin_file.name, std_err_file.name, call_arr)
-            call(call_arr, stdout=bin_file, stderr=std_err_file)
+                # Concatenate all the binary files to create a single 'compressed' file.
+                filename_list = glob.glob(options.output_dir + '/qualcomp_r' + rate + '/' + os.path.basename(reads_filename).split(".")[0] +  "*bin")
+                cat_cmd = "cat " + ' '.join(filename_list)
+                call_arr = cat_cmd.split()
+                bin_file = open(options.output_dir + '/qualcomp_r' + rate + '/' + os.path.basename(reads_filename) + '.comp', 'w')
+                out_cmd(bin_file.name, std_err_file.name, call_arr)
+                call(call_arr, stdout=bin_file, stderr=std_err_file)
+
+        # Compress with RQS.
+        #for degree in options.poly_degrees.split(','):
+        ensure_dir(options.output_dir + '/rqs/')
+
+        if 'rqs' not in options.compressed_dirs:
+            options.compressed_dirs.append('rqs')
+
+        call_arr = RQS_COMPRESS_CMD.replace('[READ]', reads_filename)\
+                .replace('[OUTPUT]', options.output_dir + '/rqs/').split()
+
+        out_cmd("", std_err_file.name, call_arr)
+        call(call_arr, stderr=std_err_file)
+
+    # Profile compression using k-means.
+    for profiles in options.profile_sizes.split(','):
+        ensure_dir(options.output_dir + '/profile_' + profiles + '/')
+
+        if 'profile_' + profiles not in options.compressed_dirs:
+            options.compressed_dirs.append('profile_' + profiles)
+
+        #continue
+
+        call_arr = PROFILE_COMPRESSION_CMD.replace('[READ]', reads_filename)\
+                .replace('[OUTPUT]', options.output_dir + '/profile_' + profiles + '/' + os.path.basename(reads_filename))\
+                .replace('[NUM_PROFILES]', profiles)\
+                .replace('[TRAINING_SIZE]', options.training_size)\
+                .replace('[COMPRESSED_FILE]', options.output_dir + '/profile_' + profiles +'/' + os.path.basename(reads_filename) + '.comp')\
+                .replace('[NUM_THREADS]', options.threads).split()
+
+        out_cmd("", std_err_file.name, call_arr)
+        call(call_arr, stderr=std_err_file)
 
     # After we compress/decompress everything, write out the quality values to a separate file and then run bzip on them.
     for compression_method in options.compressed_dirs:
@@ -829,6 +866,10 @@ def get_options():
     # QualComp-specific compression options.
     parser.add_option("--rates", dest="rates", help="QualComp parameter for setting the  bits/reads.", default="30")
     parser.add_option("--clusters", dest="clusters", help="QualComp parameter for setting number of clusters.", default="3")
+
+    # RQS-specific compression options.
+    #parser.add_option("--rqs", dest="rates", help="QualComp parameter for setting the  bits/reads.", default="30")
+    #parser.add_option("--clusters", dest="clusters", help="QualComp parameter for setting number of clusters.", default="3")
 
     # Max, min quality value compression options.
     parser.add_option("--max-qv", dest="max_quality", help="Use this value for max quality value compression.", default="40")
