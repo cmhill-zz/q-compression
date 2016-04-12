@@ -2,9 +2,9 @@ OUTNAME = compression-$(shell date +%F).pdf
 
 all: compression.pdf
 
-compression.pdf: bmc_article.tex
-	pdflatex bmc_article.tex; bibtex bmc_article; pdflatex bmc_article.tex; pdflatex bmc_article.tex;
-	mv bmc_article.pdf ${OUTNAME}
+compression.pdf: manuscript.tex
+	pdflatex manuscript.tex; bibtex manuscript; pdflatex manuscript.tex; pdflatex manuscript.tex;
+	mv manuscript.pdf ${OUTNAME}
 
 clean:
 	rm -rf q-compression*.pdf
