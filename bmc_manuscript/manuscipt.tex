@@ -117,19 +117,19 @@
 
 \author[
    addressref={aff1,aff2},                   % id's of addresses, e.g. {aff1,aff2}
-   noteref={n1},                        % id's of article notes, if any
-   email={jane.e.doe@cambridge.co.uk}   % email address
+%   noteref={n1},                        % id's of article notes, if any
+   email={chrismh@uw.edu}   % email address
 ]{\inits{CMH}\fnm{Christopher M} \snm{Hill}}
 \author[
-   addressref={aff3,aff5},
+   addressref={aff4,aff6},
    email={szolek@informatik.uni-tuebingen.de}
 ]{\inits{AS}\fnm{Andr\'{a}s} \snm{Szolek}}
 \author[
-   addressref={aff4,aff5},
+   addressref={aff5,aff6},
    email={mohamed.el-hadidi@uni-tuebingen.de}
 ]{\inits{MEH}\fnm{Mohamed} \snm{El Hadidi}}
 \author[
-   addressref={aff2},
+   addressref={aff3},
    corref={aff2},                       % id of corresponding address, if any
    email={mike@umiac.umd.edu}
 ]{\inits{MPC}\fnm{Michael P} \snm{Cummings}}
@@ -150,12 +150,18 @@
   \cny{USA}                                    % country
 }
 \address[id=aff2]{%                           % unique id
+  \orgname{Department of Genome Science, University of Washington School of Medicine},                    %
+  \city{Seattle, Washington},                              % city
+  \postcode{98195},                                % post or zip code
+  \cny{USA}                                    % country
+}
+\address[id=aff3]{%                           % unique id
   \orgname{Center for Bioinformatics and Computational Biology, University of Maryland}, % university, etc
   \city{College Park, Maryland},                              % city
   \postcode{20742}                                % post or zip code
   \cny{USA}                                    % country
 }
-\address[id=aff3]{%
+\address[id=aff4]{%
   \orgname{Department of Applied Bioinformatics, Center for
   Bioinformatics, Quantitative Biology Center, University of T\"{u}bingen},
   \street{Sand 14},
@@ -163,7 +169,7 @@
   \city{T\"{u}bingen},
   \cny{Germany}
 }
-\address[id=aff4]{%
+\address[id=aff5]{%
   \orgname{Department of Algorithms in Bioinformatics, Center for
   Bioinformatics, Quantitative Biology Center, University of T\"{u}bingen},
   \street{Sand 14},
@@ -171,7 +177,7 @@
   \city{T\"{u}bingen},
   \cny{Germany}
 }
-\address[id=aff5]{%
+\address[id=aff6]{%
   \orgname{Department of Computer Science, University of T\"{u}bingen},
   \street{Sand 14},
   \postcode{72076}
@@ -188,10 +194,10 @@
 %%                                          %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{artnotes}
+%\begin{artnotes}
 %\note{Sample of title note}     % note to the article
-\note[id=n1]{Current address: \ldots} % note, connected to author
-\end{artnotes}
+%\note[id=n1]{Current address: \ldots} % note, connected to author
+%\end{artnotes}
 
 \end{fmbox}% comment this for two column layout
 
@@ -209,11 +215,32 @@
 \begin{abstractbox}
 
 \begin{abstract} % abstract
-\parttitle{First part title} %if any
-Text for this section.
+\parttitle{Motivation:} %if any
+As the cost of sequencing continues to decrease, the rate of sequence
+data production is increasing, placing greater demands on storing and
+transferring these vast amount of data. Most methods of sequencing
+data compression focus on compressing nucleotide information without
+any loss of information. Quality data, however, have different
+properties than nucleotide data, and methods compressing nucleotide
+sequences efficiently do not perform as well on quality
+values. Furthermore, although lossless representation might be
+necessary for nucleotide sequences, it is not an essential requirement
+for quality values.
 
-\parttitle{Second part title} %if any
-Text for this section.
+Previous studies of quality value compression have mostly focus on
+minimizing the loss of information with less emphasis on the effects
+on bioinformatic analyses. In this paper, we evaluate several
+different compression methods for quality values, and assess the
+resulting impacts on common bioinformatic analyses using sequence read
+data: quality control, genome assembly, and alignment of short reads
+to a reference sequence.
+
+\parttitle{Results:} %if any
+Lossy compression of quality information can greatly decrease memory
+requirements, and our results demonstrate
+that some compression methods can result in transformed quality values
+that are quite useful, and in some cases advantageous, compared to
+original uncompressed values.
 \end{abstract}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -312,7 +339,7 @@ on lossless compression of base calls~\cite{Deorowicz:2013hq,
 although some recent work has addressed compression of quality
 values~\cite{Canovas:2014fr,Hach:2012ys,
   janin2013adaptive,Kozanitis:2011kl,Ochoa:2013rt,Tembe:2010ys,
-  Wan:2012kq,DBLP:conf/recomb/YuYB14,zhou2014compression}. Among the
+  Wan:2012kq,DBLP:conf/recomb/YuYB14,zhou2014compression,Malysa01102015}. Among the
 several challenges for compression of read data is dealing with
 different error profiles resulting from differences in underlying
 chemistries, signal detection and processing mechanisms, inherent
@@ -874,6 +901,7 @@ Affairs to MPC, and funding from the University of T\"{u}bingen.
 
 % if your bibliography is in bibtex format, use those commands:
 \bibliographystyle{bmc-mathphys} % Style BST file (bmc-mathphys, vancouver, spbasic).
+%\bibliographystyle{vancouver} % Style BST file (bmc-mathphys, vancouver, spbasic).
 \bibliography{compression}      % Bibliography file (usually '*.bib' )
 % for author-year bibliography (bmc-mathphys or spbasic)
 % a) write to bib file (bmc-mathphys only)
