@@ -325,23 +325,25 @@ standards, thus reducing the total number of reads; and
 \textit{ii}.~trimming of low-quality base-calls from reads, which
 reduces the length of reads trimmed. Quality values can be used by
 genome assembly software to produce better
-assemblies~\cite{Bryant:2009uq,Gnerre:2011kx}. Short-read alignment
-programs, such as Bowtie2~\cite{Langmead:2012rw}, use quality values
-to weight mismatches between read and reference sequences. Software
-for detecting single nucleotide polymorphisms (\textsc{snp}s) can use
-quality values~\cite{McKenna:2010bh}, and identified \textsc{snp}s
-with high-quality calls are deemed more reliable than those with
-low-quality calls, particularly in low-coverage regions.
+assemblies~\cite[e.g.,][]{Bryant:2009uq,Gnerre:2011kx}. Short-read
+alignment programs, such as Bowtie2~\cite{Langmead:2012rw}, use
+quality values to weight mismatches between read and reference
+sequences. Software for detecting single nucleotide polymorphisms
+(\textsc{snp}s) can use quality values~\cite[e.g.,][]{McKenna:2010bh},
+and identified \textsc{snp}s with high-quality calls are deemed more
+reliable than those with low-quality calls, particularly in
+low-coverage regions.
 
 Previous literature on sequence data compression has largely focused
-on lossless compression of base calls~\cite{Deorowicz:2013hq,
-  Giancarlo:2009fk,Giancarlo:2014rw, Nalbantoglu:2010uq,Zhu:2013qr},
-although some recent work has addressed compression of quality
-values~\cite{Canovas:2014fr,Hach:2012ys,
+on lossless compression of base calls~\cite[reviewed
+  in][]{Deorowicz:2013hq, Giancarlo:2009fk,Giancarlo:2014rw,
+  Nalbantoglu:2010uq,Zhu:2013qr}, although some recent work has
+addressed compression of quality
+values~\cite[e.g.,][]{Canovas:2014fr,Hach:2012ys,
   janin2013adaptive,Kozanitis:2011kl,Ochoa:2013rt,Tembe:2010ys,
-  Wan:2012kq,DBLP:conf/recomb/YuYB14,zhou2014compression,Malysa01102015}. Among the
-several challenges for compression of read data is dealing with
-different error profiles resulting from differences in underlying
+  Wan:2012kq,DBLP:conf/recomb/YuYB14,zhou2014compression,Malysa01102015}.
+Among the several challenges for compression of read data is dealing
+with different error profiles resulting from differences in underlying
 chemistries, signal detection and processing mechanisms, inherent
 biases, and other idiosyncratic properties of distinct high-throughput
 sequencing technologies.
@@ -362,9 +364,9 @@ increase up to $\sim$16$\times$ at the 3$^{\prime}$ end, and 32.8 --
 end~\cite{Minoche:2011km}). Recognizing these properties of Illumina
 sequence reads motivates our exploration of three general classes of
 lossy compression methods -- binning, modeling, and profiling -- and
-our consideration of an exemplar of each class.~\cite{Canovas:2014fr}
-and~\cite{janin2013adaptive} evaluated the effects of lossy
-compression on identifying variants within a data set. Here we
+our consideration of an exemplar of each class. Some studies have
+evaluated the effects of lossy compression on identifying variants
+within a data set~\cite{Canovas:2014fr,janin2013adaptive}. Here we
 describe our research investigating lossy compression of sequence read
 quality values, specifically those associated with Illumina
 instruments, with the objective to provide some perspective on several
@@ -550,7 +552,7 @@ the model parameters.
 We secondarily compress all otherwise compressed data sets using the
 Burrows-Wheeler algorithm~\cite{bwt} via \textsc{bz}ip2, and it is the
 results of these subsequent compressions that we report. Although
-other algorithms~\cite{HUFFMAN:1952nr,Ziv77auniversal,
+other algorithms~\cite[e.g.,][]{HUFFMAN:1952nr,Ziv77auniversal,
   DBLP:journals/tit/ZivL78} might be particularly effective for
 subsequent compression for some compressed data representations
 examined, we not explored such possibilities here, and instead
@@ -639,9 +641,9 @@ and the \textsc{mse} decreases at an exponential rate. The 7th-degree
 polynomial regression results in the largest bits/base-call, as it
 requires 64 bytes per read before subsequent compression with
 \textsc{bz}ip2. For the \textit{Mus musculus} data set, which has read
-lengths of only 36 nt, the file size, even after
-subsequent compression with \textsc{bz}ip2 exceeds that for the
-original \textsc{ascii} quality values.
+lengths of only 36 nt, the file size, even after subsequent
+compression with \textsc{bz}ip2 exceeds that for the original
+\textsc{ascii} quality values.
 
 As an additional point of reference regarding compression
 effectiveness, the recently published
@@ -710,7 +712,7 @@ The lossy compression methods largely preserve the contiguity found in
 the assembly produced using the reads with the original quality
 values. All compression methods other than 0-degree polynomial
 regression produce an N50 ranging from 3.17--3.22 Mbp (see
-Supplemental Table 3). Despite the similar contiguity statistics, the
+vSupplemental Table 3). Despite the similar contiguity statistics, the
 different compression methods vary markedly in the number of
 \textsc{snp}s. The 2-bin and profile methods exhibited the fewest
 \textsc{snp}s compared to the reference genome, thus outperforming the
@@ -796,8 +798,8 @@ Most of the compression methods did not vary greatly in terms of the
 number of reads that were mapped \emph{only} using quality values
 resulting from compression; however, there is a sizable difference in
 the amount of reads that are originally mapped, but unmapped by the
-compressed methods.  \textsc{q}ual\textsc{c}omp with rate 100
-bits/read results in the fewest missing original read alignments
+compressed methods. \textsc{q}ual\textsc{c}omp with rate 100 bits/read
+results in the fewest missing original read alignments
 (159). Increasing the regression model polynomial degree results in a
 decreasing amount of reads that are originally mapped, but unmapped by
 the regression model (40,931 and 1,134 reads for 0-degree and
@@ -808,7 +810,7 @@ Note that the 2-bin method aligns a greater portion of reads than the
 various regression models. If a poor-quality base-call is flanked by
 high-quality base-calls, then the low-degree polynomial regression
 models tend to smooth out the quality valus, erroneously marking the
-low-quality base-calls as higher quality.  During alignment, Bowtie2
+low-quality base-calls as higher quality. During alignment, Bowtie2
 penalizes mismatches at high-quality base-calls more so than
 mismatches at lower-quality base-calls. Thus, the polynomial
 regression models incur a high penalty for these base-calls, resulting
@@ -856,8 +858,8 @@ processing characteristics and algorithms. The true worth of quality
 values lies in the utility they provide in bioinformatic analyses. In
 some cases, as demonstrated here, this value is enhanced through
 transformation associated with compression. Thus appropriate
-compression of quality values can both reduce associated file size cost
-and improve analysis results.
+compression of quality values can both reduce associated file size
+cost and improve analysis results.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
