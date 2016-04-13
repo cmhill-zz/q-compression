@@ -48,7 +48,7 @@
 
 %%% Load packages
 %\usepackage{amsthm,amsmath}
-%\RequirePackage{natbib}
+\RequirePackage{natbib}
 %\RequirePackage[authoryear]{natbib}% uncomment this for author-year bibliography
 %\RequirePackage{hyperref}
 \usepackage[utf8]{inputenc} %unicode support
@@ -117,19 +117,19 @@
 
 \author[
    addressref={aff1,aff2},                   % id's of addresses, e.g. {aff1,aff2}
-   noteref={n1},                        % id's of article notes, if any
-   email={jane.e.doe@cambridge.co.uk}   % email address
+%   noteref={n1},                        % id's of article notes, if any
+   email={chrismh@uw.edu}   % email address
 ]{\inits{CMH}\fnm{Christopher M} \snm{Hill}}
 \author[
-   addressref={aff3,aff5},
+   addressref={aff4,aff6},
    email={szolek@informatik.uni-tuebingen.de}
 ]{\inits{AS}\fnm{Andr\'{a}s} \snm{Szolek}}
 \author[
-   addressref={aff4,aff5},
+   addressref={aff5,aff6},
    email={mohamed.el-hadidi@uni-tuebingen.de}
 ]{\inits{MEH}\fnm{Mohamed} \snm{El Hadidi}}
 \author[
-   addressref={aff2},
+   addressref={aff3},
    corref={aff2},                       % id of corresponding address, if any
    email={mike@umiac.umd.edu}
 ]{\inits{MPC}\fnm{Michael P} \snm{Cummings}}
@@ -150,12 +150,18 @@
   \cny{USA}                                    % country
 }
 \address[id=aff2]{%                           % unique id
+  \orgname{Department of Genome Science, University of Washington School of Medicine},                    %
+  \city{Seattle, Washington},                              % city
+  \postcode{98195},                                % post or zip code
+  \cny{USA}                                    % country
+}
+\address[id=aff3]{%                           % unique id
   \orgname{Center for Bioinformatics and Computational Biology, University of Maryland}, % university, etc
   \city{College Park, Maryland},                              % city
   \postcode{20742}                                % post or zip code
   \cny{USA}                                    % country
 }
-\address[id=aff3]{%
+\address[id=aff4]{%
   \orgname{Department of Applied Bioinformatics, Center for
   Bioinformatics, Quantitative Biology Center, University of T\"{u}bingen},
   \street{Sand 14},
@@ -163,7 +169,7 @@
   \city{T\"{u}bingen},
   \cny{Germany}
 }
-\address[id=aff4]{%
+\address[id=aff5]{%
   \orgname{Department of Algorithms in Bioinformatics, Center for
   Bioinformatics, Quantitative Biology Center, University of T\"{u}bingen},
   \street{Sand 14},
@@ -171,7 +177,7 @@
   \city{T\"{u}bingen},
   \cny{Germany}
 }
-\address[id=aff5]{%
+\address[id=aff6]{%
   \orgname{Department of Computer Science, University of T\"{u}bingen},
   \street{Sand 14},
   \postcode{72076}
@@ -188,10 +194,10 @@
 %%                                          %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\begin{artnotes}
+%\begin{artnotes}
 %\note{Sample of title note}     % note to the article
-\note[id=n1]{Current address: \ldots} % note, connected to author
-\end{artnotes}
+%\note[id=n1]{Current address: \ldots} % note, connected to author
+%\end{artnotes}
 
 \end{fmbox}% comment this for two column layout
 
@@ -209,11 +215,32 @@
 \begin{abstractbox}
 
 \begin{abstract} % abstract
-\parttitle{First part title} %if any
-Text for this section.
+\parttitle{Motivation:} %if any
+As the cost of sequencing continues to decrease, the rate of sequence
+data production is increasing, placing greater demands on storing and
+transferring these vast amount of data. Most methods of sequencing
+data compression focus on compressing nucleotide information without
+any loss of information. Quality data, however, have different
+properties than nucleotide data, and methods compressing nucleotide
+sequences efficiently do not perform as well on quality
+values. Furthermore, although lossless representation might be
+necessary for nucleotide sequences, it is not an essential requirement
+for quality values.
 
-\parttitle{Second part title} %if any
-Text for this section.
+Previous studies of quality value compression have mostly focus on
+minimizing the loss of information with less emphasis on the effects
+on bioinformatic analyses. In this paper, we evaluate several
+different compression methods for quality values, and assess the
+resulting impacts on common bioinformatic analyses using sequence read
+data: quality control, genome assembly, and alignment of short reads
+to a reference sequence.
+
+\parttitle{Results:} %if any
+Lossy compression of quality information can greatly decrease memory
+requirements, and our results demonstrate
+that some compression methods can result in transformed quality values
+that are quite useful, and in some cases advantageous, compared to
+original uncompressed values.
 \end{abstract}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -298,23 +325,25 @@ standards, thus reducing the total number of reads; and
 \textit{ii}.~trimming of low-quality base-calls from reads, which
 reduces the length of reads trimmed. Quality values can be used by
 genome assembly software to produce better
-assemblies~\cite{Bryant:2009uq,Gnerre:2011kx}. Short-read alignment
-programs, such as Bowtie2~\cite{Langmead:2012rw}, use quality values
-to weight mismatches between read and reference sequences. Software
-for detecting single nucleotide polymorphisms (\textsc{snp}s) can use
-quality values~\cite{McKenna:2010bh}, and identified \textsc{snp}s
-with high-quality calls are deemed more reliable than those with
-low-quality calls, particularly in low-coverage regions.
+assemblies~\cite[e.g.,][]{Bryant:2009uq,Gnerre:2011kx}. Short-read
+alignment programs, such as Bowtie2~\cite{Langmead:2012rw}, use
+quality values to weight mismatches between read and reference
+sequences. Software for detecting single nucleotide polymorphisms
+(\textsc{snp}s) can use quality values~\cite[e.g.,][]{McKenna:2010bh},
+and identified \textsc{snp}s with high-quality calls are deemed more
+reliable than those with low-quality calls, particularly in
+low-coverage regions.
 
 Previous literature on sequence data compression has largely focused
-on lossless compression of base calls~\cite{Deorowicz:2013hq,
-  Giancarlo:2009fk,Giancarlo:2014rw, Nalbantoglu:2010uq,Zhu:2013qr},
-although some recent work has addressed compression of quality
-values~\cite{Canovas:2014fr,Hach:2012ys,
+on lossless compression of base calls~\cite[reviewed
+  in][]{Deorowicz:2013hq, Giancarlo:2009fk,Giancarlo:2014rw,
+  Nalbantoglu:2010uq,Zhu:2013qr}, although some recent work has
+addressed compression of quality
+values~\cite[e.g.,][]{Canovas:2014fr,Hach:2012ys,
   janin2013adaptive,Kozanitis:2011kl,Ochoa:2013rt,Tembe:2010ys,
-  Wan:2012kq,DBLP:conf/recomb/YuYB14,zhou2014compression}. Among the
-several challenges for compression of read data is dealing with
-different error profiles resulting from differences in underlying
+  Wan:2012kq,DBLP:conf/recomb/YuYB14,zhou2014compression,Malysa01102015}.
+Among the several challenges for compression of read data is dealing
+with different error profiles resulting from differences in underlying
 chemistries, signal detection and processing mechanisms, inherent
 biases, and other idiosyncratic properties of distinct high-throughput
 sequencing technologies.
@@ -335,9 +364,9 @@ increase up to $\sim$16$\times$ at the 3$^{\prime}$ end, and 32.8 --
 end~\cite{Minoche:2011km}). Recognizing these properties of Illumina
 sequence reads motivates our exploration of three general classes of
 lossy compression methods -- binning, modeling, and profiling -- and
-our consideration of an exemplar of each class.~\cite{Canovas:2014fr}
-and~\cite{janin2013adaptive} evaluated the effects of lossy
-compression on identifying variants within a data set. Here we
+our consideration of an exemplar of each class. Some studies have
+evaluated the effects of lossy compression on identifying variants
+within a data set~\cite{Canovas:2014fr,janin2013adaptive}. Here we
 describe our research investigating lossy compression of sequence read
 quality values, specifically those associated with Illumina
 instruments, with the objective to provide some perspective on several
@@ -368,7 +397,7 @@ distribution of the quality values need to be made. We adopt the
 quality value assignments of the read preprocessing tool
 Sickle~\cite{sickle}, which correspond to the 40 for ``good'' and 10
 for ``bad''.
- 
+
 With 2-bin encoding, binary encoding is possible, allowing us to use a
 single bit to represent the quality of a base instead of the standard
 8 bits used to store quality values in \textsc{ascii}. An additional
@@ -523,7 +552,7 @@ the model parameters.
 We secondarily compress all otherwise compressed data sets using the
 Burrows-Wheeler algorithm~\cite{bwt} via \textsc{bz}ip2, and it is the
 results of these subsequent compressions that we report. Although
-other algorithms~\cite{HUFFMAN:1952nr,Ziv77auniversal,
+other algorithms~\cite[e.g.,][]{HUFFMAN:1952nr,Ziv77auniversal,
   DBLP:journals/tit/ZivL78} might be particularly effective for
 subsequent compression for some compressed data representations
 examined, we not explored such possibilities here, and instead
@@ -612,9 +641,9 @@ and the \textsc{mse} decreases at an exponential rate. The 7th-degree
 polynomial regression results in the largest bits/base-call, as it
 requires 64 bytes per read before subsequent compression with
 \textsc{bz}ip2. For the \textit{Mus musculus} data set, which has read
-lengths of only 36 nt, the file size, even after
-subsequent compression with \textsc{bz}ip2 exceeds that for the
-original \textsc{ascii} quality values.
+lengths of only 36 nt, the file size, even after subsequent
+compression with \textsc{bz}ip2 exceeds that for the original
+\textsc{ascii} quality values.
 
 As an additional point of reference regarding compression
 effectiveness, the recently published
@@ -683,7 +712,7 @@ The lossy compression methods largely preserve the contiguity found in
 the assembly produced using the reads with the original quality
 values. All compression methods other than 0-degree polynomial
 regression produce an N50 ranging from 3.17--3.22 Mbp (see
-Supplemental Table 3). Despite the similar contiguity statistics, the
+vSupplemental Table 3). Despite the similar contiguity statistics, the
 different compression methods vary markedly in the number of
 \textsc{snp}s. The 2-bin and profile methods exhibited the fewest
 \textsc{snp}s compared to the reference genome, thus outperforming the
@@ -769,8 +798,8 @@ Most of the compression methods did not vary greatly in terms of the
 number of reads that were mapped \emph{only} using quality values
 resulting from compression; however, there is a sizable difference in
 the amount of reads that are originally mapped, but unmapped by the
-compressed methods.  \textsc{q}ual\textsc{c}omp with rate 100
-bits/read results in the fewest missing original read alignments
+compressed methods. \textsc{q}ual\textsc{c}omp with rate 100 bits/read
+results in the fewest missing original read alignments
 (159). Increasing the regression model polynomial degree results in a
 decreasing amount of reads that are originally mapped, but unmapped by
 the regression model (40,931 and 1,134 reads for 0-degree and
@@ -781,7 +810,7 @@ Note that the 2-bin method aligns a greater portion of reads than the
 various regression models. If a poor-quality base-call is flanked by
 high-quality base-calls, then the low-degree polynomial regression
 models tend to smooth out the quality valus, erroneously marking the
-low-quality base-calls as higher quality.  During alignment, Bowtie2
+low-quality base-calls as higher quality. During alignment, Bowtie2
 penalizes mismatches at high-quality base-calls more so than
 mismatches at lower-quality base-calls. Thus, the polynomial
 regression models incur a high penalty for these base-calls, resulting
@@ -829,8 +858,8 @@ processing characteristics and algorithms. The true worth of quality
 values lies in the utility they provide in bioinformatic analyses. In
 some cases, as demonstrated here, this value is enhanced through
 transformation associated with compression. Thus appropriate
-compression of quality values can both reduce associated file size cost
-and improve analysis results.
+compression of quality values can both reduce associated file size
+cost and improve analysis results.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -874,6 +903,7 @@ Affairs to MPC, and funding from the University of T\"{u}bingen.
 
 % if your bibliography is in bibtex format, use those commands:
 \bibliographystyle{bmc-mathphys} % Style BST file (bmc-mathphys, vancouver, spbasic).
+%\bibliographystyle{vancouver} % Style BST file (bmc-mathphys, vancouver, spbasic).
 \bibliography{compression}      % Bibliography file (usually '*.bib' )
 % for author-year bibliography (bmc-mathphys or spbasic)
 % a) write to bib file (bmc-mathphys only)
@@ -902,7 +932,7 @@ Affairs to MPC, and funding from the University of T\"{u}bingen.
 
 \section*{Figures}
 \begin{figure}[h!]
-% profiles128.eps 
+% profiles128.eps
 \caption{\csentence{Quality profiles obtained by $k$-means
     clustering.} Example for the fragment library from
   \textit{Rhodobacter sphaeroides} 2.4.1 data set using $k$ =
@@ -974,34 +1004,34 @@ Affairs to MPC, and funding from the University of T\"{u}bingen.
 \begin{tiny}
 \begin{tabular}{lr|cc|cc|cc|cc|cc}
  & & \multicolumn{2}{c|}{max-qual} & \multicolumn{2}{c|}{min-qual} & \multicolumn{2}{c|}{2-bin} & \multicolumn{2}{c|}{regression (0)} & \multicolumn{2}{c}{regression (1)} \\
-& & mapped & unmapped & mapped & unmapped & mapped & unmapped & mapped & unmapped & mapped & unmapped \\ 
+& & mapped & unmapped & mapped & unmapped & mapped & unmapped & mapped & unmapped & mapped & unmapped \\
 \cline{2-12}
-& mapped & 746716 & 145897 & 892613 &   0 & 891864 & 749 & 851682 & 40931 & 883390 & 9223 \\ 
-{\em original} & unmapped &   0 & 132821 & 10821 & 122000 & 186 & 132635 &  67 & 132754 &  55 & 132766 \\ 
+& mapped & 746716 & 145897 & 892613 &   0 & 891864 & 749 & 851682 & 40931 & 883390 & 9223 \\
+{\em original} & unmapped &   0 & 132821 & 10821 & 122000 & 186 & 132635 &  67 & 132754 &  55 & 132766 \\
 \cline{2-12}
-& proportion & 0.728 & 0.272 & 0.881 & 0.119 & 0.870 & 0.130 & 0.831 & 0.169 & 0.862 & 0.138 \\ 
+& proportion & 0.728 & 0.272 & 0.881 & 0.119 & 0.870 & 0.130 & 0.831 & 0.169 & 0.862 & 0.138 \\
 \end{tabular}
 
 \bigskip
 
 \begin{tabular}{lr|cc|cc|cc|cc|cc}
  & & \multicolumn{2}{c|}{regression (3)} & \multicolumn{2}{c|}{regression (5)} & \multicolumn{2}{c|}{regression (7)} & \multicolumn{2}{c|}{profile (64)} & \multicolumn{2}{c}{profile (128)} \\
-& & mapped & unmapped & mapped & unmapped & mapped & unmapped & mapped & unmapped & mapped & unmapped \\ 
+& & mapped & unmapped & mapped & unmapped & mapped & unmapped & mapped & unmapped & mapped & unmapped \\
 \cline{2-12}
-& mapped & 889537 & 3076 & 891019 & 1594 & 891479 & 1134 & 891753 & 860 & 891952 & 661 \\ 
-{\em original} & unmapped & 117 & 132704 & 155 & 132666 & 154 & 132667 & 144 & 132677 & 143 & 132678 \\ 
+& mapped & 889537 & 3076 & 891019 & 1594 & 891479 & 1134 & 891753 & 860 & 891952 & 661 \\
+{\em original} & unmapped & 117 & 132704 & 155 & 132666 & 154 & 132667 & 144 & 132677 & 143 & 132678 \\
 \cline{2-12}
-& proportion & 0.868 & 0.132 & 0.869 & 0.131 & 0.870 & 0.130 & 0.870 & 0.130 & 0.870 & 0.130 \\ 
+& proportion & 0.868 & 0.132 & 0.869 & 0.131 & 0.870 & 0.130 & 0.870 & 0.130 & 0.870 & 0.130 \\
 \end{tabular}
 
 \bigskip
 
 \begin{tabular}{lr|cc|cc|cc|cc|cc}
 &  & \multicolumn{2}{c|}{profile (256)} & \multicolumn{2}{c|}{\textsc{q}ual\textsc{c}omp (6)} & \multicolumn{2}{c|}{\textsc{q}ual\textsc{c}omp (10)} & \multicolumn{2}{c|}{\textsc{q}ual\textsc{c}omp (30)} & \multicolumn{2}{c}{\textsc{q}ual\textsc{c}omp (100)} \\
-& &  mapped & unmapped & mapped & unmapped & mapped & unmapped & mapped & unmapped & mapped & unmapped \\ 
+& &  mapped & unmapped & mapped & unmapped & mapped & unmapped & mapped & unmapped & mapped & unmapped \\
 \cline{2-12}
-& mapped & 892051 & 562 & 891375 & 1238 & 891777 & 836 & 892233 & 380 & 892454 & 159 \\ 
-{\em original}  & unmapped & 119 & 132702 & 304 & 132517 & 265 & 132556 & 220 & 132601 & 172 & 132649 \\ 
+& mapped & 892051 & 562 & 891375 & 1238 & 891777 & 836 & 892233 & 380 & 892454 & 159 \\
+{\em original}  & unmapped & 119 & 132702 & 304 & 132517 & 265 & 132556 & 220 & 132601 & 172 & 132649 \\
 \cline{2-12}
 & proportion & 0.870 & 0.130 & 0.870 & 0.130 & 0.870 & 0.130 & 0.870 & 0.130 & 0.870 & 0.130 \\
 \end{tabular}
