@@ -13,7 +13,6 @@ import random
 import re
 import shlex
 import shutil
-import subprocess
 import sys
 import tempfile
 import time
@@ -104,6 +103,10 @@ def compress(options):
     QUALCOMP_DECOMPRESS_CMD = "./runDecompress.sh -p [DIR] -c [CLUSTERS] -r [RATE]"
 
     RQS_COMPRESS_CMD = "./src/run_rqs.sh [READ] [OUTPUT]"
+
+    #qvz -c 3 -r .10 -v test_results4/original/frag_1.fastq.quals tmp/test_1_c3_r.10
+    QVZ_COMPRESS_CMD = "[QVZ]/qvz -c [CLUSTERS] -r [RATE] -v [READ] [OUTPUT]"
+    QVZ_DECOMPRESS_CMD = "[QVZ]/qvz -x -v [INPUT] [OUTPUT]"
 
     # Store which compression directories we created.
     options.compressed_dirs = []
@@ -241,6 +244,48 @@ def compress(options):
                 out_cmd(bin_file.name, std_err_file.name, call_arr)
                 call(call_arr, stdout=bin_file, stderr=std_err_file)
 
+        # Compress using QualComp.
+        if options.qvz_rates:
+            for rate in options.qvz_rates.split(','):
+                ensure_dir(options.output_dir + '/qvz_r' + rate + '/')
+
+                if 'qvz_r' + rate not in options.compressed_dirs:
+                    options.compressed_dirs.append('qvz_r' + rate)
+
+                """
+                QVZ_COMPRESS_CMD = "[QVZ]/qvz -c [CLUSTERS] -r [RATE] -v [READ] [OUTPUT]"
+                QVZ_DECOMPRESS_CMD = "[QVZ]/qvz -x -v [INPUT] [OUTPUT]"
+                """
+
+                # We first need to get the quality values only. TODO(cmhill): Very hacky.
+                with open(reads_filename) as fin, open(options.output_dir + '/qvz_r' + rate + '/orig_' +  os.path.basename(reads_filename) + '.quals', 'w') as fout:
+                    fout.writelines(islice(fin, 3, None, 4))
+
+                call_arr = QVZ_COMPRESS_CMD.replace('[READ]', options.output_dir + '/qvz_r' + rate + '/orig_' +  os.path.basename(reads_filename) + '.quals')\
+                        .replace('[QVZ]', os.environ["QVZ"])\
+                        .replace('[CLUSTERS]', options.clusters)\
+                        .replace('[RATE]', rate)\
+                        .replace('[OUTPUT]', options.output_dir + '/qvz_r' + rate + '/' + os.path.basename(reads_filename) + '.comp').split()
+
+                out_cmd(std_err_file.name, std_err_file.name, call_arr)
+                call(call_arr, stdout=std_err_file, stderr=std_err_file)
+
+                # Also decompress using QVZ special function.
+                #qualcomp_prefix = reads_abs_path.split('.')[0]
+                call_arr = QVZ_DECOMPRESS_CMD.replace('[INPUT]', options.output_dir + '/qvz_r' + rate + '/' + os.path.basename(reads_filename) + '.comp')\
+                        .replace('[QVZ]', os.environ["QVZ"])\
+                        .replace('[OUTPUT]', options.output_dir + '/qvz_r' + rate + '/' + os.path.basename(reads_filename) + '.quals').split()
+
+                out_cmd(std_err_file.name, std_err_file.name, call_arr)
+                call(call_arr, stdout=std_err_file, stderr=std_err_file)
+
+                # Rebuild the FASTQ file from the unconstructed quals.
+                call_arr_str = "python ./src/merge_qual_into_fastq.py " + reads_filename + " " + options.output_dir + '/qvz_r' + rate + '/' + os.path.basename(reads_filename) + '.quals'
+                call_arr = call_arr_str.split()
+                decompressed_file = open(options.output_dir + '/qvz_r' + rate + '/' + os.path.basename(reads_filename), 'w')
+                out_cmd(decompressed_file.name, std_err_file.name, call_arr)
+                call(call_arr, stdout=decompressed_file, stderr=std_err_file)
+
         # Compress with RQS.
         #for degree in options.poly_degrees.split(','):
         ensure_dir(options.output_dir + '/rqs/')
@@ -254,24 +299,24 @@ def compress(options):
         out_cmd("", std_err_file.name, call_arr)
         call(call_arr, stderr=std_err_file)
 
-    # Profile compression using k-means.
-    for profiles in options.profile_sizes.split(','):
-        ensure_dir(options.output_dir + '/profile_' + profiles + '/')
-
-        if 'profile_' + profiles not in options.compressed_dirs:
-            options.compressed_dirs.append('profile_' + profiles)
-
-        #continue
-
-        call_arr = PROFILE_COMPRESSION_CMD.replace('[READ]', reads_filename)\
-                .replace('[OUTPUT]', options.output_dir + '/profile_' + profiles + '/' + os.path.basename(reads_filename))\
-                .replace('[NUM_PROFILES]', profiles)\
-                .replace('[TRAINING_SIZE]', options.training_size)\
-                .replace('[COMPRESSED_FILE]', options.output_dir + '/profile_' + profiles +'/' + os.path.basename(reads_filename) + '.comp')\
-                .replace('[NUM_THREADS]', options.threads).split()
-
-        out_cmd("", std_err_file.name, call_arr)
-        call(call_arr, stderr=std_err_file)
+    # # Profile compression using k-means.
+    # for profiles in options.profile_sizes.split(','):
+    #     ensure_dir(options.output_dir + '/profile_' + profiles + '/')
+    #
+    #     if 'profile_' + profiles not in options.compressed_dirs:
+    #         options.compressed_dirs.append('profile_' + profiles)
+    #
+    #     #continue
+    #
+    #     call_arr = PROFILE_COMPRESSION_CMD.replace('[READ]', reads_filename)\
+    #             .replace('[OUTPUT]', options.output_dir + '/profile_' + profiles + '/' + os.path.basename(reads_filename))\
+    #             .replace('[NUM_PROFILES]', profiles)\
+    #             .replace('[TRAINING_SIZE]', options.training_size)\
+    #             .replace('[COMPRESSED_FILE]', options.output_dir + '/profile_' + profiles +'/' + os.path.basename(reads_filename) + '.comp')\
+    #             .replace('[NUM_THREADS]', options.threads).split()
+    #
+    #     out_cmd("", std_err_file.name, call_arr)
+    #     call(call_arr, stderr=std_err_file)
 
     # After we compress/decompress everything, write out the quality values to a separate file and then run bzip on them.
     for compression_method in options.compressed_dirs:
@@ -279,8 +324,10 @@ def compress(options):
 
             decompressed_file = options.output_dir + '/' + compression_method + '/' + os.path.basename(reads_filename)
 
-            with open(decompressed_file) as fin, open(decompressed_file + '.quals', 'w') as fout:
-                fout.writelines(islice(fin, 3, None, 4))
+            # Check if we already made a quals file, like in the case of QVZ.
+            if not os.path.isfile(decompressed_file + '.quals'):
+                with open(decompressed_file) as fin, open(decompressed_file + '.quals', 'w') as fout:
+                    fout.writelines(islice(fin, 3, None, 4))
 
             # Even though we do it in python, output the awk command in case someone runs it independently.
             cmd = 'awk \'{if (NR % 4 == 0) print $0}\' ' + options.output_dir + '/' + compression_method + '/' + os.path.basename(reads_filename)
@@ -552,7 +599,8 @@ def process_compression_stats(options):
             if os.path.isfile(filename + '.comp'):
                 results += str(os.path.getsize(filename + '.comp')) + '\t'
                 results += str(os.path.getsize(filename + '.comp.bz2')) + '\t'
-                compressed_size = os.path.getsize(filename + '.comp.bz2')
+                if os.path.getsize(filename + '.comp.bz2') < compressed_size:
+                    compressed_size = os.path.getsize(filename + '.comp.bz2')
             else:
                 results += "NA\tNA\t"
 
@@ -864,12 +912,16 @@ def get_options():
     parser.add_option("--profile-sizes", dest="profile_sizes", help="Comma-separated list of number of profiles to use.", default="256")
 
     # QualComp-specific compression options.
-    parser.add_option("--rates", dest="rates", help="QualComp parameter for setting the  bits/reads.", default="30")
+    parser.add_option("--rates", dest="rates", help="QualComp parameter for setting the bits/reads.", default="30")
     parser.add_option("--clusters", dest="clusters", help="QualComp parameter for setting number of clusters.", default="3")
 
     # RQS-specific compression options.
     #parser.add_option("--rqs", dest="rates", help="QualComp parameter for setting the  bits/reads.", default="30")
     #parser.add_option("--clusters", dest="clusters", help="QualComp parameter for setting number of clusters.", default="3")
+
+    # QVZ-specific compression options.
+    parser.add_option("--qvz-rates", dest="qvz_rates", help="QualComp parameter for setting the bits/reads.", default=".30")
+    parser.add_option("--qvz-clusters", dest="qvz_clusters", help="QualComp parameter for setting number of clusters.", default="3")
 
     # Max, min quality value compression options.
     parser.add_option("--max-qv", dest="max_quality", help="Use this value for max quality value compression.", default="40")
