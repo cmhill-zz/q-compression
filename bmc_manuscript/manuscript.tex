@@ -119,7 +119,7 @@
    addressref={aff1,aff2},                   % id's of addresses, e.g. {aff1,aff2}
 %   noteref={n1},                        % id's of article notes, if any
    email={chrismh@uw.edu}   % email address
-]{\inits{CMH}\fnm{Christopher M} \snm{Hill}}
+]{\inits{CMH}\fnm{Christopher M.} \snm{Hill}}
 \author[
    addressref={aff4,aff6},
    email={szolek@informatik.uni-tuebingen.de}
@@ -132,7 +132,7 @@
    addressref={aff3},
    corref={aff2},                       % id of corresponding address, if any
    email={mike@umiac.umd.edu}
-]{\inits{MPC}\fnm{Michael P} \snm{Cummings}}
+]{\inits{MPC}\fnm{Michael P.} \snm{Cummings}}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                                          %%
@@ -534,7 +534,7 @@ reference sequence was obtained from the \textsc{ncbi} RefSeq database
 For comparison to other developed methods for lossy compression of
 quality values we analyzed the reference data with
 \textsc{QualComp}~\cite{Ochoa:2013rt},
-\textsc{rsa}~\cite{DBLP:conf/recomb/YuYB14}, and
+\textsc{rqs}~\cite{DBLP:conf/recomb/YuYB14}, and
 \textsc{qvz}~\cite{Malysa01102015}.
 
 \textsc{QualComp} models quality values as a multivariate Gaussian
@@ -552,8 +552,18 @@ for storing the cluster representatives, and the marginal costs that
 are the product of the number of reads times the cost of representing
 the model parameters.
 
-\textcolor{red}{Add brief description of \textsc{rsa} and
+\textcolor{red}{Add brief description of \textsc{rqs} and
   \textsc{qvz}, including economic costs.}
+
+\textsc{qvz} extends the idea of using rate-distortion theory introduced in \textsc{QualComp}, allowing additional distortion metrics besides \textsc{mse} to be minimized with respect to user-specified rate (bits/read).
+
+\textsc{rqs} first constructs a dictionary of commonly occurring $k$-mers from either the sequencing data set they seek to compress or a larger population-sized sequencing data set.
+During compression, $k$-mers within reads that have a small Hamming distance from a dictionary $k$-mer are identified.
+These positions may correspond to SNPs or sequencing error.
+Positions within the $k$-mer that differ from the nearest $k$-mer in the dictionary are marked.
+Lastly, the quality values of the remaining positions are smoothed.
+
+
 
 \subsection*{Subsequent (secondary) compression}
 
