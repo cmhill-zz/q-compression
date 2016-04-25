@@ -920,8 +920,8 @@ def get_options():
     #parser.add_option("--clusters", dest="clusters", help="QualComp parameter for setting number of clusters.", default="3")
 
     # QVZ-specific compression options.
-    parser.add_option("--qvz-rates", dest="qvz_rates", help="QualComp parameter for setting the bits/reads.", default=".30")
-    parser.add_option("--qvz-clusters", dest="qvz_clusters", help="QualComp parameter for setting number of clusters.", default="3")
+    parser.add_option("--qvz-rates", dest="qvz_rates", help="QVZ parameter for setting the bits/reads.", default=".30")
+    parser.add_option("--qvz-clusters", dest="qvz_clusters", help="QVZ parameter for setting number of clusters.", default="3")
 
     # Max, min quality value compression options.
     parser.add_option("--max-qv", dest="max_quality", help="Use this value for max quality value compression.", default="40")
