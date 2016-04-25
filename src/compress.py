@@ -287,7 +287,6 @@ def compress(options):
                 call(call_arr, stdout=decompressed_file, stderr=std_err_file)
 
         # Compress with RQS.
-        #for degree in options.poly_degrees.split(','):
         ensure_dir(options.output_dir + '/rqs/')
 
         if 'rqs' not in options.compressed_dirs:
@@ -523,7 +522,7 @@ def align_reads(options):
     call(call_arr, stdout=FNULL, stderr=std_err_file)
 
     # Align the reads.
-    BOWTIE2_CMD = "bowtie2 -x " + options.output_dir + "/align/reference -p " + options.threads + " --reorder -U [READ] --al [ALIGNED]"
+    BOWTIE2_CMD = "bowtie2 -x " + options.output_dir + "/align/reference -p " + options.threads + " --reorder -U [READ] --al [ALIGNED] -S [SAM]"
 
     # Have to do max/min alignment
 
@@ -535,13 +534,56 @@ def align_reads(options):
             alignment_file = open(alignment_filename, 'w')
 
             call_arr = BOWTIE2_CMD.replace('[READ]', options.output_dir + '/' + compression_method + '/' + os.path.basename(reads_filename))\
-                    .replace('[ALIGNED]', options.output_dir + '/align/' + compression_method + '/' + os.path.basename(reads_filename) + '.aligned').split()
+                    .replace('[ALIGNED]', options.output_dir + '/align/' + compression_method + '/' + os.path.basename(reads_filename) + '.aligned')\
+                    .replace('[SAM]', options.output_dir + '/align/' + compression_method + '/' + os.path.basename(reads_filename) + '.sam').split()
             out_cmd(FNULL.name, alignment_filename, call_arr)
             call(call_arr, stdout=FNULL, stderr=alignment_file)
 
             # Print out the headers of the aligned sequences.
             with open(options.output_dir + '/align/' + compression_method + '/' + os.path.basename(reads_filename) + '.aligned', 'r') as aligned_file, open(options.output_dir + '/align/' + compression_method + '/' + os.path.basename(reads_filename) + '.headers', 'w') as headers:
                 headers.writelines(islice(aligned_file, 0, None, 4))
+
+def call_snps(options):
+    """
+    Call SNPs using decompressed reads.
+    """
+
+    std_err_file = open('snp.log', 'a')
+
+    ensure_dir(options.output_dir + "/snp/")
+    PILEUP_CMD = "samtools mpileup -ugf [REFERENCE] [SAM]"
+    SNP_CMD = "bcftools call -vV indels -mO v -o [OUTPUT_VCF] [PILEUP]"
+
+    for compression_method in options.compressed_dirs:
+        for reads_filename in options.reads_filenames:
+
+            pileup_filename = options.output_dir + '/snp/' + compression_method + '/' + os.path.basename(reads_filename) + '.pileup'
+            ensure_dir(pileup_filename)
+            pileup_file = open(pileup_filename, 'w')
+
+            call_arr = PILEUP_CMD.replace('[REFERENCE]', options.reference_fasta)\
+                    .replace('[SAM]', options.output_dir + '/align/' + compression_method + '/' + os.path.basename(reads_filename) + '.sam').split()
+            out_cmd(pileup_file.name, std_err_file.name, call_arr)
+            call(call_arr, stdout=pileup_file, stderr=std_err_file)
+
+            call_arr = SNP_CMD.replace('[OUTPUT_VCF]', options.output_dir + '/snp/' + compression_method + '/' + os.path.basename(reads_filename) + '.vcf')\
+                    .replace('[PILEUP]', options.output_dir + '/snp/' + compression_method + '/' + os.path.basename(reads_filename) + '.pileup').split()
+            out_cmd(std_err_file.name, std_err_file.name, call_arr)
+            call(call_arr, stdout=std_err_file, stderr=std_err_file)
+
+            # Print out the locations of the SNP.
+            snps_filename = options.output_dir + '/snp/' + compression_method + '/' + os.path.basename(reads_filename) + '.snps'
+            with open(snps_filename, 'w') as snps_file, open(options.output_dir + '/snp/' + compression_method + '/' + os.path.basename(reads_filename) + '.vcf', 'r') as vcf_file:
+                line = vcf_file.readline()
+                while line.startswith('#'):
+                    line = vcf_file.readline()
+
+                while line:
+                    tuple = line.split('\t')
+                    if len(tuple)>1:
+                        snps_file.write(str(tuple[1] + '\n'))
+
+                    line = vcf_file.readline()
 
 
 def post_process_results(options):
@@ -557,8 +599,12 @@ def post_process_results(options):
     if options.assemble:
         process_assembly_stats(options)
 
-    if options.alignment:
+    if options.alignment or options.snp:
         process_alignment_stats(options)
+
+        if options.snp:
+            process_snp_stats(options)
+
 
 
 def process_compression_stats(options):
@@ -809,6 +855,46 @@ def process_alignment_stats(options):
         results_file.close()
 
 
+def process_snp_stats(options):
+    """
+    Process the SNP results.
+    """
+
+    for reads_filename in options.reads_filenames:
+        sequence_count = num_lines(reads_filename) / 4
+
+        results_file = open(options.output_dir + "/results/" + os.path.basename(reads_filename) + '.snps', 'w')
+        results_file.write("compression\tshared\tuniq_orig\tuniq_comp\n")
+        for compression_method in options.compressed_dirs:
+            results = compression_method + '\t'
+
+            # Get the number of SNPs kept by both methods.
+            common_count = run_comm_and_return_line_count(options, "12", options.output_dir + '/snp/original/'\
+                    + os.path.basename(reads_filename) + '.snps',\
+                    options.output_dir + '/snp/' + compression_method + '/'\
+                     + os.path.basename(reads_filename) + '.snps')
+            results += common_count + '\t'
+
+            # Get the number of SNPs unique to original.
+            unique_to_orig = run_comm_and_return_line_count(options, "23", options.output_dir + '/snp/original/'\
+                    + os.path.basename(reads_filename) + '.snps',\
+                    options.output_dir + '/snp/' + compression_method + '/'\
+                     + os.path.basename(reads_filename) + '.snps')
+            results += unique_to_orig + '\t'
+
+            # Get the number of SNPs unique to the compression method.
+            unique_to_compress = run_comm_and_return_line_count(options, "13", options.output_dir + '/snp/original/'\
+                    + os.path.basename(reads_filename) + '.snps',\
+                    options.output_dir + '/snp/' + compression_method + '/'\
+                     + os.path.basename(reads_filename) + '.snps')
+            results += unique_to_compress
+
+            results += '\n'
+            results_file.write(results)
+
+        results_file.close()
+
+
 def run_comm_and_return_line_count(options, suppress, file1, file2):
     """
     Run: comm -1 [suppress] [file1] [file2] | wc -l
@@ -899,9 +985,10 @@ def get_options():
     parser.add_option("-o", "--output_dir", dest="output_dir", help="Output directory.")
 
     # Pipeline options.
-    parser.add_option("-a", "--assemble", dest="assemble", help="Run assembly evaluation", action='store_true')
-    parser.add_option("-p", "--preprocessing", dest="preprocessing", help="Run preprocessing tools evaluation", action='store_true')
+    parser.add_option("-a", "--assemble", dest="assemble", help="Run assembly evaluation.", action='store_true')
+    parser.add_option("-p", "--preprocessing", dest="preprocessing", help="Run preprocessing tools evaluation.", action='store_true')
     parser.add_option("-b", "--alignment", dest="alignment", help="Run alignment evaluation (using Bowtie2).", action='store_true')
+    parser.add_option("-n", "--snp", dest="snp", help="Run SNP analysis (will include alignment option if not already selected).", action='store_true')
     parser.add_option("-s", "--sort", dest="sort_reads", help="Sort FASTQ reads before the pipeline begins (requires fastq-sort).", action='store_true')
 
     # Polynomial regression specific options.
@@ -912,7 +999,7 @@ def get_options():
     parser.add_option("--profile-sizes", dest="profile_sizes", help="Comma-separated list of number of profiles to use.", default="256")
 
     # QualComp-specific compression options.
-    parser.add_option("--rates", dest="rates", help="QualComp parameter for setting the bits/reads.", default="30")
+    parser.add_option("--rates", dest="rates", help="QualComp parameter for setting the bits/reads.", default=None)#"30")
     parser.add_option("--clusters", dest="clusters", help="QualComp parameter for setting number of clusters.", default="3")
 
     # RQS-specific compression options.
@@ -920,7 +1007,7 @@ def get_options():
     #parser.add_option("--clusters", dest="clusters", help="QualComp parameter for setting number of clusters.", default="3")
 
     # QVZ-specific compression options.
-    parser.add_option("--qvz-rates", dest="qvz_rates", help="QVZ parameter for setting the bits/reads.", default=".30")
+    parser.add_option("--qvz-rates", dest="qvz_rates", help="QVZ parameter for setting the bits/reads.", default=None)#".30")
     parser.add_option("--qvz-clusters", dest="qvz_clusters", help="QVZ parameter for setting number of clusters.", default="3")
 
     # Max, min quality value compression options.
@@ -978,8 +1065,11 @@ def main():
         quality_preprocessing(options)
 
     # Align the reads using Bowtie2.
-    if options.alignment:
+    if options.alignment or options.snp:
         align_reads(options)
+
+        if options.snp:
+            call_snps(options)
 
     # Output the compression results.
     post_process_results(options)
