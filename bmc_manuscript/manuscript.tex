@@ -573,10 +573,12 @@ our interpretation, appear to be the fixed costs of the dictionary of
 commonly occurring $k$-mers, and the marginal costs that are the
 product of the number of positions of $k$-mers within the chosen
 Hamming distance from dictionary $k$-mers times the cost of
-representing these positions. It should be noted that the fixed costs
-of the dictionary of commonly occurring $k$-mers can be amortized over
-reads for which the dictionary may be appropriately used (e.g., reads
-from the same species).
+representing these positions. As with compression based on profiles,
+amortization applies to fixed costs of compression with
+\textsc{rqs}. Here the fixed costs of the dictionary of commonly
+occurring $k$-mers can be amortized over reads for which the
+dictionary may be appropriately used (e.g., reads from the same
+species).
 
 \subsection*{Subsequent (secondary) compression}
 
