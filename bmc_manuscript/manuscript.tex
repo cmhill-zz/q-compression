@@ -416,7 +416,7 @@ Previous work by others \cite{Wan:2012kq} describe three similar lossy
 compression strategies based on binning the base error probability
 distribution: UniBinning, Truncating, and LogBinning. UniBinning
 evenly splits the error probability distribution into a user-defined
-number of partitions.  Truncating treats a user-defined number of
+number of partitions. Truncating treats a user-defined number of
 highest quality values as a single bin. LogBinning works similarly to
 UniBinning, except it uses the \emph{log} of the error probability
 distribution, which effectively bins the \textsc{ascii} quality values
@@ -533,9 +533,9 @@ reference sequence was obtained from the \textsc{ncbi} RefSeq database
 
 For comparison to other developed methods for lossy compression of
 quality values we analyzed the reference data with
-\textsc{QualComp}~\cite{Ochoa:2013rt},
-\textsc{rqs}~\cite{DBLP:conf/recomb/YuYB14}, and
-\textsc{qvz}~\cite{Malysa01102015}.
+\textsc{QualComp}~\cite{Ochoa:2013rt}, Read Quality Sparsifier
+(\textsc{rqs})~\cite{DBLP:conf/recomb/YuYB14}, and Quality Values Zip
+(\textsc{qvz)}~\cite{Malysa01102015}.
 
 \textsc{QualComp} models quality values as a multivariate Gaussian
 distribution, computing the mean and covariance for each position in
@@ -546,24 +546,37 @@ apportioned among positions within the read to minimize the average
 error. The quality values can be clustered beforehand to produce more
 accurate models.
 
-The economic costs of file size for compression with
-\textsc{QualComp}, in our interpretation, appear to have fixed costs
+\textsc{qvz} extends the idea of using rate-distortion theory
+introduced in \textsc{QualComp}, allowing distortion metrics other
+than \textsc{mse} to be minimized with respect to user-specified rate
+(bits/read).
+
+The economic costs of file size for compression with \textsc{QualComp}
+or \textsc{qvz}, in our interpretation, appear to be the fixed costs
 for storing the cluster representatives, and the marginal costs that
 are the product of the number of reads times the cost of representing
 the model parameters.
 
-\textcolor{red}{Add brief description of \textsc{rqs} and
-  \textsc{qvz}, including economic costs.}
+\textsc{rqs} first constructs a dictionary of commonly occurring
+$k$-mers from either the sequencing data set they seek to compress or
+a larger population-sized sequencing data set. During compression,
+$k$-mers within reads that have a small Hamming distance from a
+dictionary $k$-mer are identified. The explicit assumption is that
+positions differing from the $k$-mers in the dictionary more likely
+correspond to SNPs or sequencing errors. These positions that differ
+from the nearest $k$-mer in the dictionary are marked. Lastly, the
+quality values of the remaining positions are smoothed (discarded? -
+see paper).
 
-\textsc{qvz} extends the idea of using rate-distortion theory introduced in \textsc{QualComp}, allowing additional distortion metrics besides \textsc{mse} to be minimized with respect to user-specified rate (bits/read).
-
-\textsc{rqs} first constructs a dictionary of commonly occurring $k$-mers from either the sequencing data set they seek to compress or a larger population-sized sequencing data set.
-During compression, $k$-mers within reads that have a small Hamming distance from a dictionary $k$-mer are identified.
-These positions may correspond to SNPs or sequencing error.
-Positions within the $k$-mer that differ from the nearest $k$-mer in the dictionary are marked.
-Lastly, the quality values of the remaining positions are smoothed.
-
-
+The economic costs of file size for compression with \textsc{rqs}, in
+our interpretation, appear to be the fixed costs of the dictionary of
+commonly occurring $k$-mers, and the marginal costs that are the
+product of the number of positions of $k$-mers within the chosen
+Hamming distance from dictionary $k$-mers times the cost of
+representing these positions. It should be noted that the fixed costs
+of the dictionary of commonly occurring $k$-mers can be amortized over
+reads for which the dictionary may be appropriately used (e.g., reads
+from the same species).
 
 \subsection*{Subsequent (secondary) compression}
 
@@ -577,7 +590,7 @@ examined, we not explored such possibilities here, and instead
 restrict ourselves to \textsc{bz}ip2 because it is commonly used and
 readily available. Similarly, it may very well be possible to obtain
 increased secondary compression by reordering (e.g., sorting)
-compressed representations (e.g., sets of bin designations, model, or
+compressed representations (e.g., sets of bin designations, models, or
 profiles), but these operations have also not been explored here.
 
 \subsection*{Performance evaluation}
