@@ -551,6 +551,7 @@ def call_snps(options):
     std_err_file = open('snp.log', 'a')
 
     ensure_dir(options.output_dir + "/snp/")
+    SAMTOOLS_SORT_CMD = "samtools sort -T ./ -o [SORTED_SAM] -O sam [SAM]"
     PILEUP_CMD = "samtools mpileup -ugf [REFERENCE] [SAM]"
     SNP_CMD = "bcftools call -vV indels -mO v -o [OUTPUT_VCF] [PILEUP]"
 
@@ -559,10 +560,15 @@ def call_snps(options):
 
             pileup_filename = options.output_dir + '/snp/' + compression_method + '/' + os.path.basename(reads_filename) + '.pileup'
             ensure_dir(pileup_filename)
-            pileup_file = open(pileup_filename, 'w')
 
+            call_arr = SAMTOOLS_SORT_CMD.replace('[SAM]', options.output_dir + '/align/' + compression_method + '/' + os.path.basename(reads_filename) + '.sam')\
+                    .replace('[SORTED_SAM]', options.output_dir + '/align/' + compression_method + '/' + os.path.basename(reads_filename) + '.sorted.sam').split()
+            out_cmd(std_err_file.name, std_err_file.name, call_arr)
+            call(call_arr, stdout=std_err_file, stderr=std_err_file)
+
+            pileup_file = open(pileup_filename, 'w')
             call_arr = PILEUP_CMD.replace('[REFERENCE]', options.reference_fasta)\
-                    .replace('[SAM]', options.output_dir + '/align/' + compression_method + '/' + os.path.basename(reads_filename) + '.sam').split()
+                    .replace('[SAM]', options.output_dir + '/align/' + compression_method + '/' + os.path.basename(reads_filename) + '.sorted.sam').split()
             out_cmd(pileup_file.name, std_err_file.name, call_arr)
             call(call_arr, stdout=pileup_file, stderr=std_err_file)
 
