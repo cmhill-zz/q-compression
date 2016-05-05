@@ -584,12 +584,18 @@ def call_snps(options):
                 while line.startswith('#'):
                     line = vcf_file.readline()
 
+                snps = []
                 while line:
                     tuple = line.split('\t')
                     if len(tuple)>1:
-                        snps_file.write(str(tuple[1] + '\n'))
+                        snps.append(str(tuple[0] + '\t' + tuple[1] + '\n'))
+                        #snps_file.write(str(tuple[0] + '\t' + tuple[1] + '\n'))
 
                     line = vcf_file.readline()
+
+                snps.sort()
+                for snp in snps:
+                    snps_file.write(snp)
 
 
 def post_process_results(options):
