@@ -1,3 +1,4 @@
+import math
 import numpy as np
 from collections import Counter
 import sys
@@ -13,12 +14,23 @@ def evaluate_loss(qstring1, qstring2):
     q1, q2 = np.array(qual_ord(qstring1)), np.array(qual_ord(qstring2))
     diff = q1 - q2
     mse = (diff ** 2).mean()
-    return mse, Counter(q1 - q2)
+
+    # L1
+    l1 = np.linalg.norm((q1 - q2), ord=1)
+
+    # Lorentzian
+    lorentzian = math.log(1 + l1, 2)
+
+    return mse, l1, lorentzian
+
 
 file1 = sys.argv[1]
 file2 = sys.argv[2]
 
 mses = []
+L1s = []
+lorentzians = []
+
 diff_histogram = Counter([])
 
 IS_FASTQ = False
@@ -35,12 +47,17 @@ with open(file1, 'r') as in1:
             j += 1
             if (j % 50) != 0:  # only sample every 50th read. Otherwise quite slow
                 continue
-            mse, diffcounts = evaluate_loss(line1.rstrip(), line2.rstrip())
+
+            mse, L1, lorentzian = evaluate_loss(line1.rstrip(), line2.rstrip())
             mses.append(mse)
-            diff_histogram += diffcounts
+            L1s.append(L1)
+            lorentzians.append(lorentzian)
+            #diff_histogram += diffcounts
 
 mses = np.array(mses)
-print mses.mean(),'\t',mses.std()
+L1s = np.array(L1s)
+lorentzians = np.array(lorentzians)
+
+print mses.mean(),'\t',mses.std(),'\t',L1s.mean(),'\t',L1s.std(),'\t',lorentzians.mean(),'\t',lorentzians.std()
 #hist = np.histogram(mses, bins=50)
 #print 'error histogram', diff_histogram
-
