@@ -636,7 +636,7 @@ def process_compression_stats(options):
 
 
         results_file = open(options.output_dir + "/results/" + os.path.basename(reads_filename) + '.compression', 'w')
-        results_file.write("compression\tbases\torig_size\torig_bzip2\tcomp_size\tcomp_bzip2\tmse\tbits_bp\n")
+        results_file.write("compression\tbases\torig_size\torig_bzip2\tcomp_size\tcomp_bzip2\tmse\tL1\tlorentzian\tbits_bp\n")
         for compression_method in options.compressed_dirs:
 
             filename = options.output_dir + '/' + compression_method + '/' + os.path.basename(reads_filename)
@@ -663,7 +663,8 @@ def process_compression_stats(options):
                 results += "NA\tNA\t"
 
             # Get the MSE.
-            results += str(grab_value_from_file(filename + '.mse')) + '\t'
+            distortions = grab_list_of_values_from_file(filename + '.mse')
+            results += distortions[0] + '\t' + distortions[2] + '\t' + distortions[4] + '\t'
 
             # Print the bits/bp.
             results += str((compressed_size * 8) / float(bases)) + '\n'
@@ -972,6 +973,14 @@ def grab_value_from_file(filename):
     Return the value from the first line of a file.
     """
     return open(filename, 'r').readline().strip().split()[0]
+
+
+def grab_list_of_values_from_file(filename):
+    """
+    Return the value from the first line of a file.
+    """
+    return open(filename, 'r').readline().strip().split()
+
 
 def num_lines(filename):
     """
