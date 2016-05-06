@@ -602,10 +602,13 @@ profiles), but these operations have also not been explored here.
 As a measure of compression effectiveness, which reflects the sum of
 fixed and marginal costs, we use bits/base-call, defined as the size
 of the compressed representation of quality values (in bits) divided
-by the number of quality values represented. As a measure of
-information loss we use mean squared error (\textsc{mse}) as a loss
-function, and define it as $\frac{1}{n}\sum_{i=1}^{n}{(Q_i'-Q_i)^2}$,
-where $n$ is the number of quality values, $Q_i'$ is the
+by the number of quality values represented. As measures of
+information loss we use three loss functions: mean squared error
+(\textsc{mse}), defined as $\frac{1}{n}\sum_{i=1}^{n}{(Q_i'-Q_i)^2}$;
+mean absolute deviation (\textsc{mad}), defined as
+$\frac{1}{n}\sum_{i=1}^{n}{|Q_i'-Q_i|}$; and mean Lorentz distortion,
+defined as $\frac{1}{n}\sum_{i=1}^{n}{log_{2}(1 + |Q_i'-Q_i|)}$, where
+$n$ is the number of quality values, $Q_i'$ is the
 compressed/decompressed quality value, and $Q_i$ is the original
 quality value associated with position $i$.
 
