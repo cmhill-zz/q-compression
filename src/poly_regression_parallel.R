@@ -16,8 +16,9 @@ degree <- args[3]
 
 # Set the min-max quality values.
 min_max <- function(x) {
-  if (x > 73)
-    return(73)
+  max_value <- 33 + strtoi(args[6])
+  if (x > max_value)
+    return(max_value)
   else if (x < 33)
     return(33)
   else
@@ -32,7 +33,7 @@ poly_regression <- function(quals) {
   if (strtoi(degree) > 0) {
   # Fit the polynomial function.
     fit = lm(quals ~ poly(x, strtoi(degree)))
-  
+
     # Predict the quality values using the above equation.
     predicted_quals = rawToChar(as.raw(unlist(lapply(round(predict(fit)), min_max))))
     return(predicted_quals)
@@ -46,11 +47,11 @@ poly_regression_coef <- function(quals) {
   # Get the quality values. Use a hardcoded quality offset.
   quals = quals + 33
   x = seq(1,length(quals))
-  
+
   if (strtoi(degree) > 0) {
     # Fit the polynomial function.
     fit = lm(quals ~ poly(x, strtoi(degree)))
-    
+
     # Return the coefficients.
     return(as.vector(fit$coefficients))
   } else {
@@ -91,18 +92,18 @@ while (length(oneLine <- readLines(con, n = 1, warn = FALSE)) > 0) {
   # Write the header...
   writeLines(oneLine, con=output_file)
   oneLine <- readLines(con, n = 1, warn = FALSE)
-  
+
   # ... then the DNA sequence ...
   writeLines(oneLine, con=output_file)
   oneLine <- readLines(con, n = 1, warn = FALSE)
-  
+
   # ... then the + ...
   writeLines(oneLine, con=output_file)
   oneLine <- readLines(con, n = 1, warn = FALSE)
-  
+
   # ... and finally the new quality values.
   writeLines(results[[counter]], con=output_file)
   counter <- counter + 1
-} 
+}
 
 close(con)

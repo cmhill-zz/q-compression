@@ -8,7 +8,7 @@ library(scales)
 tables = c("~/cbcb2/q-compression/results/rhodo3/results/frag_1.fastq.preprocessing",
            #"~/cbcb2/q-compression/results/staph2/results/frag_1.fastq.preprocessing",
            "~/cbcb2/q-compression/results/ecoli2/results/MiSeq_Ecoli_MG1655_110721_PF_R1.fastq.preprocessing",
-           "~/cbcb2/q-compression/results/hg14/results/frag_1.fastq.preprocessing",
+           "~/cbcb2/q-compression/results2/hg14_results/frag_1.fastq.preprocessing",
            "~/cbcb2/q-compression/results/mouse/results//SRR032209.fastq.preprocessing")
 
 dataset_names = c("Rhodobacter sphaeroides",
@@ -25,7 +25,7 @@ for (table in tables) {
   table <- read.table(table, header = T, row.names = 1)
   original <- table[rownames(table) %in% "original", ]$bases_kept
   table <-  table[!rownames(table) %in% c("original","minqual","maxqual"), ]
-  table[,5] <- table[,5] - original
+  table[,5] <- table[,5] / original
   
   dfr <- data.frame(y=seq(1:length(table[,1])), x = table[,5], dataset = dataset_names[[counter]])
   dfr_tables <- rbind(dfr_tables, dfr)
@@ -40,12 +40,14 @@ rowLabels = c("2-bin", "regression (0)", "regression (1)", "regression (3)", "re
 library(grid)
 
 
-pdf("preprocessing_results.pdf", width=3.5, height=3.5)
+setEPS()
+postscript("preprocessing_results.eps",width=3.5, height=3.5)
+#pdf("preprocessing_results.pdf", width=3.5, height=3.5)
 p <- ggplot(dfr_tables, aes(x=jitter(x,factor = 1), y=y, color = dataset)) + geom_point() + scale_y_discrete(labels=rowLabels) + 
   theme_bw() +
   xlab("Proportion of bases kept compared to original") +
   ylab("") + 
-  theme_bw() + theme(legend.position="bottom", legend.key = element_blank(), legend.title=element_blank(),
+  theme_minimal() + theme(legend.position="bottom", legend.key = element_blank(), legend.title=element_blank(),
                      legend.text = element_text(face="italic", size=6),
                      axis.text.y = element_text(size=6),
                      axis.title.x = element_text(size=6),

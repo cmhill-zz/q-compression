@@ -94,9 +94,9 @@ def compress(options):
 
     # Basic command line scripts to run the individual compression schemes.
     GB_COMPRESSION_CMD = "./src/good_bad_coding.py -r [READ] -c 2 -b 0 -i [COMPRESSED_FILE]"
-    MAX_VALUE_COMPRESSION_CMD = "./src/good_bad_coding.py -r [READ] -g 40 -b 40 -c 2 -i [COMPRESSED_FILE]"
+    MAX_VALUE_COMPRESSION_CMD = "./src/good_bad_coding.py -r [READ] -g [MAX_QV] -b 40 -c 2 -i [COMPRESSED_FILE]"
     MIN_VALUE_COMPRESSION_CMD = "./src/good_bad_coding.py -r [READ] -g 0 -b 0 -c 2 -i [COMPRESSED_FILE]"
-    POLY_REGRESSION_CMD = "Rscript src/poly_regression_parallel.R [READ] [OUTPUT] [DEGREE] [COMPRESSED_FILE] [NUM_THREADS]"
+    POLY_REGRESSION_CMD = "Rscript src/poly_regression_parallel.R [READ] [OUTPUT] [DEGREE] [COMPRESSED_FILE] [NUM_THREADS] [MAX_QV]"
     PROFILE_COMPRESSION_CMD = "Rscript src/profile_parallel.R [READ] [OUTPUT] [TRAINING_SIZE] [NUM_PROFILES] [COMPRESSED_FILE] [NUM_THREADS]"
 
     QUALCOMP_COMPRESS_CMD = "./runCompress.sh -i [READ] -c [CLUSTERS] -r [RATE]"
@@ -131,7 +131,8 @@ def compress(options):
 
         # Max/min quality value compression. We can use good_bad.py script to do this.
         call_arr = MAX_VALUE_COMPRESSION_CMD.replace('[READ]', reads_filename)\
-                .replace('[COMPRESSED_FILE]', options.output_dir + '/maxqual/' + os.path.basename(reads_filename) + '.comp').split()
+                .replace('[COMPRESSED_FILE]', options.output_dir + '/maxqual/' + os.path.basename(reads_filename) + '.comp')\
+                .replace('[MAX_QV]', options.max_quality).split()
         output_fp = open(options.output_dir + '/maxqual/' + os.path.basename(reads_filename), 'w')
 
         out_cmd(options.output_dir + '/maxqual/' + os.path.basename(reads_filename), std_err_file.name, call_arr)
@@ -160,7 +161,8 @@ def compress(options):
                         .replace('[OUTPUT]', options.output_dir + '/degree_' + degree + '/' + os.path.basename(reads_filename))\
                         .replace('[DEGREE]', degree)\
                         .replace('[COMPRESSED_FILE]', options.output_dir + '/degree_' + degree +'/' + os.path.basename(reads_filename) + '.comp')\
-                        .replace('[NUM_THREADS]', options.threads).split()
+                        .replace('[NUM_THREADS]', options.threads)\
+                        .replace('[MAX_QV]', options.max_quality).split()
 
                 out_cmd("", std_err_file.name, call_arr)
                 call(call_arr, stderr=std_err_file)
