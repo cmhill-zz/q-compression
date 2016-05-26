@@ -304,27 +304,28 @@ metadata. Because of this abundance, effective compression of read
 data has the potential to substantially improve data storage and
 transfer efficiency.
 
-Quality values comprise a standard component of \textsc{fastq}
-files~\cite{Cock:2010ve}, a very common format for sequence read
-data. At the level of the sequence read, the probability of error for
-each base-call is typically represented by a \textsc{phred} quality
-value, which is defined as $Q =
--10\,log_{10}P$~\cite{Ewing:1998ly}. Depending on the sequencing
+Advantageous use of quality values has been long
+recognize~\cite{Bonfield:1995kq}, and quality values can be used
+throughout bioinformatics pipelines.  Quality values comprise a
+standard component of \textsc{fastq} files~\cite{Cock:2010ve}, a very
+common format for sequence read data. At the level of the sequence
+read, the probability of error for each base-call is typically
+represented by a \textsc{phred} quality value, which is defined as $Q
+= -10\,log_{10}P$~\cite{Ewing:1998ly}. Depending on the sequencing
 technology, these quality values can range from 0 to 93, and are
 represented with the \textsc{ascii} characters 33 to 126 (with some
 offset). There is a single quality value per base-call for Illumina
 sequence reads.
 
-Quality values can be used throughout bioinformatics pipelines. Among
-the most fundamental uses of sequence quality values is as part of the
-quality assessment and quality control (\textsc{qa/qc}) processes
-prior to subsequent analysis steps. Quality control based on quality
-values generally includes two operations: \textit{i}.~filtering, which
-removes reads that on the whole do not meet arbitrary quality
-standards, thus reducing the total number of reads; and
-\textit{ii}.~trimming of low-quality base-calls from reads, which
-reduces the length of reads trimmed. Quality values can be used by
-genome assembly software to produce better
+Among the most fundamental uses of sequence quality values is as part
+of the quality assessment and quality control (\textsc{qa/qc})
+processes prior to subsequent analysis steps. Quality control based on
+quality values generally includes two operations:
+\textit{i}.~filtering, which removes reads that on the whole do not
+meet arbitrary quality standards, thus reducing the total number of
+reads; and \textit{ii}.~trimming of low-quality base-calls from reads,
+which reduces the length of reads trimmed. Quality values can be used
+by genome assembly software to produce better
 assemblies~\cite[e.g.,][]{Bryant:2009uq,Gnerre:2011kx}. Short-read
 alignment programs, such as Bowtie2~\cite{Langmead:2012rw}, use
 quality values to weight mismatches between read and reference
@@ -603,14 +604,16 @@ As a measure of compression effectiveness, which reflects the sum of
 fixed and marginal costs, we use bits/base-call, defined as the size
 of the compressed representation of quality values (in bits) divided
 by the number of quality values represented. As measures of
-information loss we use three loss functions: mean squared error
-(\textsc{mse}), defined as $\frac{1}{n}\sum_{i=1}^{n}{(Q_i'-Q_i)^2}$;
-mean absolute deviation (\textsc{mad}), defined as
-$\frac{1}{n}\sum_{i=1}^{n}{|Q_i'-Q_i|}$; and mean Lorentz distortion,
-defined as $\frac{1}{n}\sum_{i=1}^{n}{log_{2}(1 + |Q_i'-Q_i|)}$, where
-$n$ is the number of quality values, $Q_i'$ is the
-compressed/decompressed quality value, and $Q_i$ is the original
-quality value associated with position $i$.
+information loss we use three loss functions following previous
+work~\cite{Malysa01102015}: mean squared error (\textsc{mse}), defined
+as $\frac{1}{n}\sum_{i=1}^{n}{(Q_i'-Q_i)^2}$; mean absolute deviation
+(\textsc{mad}), defined as $\frac{1}{n}\sum_{i=1}^{n}{|Q_i'-Q_i|}$;
+and mean of the values derived from the Cauchy--Lorentz distribution
+(mean Cauchy--Lorentz loss), defined as
+$\frac{1}{n}\sum_{i=1}^{n}{log_{2}(1 + |Q_i'-Q_i|)}$, where $n$ is the
+number of quality values, $Q_i'$ is the compressed/decompressed
+quality value, and $Q_i$ is the original quality value associated with
+position $i$.
 
 We evaluate effects of information loss from quality value compression
 on quality control steps of trimming and read filtering, which were
