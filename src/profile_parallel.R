@@ -45,8 +45,12 @@ stopCluster(cl)
 
 # Write the profiles and cluster assignments out to a binary file.
 binary_output = file(args[5], "wb")
-writeBin(as.raw(fit$centers), binary_output)
-writeBin(as.raw(cluster_assignments), binary_output)
+writeBin(as.raw(round(fit$centers)), binary_output)
+if (num_profiles <= 256) {
+      writeBin(as.raw(cluster_assignments - 1), con = binary_output)
+} else {
+      writeBin(as.integer(cluster_assignments - 1), con = binary_output)
+}
 close(binary_output)
 
 con  <- file(args[1], open = "r")
@@ -65,8 +69,7 @@ while (length(oneLine <- readLines(con, n = 1, warn = FALSE)) > 0) {
   oneLine <- readLines(con, n = 1, warn = FALSE)
   
   # ... and finally the new quality values.
-  #writeLines(results[[counter]], con=output_file)
-  writeLines(rawToChar(as.raw(round(fit$centers[cluster_assignments[counter],] + 33))), con=output_file)
+  writeLines(rawToChar(as.raw(round(fit$centers[cluster_assignments[counter],]) + 33)), con=output_file)
   counter <- counter + 1
 } 
 
