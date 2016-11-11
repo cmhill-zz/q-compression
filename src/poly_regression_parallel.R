@@ -15,8 +15,8 @@ output_file <- file(args[2], "w")
 degree <- args[3]
 
 # Set the min-max quality values.
+max_value <- 33 + strtoi(args[6])
 min_max <- function(x) {
-  max_value <- 33 + strtoi(args[6])
   if (x > max_value)
     return(max_value)
   else if (x < 33)
@@ -68,7 +68,7 @@ original_reads <- as(quality(records),'matrix')
 threads <- args[5]
 
 cl <- makeCluster(strtoi(threads))
-clusterExport(cl=cl, varlist=c("min_max", "degree"))
+clusterExport(cl=cl, varlist=c("max_value", "min_max", "degree"))
 
 #ptm <- proc.time()
 results <- parRapply(cl = cl, original_reads, poly_regression)
