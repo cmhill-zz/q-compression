@@ -879,7 +879,10 @@ def process_snp_stats(options):
         sequence_count = num_lines(reads_filename) / 4
 
         results_file = open(options.output_dir + "/results/" + os.path.basename(reads_filename) + '.snps', 'w')
-        results_file.write("compression\tshared\tuniq_orig\tuniq_comp\n")
+        results_file.write("compression\tshared\tuniq_orig\tuniq_comp")
+        if options.gold_standard_snps:
+            results_file.write("\tshared_gold\tuniq_gold\tgold_uniq_comp")
+        results_file.write("\n")
         for compression_method in options.compressed_dirs:
             results = compression_method + '\t'
 
@@ -903,6 +906,26 @@ def process_snp_stats(options):
                     options.output_dir + '/snp/' + compression_method + '/'\
                      + os.path.basename(reads_filename) + '.snps')
             results += unique_to_compress
+
+            # Get the number of SNPS unique to the compression method that are shared with the gold standard set.
+            if options.gold_standard_snps:
+                # Get the number of SNPs kept by both methods.
+                common_count = run_comm_and_return_line_count(options, "12", options.gold_standard_snps
+                        options.output_dir + '/snp/' + compression_method + '/'\
+                        + os.path.basename(reads_filename) + '.snps')
+                results += common_count + '\t'
+
+                # Get the number of SNPs unique to original.
+                unique_to_orig = run_comm_and_return_line_count(options, "23", options.gold_standard_snps
+                        options.output_dir + '/snp/' + compression_method + '/'\
+                         + os.path.basename(reads_filename) + '.snps')
+                results += unique_to_orig + '\t'
+
+                # Get the number of SNPs unique to the compression method.
+                unique_to_compress = run_comm_and_return_line_count(options, "13", options.gold_standard_snps
+                        options.output_dir + '/snp/' + compression_method + '/'\
+                         + os.path.basename(reads_filename) + '.snps')
+                results += unique_to_compress
 
             results += '\n'
             results_file.write(results)
@@ -1036,6 +1059,9 @@ def get_options():
     # Max, min quality value compression options.
     parser.add_option("--max-qv", dest="max_quality", help="Use this value for max quality value compression.", default="40")
     parser.add_option("--min-qv", dest="min_quality", help="Use this value for min quality value compression.", default="10")
+
+    # SNP-specific options.
+    parser.add_option("--gold-standard-snps", dest="gold_standard_snps", help="Gold standard SNPs to use for comparison.")
 
     # Additional options.
     parser.add_option("-t", "--threads", dest="threads", help="Number of threads (default 32).", default="32")

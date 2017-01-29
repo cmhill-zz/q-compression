@@ -11,6 +11,10 @@ def qual_ord(phred_string, offset=33):
 
 
 def evaluate_loss(qstring1, qstring2):
+    if len(qstring1) != len(qstring2):
+        print "Error: quality strings different lengths."
+        sys.exit()
+
     q1, q2 = np.array(qual_ord(qstring1)), np.array(qual_ord(qstring2))
     diff = q1 - q2
     mse = (diff ** 2).mean()
