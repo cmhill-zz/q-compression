@@ -70,13 +70,13 @@ data has the potential to substantially improve data storage and
 transfer efficiency.
 
 Advantageous use of quality values has been long
-recognize~\cite{Bonfield:1995kq}, and quality values can be used
+recognize~\citep{Bonfield:1995kq}, and quality values can be used
 throughout bioinformatics pipelines.  Quality values comprise a
-standard component of \textsc{fastq} files~\cite{Cock:2010ve}, a very
+standard component of \textsc{fastq} files~\citep{Cock:2010ve}, a very
 common format for sequence read data. At the level of the sequence
 read, the probability of error for each base-call is typically
 represented by a \textsc{phred} quality value, which is defined as $Q
-= -10\,log_{10}P$~\cite{Ewing:1998ly}. Depending on the sequencing
+= -10\,log_{10}P$~\citep{Ewing:1998ly}. Depending on the sequencing
 technology, these quality values can range from 0 to 93, and are
 represented with the \textsc{ascii} characters 33 to 126 (with some
 offset). There is a single quality value per base-call for Illumina
@@ -92,7 +92,7 @@ reads; and \textit{ii}.~trimming of low-quality base-calls from reads,
 which reduces the length of reads trimmed. Quality values can be used
 by genome assembly software to produce better
 assemblies~\cite[e.g.,][]{Bryant:2009uq,Gnerre:2011kx}. Short-read
-alignment programs, such as Bowtie2~\cite{Langmead:2012rw}, use
+alignment programs, such as Bowtie2~\citep{Langmead:2012rw}, use
 quality values to weight mismatches between read and reference
 sequences. Software for detecting single nucleotide polymorphisms
 (\textsc{snp}s) can use quality values~\cite[e.g.,][]{McKenna:2010bh},
@@ -127,12 +127,12 @@ frequent and have context-specific patterns. These errors are
 non-uniformly distributed over the read length (e.g., error rates
 increase up to $\sim$16$\times$ at the 3$^{\prime}$ end, and 32.8 --
 67.9\% of reads have low-quality tails at the 3$^{\prime}$
-end~\cite{Minoche:2011km}). Recognizing these properties of Illumina
+end~\citep{Minoche:2011km}). Recognizing these properties of Illumina
 sequence reads motivates our exploration of three general classes of
 lossy compression methods -- binning, modeling, and profiling -- and
 our consideration of an exemplar of each class. Some studies have
 evaluated the effects of lossy compression on identifying variants
-within a data set~\cite{Canovas:2014fr,janin2013adaptive}. Here we
+within a data set~\citep{Canovas:2014fr,janin2013adaptive}. Here we
 describe our research investigating lossy compression of sequence read
 quality values, specifically those associated with Illumina
 instruments, with the objective to provide some perspective on several
@@ -156,11 +156,11 @@ marked ``bad'' if their quality value falls below the first quartile
 minus 1.5 $\times$ the interquartile range (\textsc{iqr}), which is
 the difference between the first and third quartile; 1.5 $\times$
 \textsc{iqr} is the value used by Tukey's box
-plot~\cite{mcgill1978variations}. The main benefit of this approach is
+plot~\citep{mcgill1978variations}. The main benefit of this approach is
 that it is completely data-dependent, and no assumptions regarding the
 distribution of the quality values need to be made. We adopt the
 quality value assignments of the read preprocessing tool
-Sickle~\cite{sickle}, which correspond to the 40 for ``good'' and 10
+Sickle~\citep{sickle}, which correspond to the 40 for ``good'' and 10
 for ``bad''.
 
 With 2-bin encoding, binary encoding is possible, allowing us to use a
@@ -169,7 +169,7 @@ single bit to represent the quality of a base instead of the standard
 possible benefit of 2-bin encoding is for increased adjacency of
 identical values and repeating patterns, properties that may increase
 effectiveness of subsequent compression using established
-algorithms~\cite{HUFFMAN:1952nr,Ziv77auniversal,
+algorithms~\citep{HUFFMAN:1952nr,Ziv77auniversal,
   DBLP:journals/tit/ZivL78}, although this potential benefit is not
 evaluated in this study.
 
@@ -177,7 +177,7 @@ The economic costs of file size for binning, in general terms, include
 no fixed costs, and marginal costs that are the product of the number
 of base-call quality values multiplied by the cost of the encoding.
 
-Previous work by others \cite{Wan:2012kq} describe three similar lossy
+Previous work by others \citep{Wan:2012kq} describe three similar lossy
 compression strategies based on binning the base error probability
 distribution: UniBinning, Truncating, and LogBinning. UniBinning
 evenly splits the error probability distribution into a user-defined
@@ -228,10 +228,10 @@ data and use them as reference profiles to approximate individual
 sequences of quality values. Here we use $k$-means clustering, a
 vector quantization method that partitions a set of samples into $k$
 sets that minimize within-cluster sum of
-squares~\cite{macqueen1967some}. We sampled 1 $\times$ 10$^{4}$ reads
+squares~\citep{macqueen1967some}. We sampled 1 $\times$ 10$^{4}$ reads
 at random and computed cluster centers as read quality profiles using
 a heuristic iterative refinement approach that quickly converges to a
-locally optimal minimum~\cite{hartigan1979algorithm}. All reads are
+locally optimal minimum~\citep{hartigan1979algorithm}. All reads are
 evaluated and the nearest quality profile in Euclidean space being
 assigned to every read as their compressed representation.  The
 compressed quality file therefore consists of an index enumerating the
@@ -265,7 +265,7 @@ values. However, we have not explored this or other approaches here.
 
 We used several Illumina sequence read data sets taken from data from
 the \textsc{gage} (Genome Assembly Gold-Standard
-Evaluations)~\cite{Salzberg:2012rc}, except as noted. These data sets
+Evaluations)~\citep{Salzberg:2012rc}, except as noted. These data sets
 are as follows.
 
 \textit{Rhodobacter sphaeroides} 2.4.1, which are generated from a
@@ -298,9 +298,9 @@ reference sequence was obtained from the \textsc{ncbi} RefSeq database
 
 For comparison to other developed methods for lossy compression of
 quality values we analyzed the reference data with
-\textsc{QualComp}~\cite{Ochoa:2013rt}, and Quality Values Zip
-(\textsc{qvz)}~\cite{Malysa01102015}, and Read Quality Sparsifier
-(\textsc{rqs})~\cite{DBLP:conf/recomb/YuYB14}
+\textsc{QualComp}~\citep{Ochoa:2013rt}, and Quality Values Zip
+(\textsc{qvz)}~\citep{Malysa01102015}, and Read Quality Sparsifier
+(\textsc{rqs})~\citep{DBLP:conf/recomb/YuYB14}
 
 \textsc{QualComp} models quality values as a multivariate Gaussian
 distribution, computing the mean and covariance for each position in
@@ -350,7 +350,7 @@ the same species).
 \subsection*{Subsequent (secondary) compression}
 
 We secondarily compress all otherwise compressed data sets using the
-Burrows-Wheeler algorithm~\cite{bwt} via \textsc{bz}ip2, and it is the
+Burrows-Wheeler algorithm~\citep{bwt} via \textsc{bz}ip2, and it is the
 results of these subsequent compressions that we report. Although
 other algorithms~\cite[e.g.,][]{HUFFMAN:1952nr,Ziv77auniversal,
   DBLP:journals/tit/ZivL78} might be particularly effective for
@@ -369,7 +369,7 @@ fixed and marginal costs, we use bits/base-call, defined as the size
 of the compressed representation of quality values (in bits) divided
 by the number of quality values represented. As measures of
 information loss we use three loss functions following previous
-work~\cite{Malysa01102015}: mean squared error (\textsc{mse}), defined
+work~\citep{Malysa01102015}: mean squared error (\textsc{mse}), defined
 as $\frac{1}{n}\sum_{i=1}^{n}{(Q_i'-Q_i)^2}$; mean absolute deviation
 (\textsc{mad}), defined as $\frac{1}{n}\sum_{i=1}^{n}{|Q_i'-Q_i|}$;
 and mean of the values derived from part of the formula defining the
@@ -381,7 +381,7 @@ position $i$.
 
 We evaluate effects of information loss from quality value compression
 on quality control steps of trimming and read filtering, which were
-performed using Sickle~\cite{sickle}, and make comparison to original
+performed using Sickle~\citep{sickle}, and make comparison to original
 uncompressed data. Sickle starts at the ends of the read and uses a
 sliding window (0.1 $\times$ the read length) to find locations where
 the mean quality in the window falls below a given threshold (20 by
@@ -392,7 +392,7 @@ end. If the trimmed sequence length is less than a certain threshold
 We evaluate effects of information loss from quality value compression
 on \emph{de novo} genome assembly performance using contiguity
 statistics, log average read probability
-(\textsc{lap})~\cite{Ghodsi:2013hb}, and a collection of
+(\textsc{lap})~\citep{Ghodsi:2013hb}, and a collection of
 reference-based metrics. The contiguity statistics include N50, which
 is defined as the median contig size (the length of largest contig $c$
 such that the total size of the contigs larger than $c$ exceeds half
@@ -405,7 +405,7 @@ reference-based evaluation to count single nucleotide polymorphisms
 reference-based metrics are normalized by the length of the assembly
 to facilitate comparison. For the genome assembly we used software
 that makes use of quality values in the assembly process:
-\textsc{allpaths-lg}~\cite{Gnerre:2011kx} version r50191 with default
+\textsc{allpaths-lg}~\citep{Gnerre:2011kx} version r50191 with default
 settings and 32 threads.
 
 \section*{Results and discussion}
@@ -452,7 +452,7 @@ compression with \textsc{bz}ip2 exceeds that for the original
 
 As an additional point of reference regarding compression
 effectiveness, the recently published
-Read-Quality-Sparsifier~\cite{DBLP:conf/recomb/YuYB14} achieved
+Read-Quality-Sparsifier~\citep{DBLP:conf/recomb/YuYB14} achieved
 best-case compression of 0.254 bits/base-call on \textit{Homo sapiens}
 chromosome 21 data (read lengths ranging from 50--110 nt), and a mean
 compression of 1.841 bits/base-call; both values are larger than all
